@@ -250,8 +250,8 @@
                   <div class="cell-th">{{ formatTy(row.tntTh) }}</div>
                   <div class="cell-kh">/ {{ formatTy(row.tntKh) }}</div>
                   @if (showDelta && row.tntDelta !== null) {
-                    <div class="cell-delta" [class.pos]="(row.tntDelta ?? 0) > 0"
-                         [class.neg]="(row.tntDelta ?? 0) < 0">
+                    <div class="cell-delta" [class.pos]="row.tntDelta > 0"
+                         [class.neg]="row.tntDelta < 0">
                       {{ deltaSign(row.tntDelta) }}
                     </div>
                   }
