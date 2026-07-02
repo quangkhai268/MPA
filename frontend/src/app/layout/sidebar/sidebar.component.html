@@ -1,0 +1,55 @@
+<aside class="sidebar" [class.collapsed]="collapsed()">
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <div class="logo-mark">B</div>
+    @if (!collapsed()) {
+      <div class="logo-text animate-fade-in">
+        <span class="brand-name">BIDV</span>
+        <span class="brand-sub">MPA Dashboard</span>
+      </div>
+    }
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+    <div class="nav-section-label" *ngIf="!collapsed()">Menu</div>
+    @for (item of visibleItems(); track item.route) {
+      <a [routerLink]="item.route"
+         class="nav-item"
+         [class.active]="isActive(item.route)"
+         [matTooltip]="collapsed() ? item.label : ''"
+         matTooltipPosition="right"
+         [id]="'nav-' + item.route.slice(1)">
+        <span class="material-icons nav-icon">{{ item.icon }}</span>
+        @if (!collapsed()) {
+          <span class="nav-label animate-fade-in">{{ item.label }}</span>
+        }
+        @if (item.badge && !collapsed()) {
+          <span class="nav-badge">{{ item.badge }}</span>
+        }
+        @if (isActive(item.route)) {
+          <div class="active-indicator"></div>
+        }
+      </a>
+    }
+  </nav>
+
+  <!-- User info & Collapse toggle -->
+  <div class="sidebar-footer">
+    <div class="user-info" [class.collapsed]="collapsed()">
+      <div class="user-avatar">
+        {{ auth.currentUser()?.fullName?.charAt(0) || 'U' }}
+      </div>
+      @if (!collapsed()) {
+        <div class="user-details animate-fade-in">
+          <div class="user-name">{{ auth.currentUser()?.fullName }}</div>
+          <div class="user-role">{{ getRoleLabel(auth.currentUser()?.role) }}</div>
+        </div>
+      }
+    </div>
+
+    <button class="collapse-btn" (click)="toggle()" [matTooltip]="collapsed() ? 'Mở rộng' : 'Thu gọn'" matTooltipPosition="right">
+      <span class="material-icons">{{ collapsed() ? 'chevron_right' : 'chevron_left' }}</span>
+    </button>
+  </div>
+</aside>

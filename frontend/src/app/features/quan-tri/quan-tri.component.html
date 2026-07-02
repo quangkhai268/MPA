@@ -1,0 +1,326 @@
+<div class="page animate-fade-in">
+
+  <!-- ===== HEADER ===== -->
+  <div class="page-top">
+    <div>
+      <h1 class="page-title">Quản trị hệ thống</h1>
+      <p class="page-sub">Quản lý người dùng và cài đặt hệ thống</p>
+    </div>
+    <div class="page-actions">
+      @if (activeTab() === 'users') {
+        <button mat-flat-button color="primary" (click)="openCreate()">
+          <span class="material-icons">person_add</span> Thêm người dùng
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ===== TABS ===== -->
+  <div class="tab-bar">
+    <button class="tab-item" [class.active]="activeTab()==='users'" (click)="activeTab.set('users')">
+      <span class="material-icons">manage_accounts</span>
+      Người dùng
+    </button>
+    <button class="tab-item" [class.active]="activeTab()==='settings'" (click)="activeTab.set('settings')">
+      <span class="material-icons">settings</span>
+      Cài đặt hệ thống
+    </button>
+  </div>
+
+  @if (activeTab() === 'users') {
+
+    <!-- ===== STATS CARDS ===== -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-icon" style="color:#6b7280">group</span>
+        <div>
+          <div class="stat-val">{{ statsTotal }}</div>
+          <div class="stat-lbl">Tổng tài khoản</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon" style="color:#ef4444">admin_panel_settings</span>
+        <div>
+          <div class="stat-val">{{ statsAdmin }}</div>
+          <div class="stat-lbl">Quản trị viên</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon" style="color:#f59e0b">supervisor_account</span>
+        <div>
+          <div class="stat-val">{{ statsManager }}</div>
+          <div class="stat-lbl">Quản lý chi nhánh</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon" style="color:#009640">person</span>
+        <div>
+          <div class="stat-val">{{ statsEmployee }}</div>
+          <div class="stat-lbl">Nhân viên AM</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon" style="color:#0f59a6">check_circle</span>
+        <div>
+          <div class="stat-val">{{ statsActive }}</div>
+          <div class="stat-lbl">Đang hoạt động</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== USER TABLE ===== -->
+    <div class="card table-card">
+      <!-- Filter row -->
+      <div class="table-filter">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Tìm theo tên, username, email...</mat-label>
+          <input matInput [(ngModel)]="searchText" (ngModelChange)="applyFilter()">
+          <span class="material-icons" matSuffix style="color:#9ca3af">search</span>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="role-filter">
+          <mat-label>Vai trò</mat-label>
+          <mat-select [(ngModel)]="filterRole" (ngModelChange)="applyFilter()">
+            <mat-option value="">-- Tất cả --</mat-option>
+            @for (r of roles; track r.value) {
+              <mat-option [value]="r.value">{{ r.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <span class="result-count">{{ filtered().length }} người dùng</span>
+      </div>
+
+      @if (loading()) {
+        <div class="table-loading">
+          <mat-spinner diameter="36" color="primary"></mat-spinner>
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Người dùng</th>
+                <th>Email</th>
+                <th>Vai trò</th>
+                <th>Đơn vị</th>
+                <th>Trạng thái</th>
+                <th class="center">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of filtered(); track u.id; let i = $index) {
+                <tr class="animate-fade-in" [style.animation-delay]="(i * 0.04) + 's'">
+                  <td class="idx">{{ i + 1 }}</td>
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar" [style.background]="getRoleColor(u.role) + '22'" [style.color]="getRoleColor(u.role)">
+                        {{ u.fullName.charAt(0) }}
+                      </div>
+                      <div>
+                        <div class="cell-primary">{{ u.fullName }}</div>
+                        <div class="cell-sub mono">{{ u.username }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="mono text-muted">{{ u.email }}</td>
+                  <td>
+                    <span class="role-badge" [style.background]="getRoleColor(u.role) + '18'" [style.color]="getRoleColor(u.role)">
+                      {{ getRoleLabel(u.role) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="text-muted">{{ u.maDonViCap6 || '–' }}</span>
+                  </td>
+                  <td>
+                    <span class="status-dot" [class.active]="u.active"></span>
+                    <span class="status-label" [class.active]="u.active">{{ u.active ? 'Hoạt động' : 'Vô hiệu' }}</span>
+                  </td>
+                  <td class="center">
+                    <div class="action-btns">
+                      <button mat-icon-button matTooltip="Chỉnh sửa" (click)="openEdit(u)">
+                        <span class="material-icons">edit</span>
+                      </button>
+                      <button mat-icon-button [matTooltip]="u.active ? 'Vô hiệu hóa' : 'Kích hoạt'"
+                              (click)="toggleActive(u)">
+                        <span class="material-icons">{{ u.active ? 'block' : 'check_circle' }}</span>
+                      </button>
+                      <button mat-icon-button matTooltip="Xoá tài khoản" color="warn"
+                              [disabled]="u.role === 'ROLE_ADMIN'" (click)="deleteUser(u)">
+                        <span class="material-icons">delete_outline</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+              @if (filtered().length === 0) {
+                <tr>
+                  <td colspan="7" class="empty-cell">
+                    <div class="empty-state">
+                      <span class="material-icons">search_off</span>
+                      <p>Không tìm thấy người dùng</p>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+  } @else {
+
+    <!-- ===== SETTINGS TAB ===== -->
+    <div class="settings-grid">
+      <div class="card settings-card">
+        <h3 class="settings-title">
+          <span class="material-icons">storage</span>
+          Cài đặt File & Import
+        </h3>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Kích thước file tối đa</div>
+            <div class="setting-desc">Giới hạn kích thước file Excel khi import</div>
+          </div>
+          <mat-form-field appearance="outline" style="width:120px">
+            <input matInput type="number" [(ngModel)]="systemSettings.maxFileSize">
+            <span matSuffix>MB</span>
+          </mat-form-field>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Số bản ghi mỗi trang</div>
+            <div class="setting-desc">Phân trang mặc định trong bảng dữ liệu</div>
+          </div>
+          <mat-form-field appearance="outline" style="width:120px">
+            <input matInput type="number" [(ngModel)]="systemSettings.defaultPageSize">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="card settings-card">
+        <h3 class="settings-title">
+          <span class="material-icons">security</span>
+          Bảo mật & Phiên làm việc
+        </h3>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Thời gian hết phiên</div>
+            <div class="setting-desc">Tự động đăng xuất sau thời gian không hoạt động</div>
+          </div>
+          <mat-form-field appearance="outline" style="width:120px">
+            <input matInput type="number" [(ngModel)]="systemSettings.sessionTimeout">
+            <span matSuffix>phút</span>
+          </mat-form-field>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Ghi log kiểm tra</div>
+            <div class="setting-desc">Lưu nhật ký mọi thao tác của người dùng</div>
+          </div>
+          <mat-slide-toggle [(ngModel)]="systemSettings.enableAuditLog" color="primary"></mat-slide-toggle>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Chế độ bảo trì</div>
+            <div class="setting-desc">Tạm dừng hệ thống để bảo trì (chỉ admin)</div>
+          </div>
+          <mat-slide-toggle [(ngModel)]="systemSettings.maintenanceMode" color="warn"></mat-slide-toggle>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:4px">
+      <button mat-stroked-button>Đặt lại mặc định</button>
+      <button mat-flat-button color="primary" (click)="saveSettings()">
+        <span class="material-icons">save</span> Lưu cài đặt
+      </button>
+    </div>
+  }
+
+</div>
+
+<!-- ===== MODAL CREATE/EDIT ===== -->
+@if (showModal()) {
+  <div class="modal-overlay" (click)="closeModal()"></div>
+  <div class="modal animate-fade-in">
+    <div class="modal-header">
+      <h2>{{ editMode() ? 'Chỉnh sửa người dùng' : 'Thêm người dùng mới' }}</h2>
+      <button mat-icon-button (click)="closeModal()"><span class="material-icons">close</span></button>
+    </div>
+
+    <form [formGroup]="form" class="modal-body" (ngSubmit)="save()">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="flex-1">
+          <mat-label>Tên đăng nhập <span class="required">*</span></mat-label>
+          <input matInput formControlName="username" [readonly]="editMode()">
+          @if (form.get('username')?.hasError('required') && form.get('username')?.touched) {
+            <mat-error>Bắt buộc nhập</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="flex-1">
+          <mat-label>Họ và tên <span class="required">*</span></mat-label>
+          <input matInput formControlName="fullName">
+          @if (form.get('fullName')?.hasError('required') && form.get('fullName')?.touched) {
+            <mat-error>Bắt buộc nhập</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="flex-1">
+          <mat-label>Email <span class="required">*</span></mat-label>
+          <input matInput formControlName="email" type="email">
+          @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+            <mat-error>Email không hợp lệ</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="flex-1">
+          <mat-label>Vai trò <span class="required">*</span></mat-label>
+          <mat-select formControlName="role">
+            @for (r of roles; track r.value) {
+              <mat-option [value]="r.value">{{ r.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="flex-1">
+          <mat-label>Mã đơn vị cấp 6</mat-label>
+          <input matInput formControlName="maDonViCap6" placeholder="P001">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="flex-1">
+          <mat-label>Mật khẩu {{ editMode() ? '(bỏ trống nếu không đổi)' : '*' }}</mat-label>
+          <input matInput formControlName="password" type="password">
+          @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+            <mat-error>Bắt buộc nhập mật khẩu</mat-error>
+          }
+          @if (form.get('password')?.hasError('minlength')) {
+            <mat-error>Tối thiểu 6 ký tự</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <div class="toggle-row">
+          <span>Kích hoạt tài khoản</span>
+          <mat-slide-toggle formControlName="active" color="primary"></mat-slide-toggle>
+        </div>
+      </div>
+    </form>
+
+    <div class="modal-footer">
+      <button mat-stroked-button (click)="closeModal()">Huỷ</button>
+      <button mat-flat-button color="primary" [disabled]="saving()" (click)="save()">
+        @if (saving()) {
+          <mat-spinner diameter="18" color="accent"></mat-spinner>
+          <span>Đang lưu...</span>
+        } @else {
+          <span class="material-icons">{{ editMode() ? 'save' : 'person_add' }}</span>
+          <span>{{ editMode() ? 'Lưu thay đổi' : 'Tạo tài khoản' }}</span>
+        }
+      </button>
+    </div>
+  </div>
+}

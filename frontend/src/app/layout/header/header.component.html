@@ -1,0 +1,56 @@
+<header class="app-header">
+  <!-- Page title -->
+  <div class="page-info">
+    <h1 class="page-title">{{ pageTitle }}</h1>
+    <span class="page-subtitle">{{ pageSubtitle }}</span>
+  </div>
+
+  <!-- Right actions -->
+  <div class="header-actions">
+    <!-- Notifications -->
+    <button mat-icon-button class="action-btn" id="header-notifications"
+            matTooltip="Thông báo"
+            [matBadge]="notifCount()" matBadgeColor="warn" matBadgeSize="small">
+      <span class="material-icons">notifications_outlined</span>
+    </button>
+
+    <!-- Help -->
+    <button mat-icon-button class="action-btn" id="header-help" matTooltip="Trợ giúp">
+      <span class="material-icons">help_outline</span>
+    </button>
+
+    <!-- User menu -->
+    <div class="user-menu-trigger" [matMenuTriggerFor]="userMenu" id="header-user-menu">
+      <div class="avatar">{{ auth.currentUser()?.fullName?.charAt(0) || 'U' }}</div>
+      <div class="user-info">
+        <span class="name">{{ auth.currentUser()?.fullName || 'Người dùng' }}</span>
+        <span class="sub">{{ auth.currentUser()?.tenDonViCap6 || 'Hệ thống' }}</span>
+      </div>
+      <span class="material-icons chevron">expand_more</span>
+    </div>
+
+    <mat-menu #userMenu="matMenu" class="user-dropdown">
+      <div class="menu-header" mat-menu-item disabled>
+        <div class="menu-avatar">{{ auth.currentUser()?.fullName?.charAt(0) || 'U' }}</div>
+        <div>
+          <div class="menu-name">{{ auth.currentUser()?.fullName }}</div>
+          <div class="menu-role">{{ auth.currentUser()?.email }}</div>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item id="menu-profile">
+        <span class="material-icons">person_outline</span>
+        Thông tin cá nhân
+      </button>
+      <button mat-menu-item id="menu-settings">
+        <span class="material-icons">settings</span>
+        Cài đặt
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()" id="menu-logout" class="logout-item">
+        <span class="material-icons">logout</span>
+        Đăng xuất
+      </button>
+    </mat-menu>
+  </div>
+</header>

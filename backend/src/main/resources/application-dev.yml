@@ -1,0 +1,9 @@
+# Override cho môi trường dev (chạy local)
+spring:
+  jpa:
+    show-sql: true
+
+logging:
+  level:
+    com.mpa: DEBUG
+    org.hibernate.SQL: DEBUG

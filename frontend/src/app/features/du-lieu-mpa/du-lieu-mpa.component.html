@@ -1,0 +1,276 @@
+<div class="page animate-fade-in">
+
+  <!-- ===== PAGE HEADER ===== -->
+  <div class="page-top">
+    <div>
+      <h1 class="page-title">Dữ liệu MPA</h1>
+      <p class="page-sub">Quản lý toàn bộ dữ liệu MPA theo kỳ · {{ totalItems() | number }} bản ghi</p>
+    </div>
+    <div class="page-actions">
+      @if (auth.isAdmin() || auth.hasRole('ROLE_BRANCH_MANAGER')) {
+        <button mat-stroked-button (click)="exportExcel()">
+          <span class="material-icons">download</span> Xuất Excel
+        </button>
+        <button mat-flat-button color="primary" (click)="openImport()">
+          <span class="material-icons">upload_file</span> Import Excel
+        </button>
+      }
+      @if (selectedIds.size > 0 && auth.isAdmin()) {
+        <button mat-flat-button color="warn" (click)="deleteSelected()">
+          <span class="material-icons">delete</span> Xoá {{ selectedIds.size }} mục
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ===== SUMMARY CARDS ===== -->
+  <div class="summary-row">
+    <div class="summary-card">
+      <span class="material-icons" style="color:#0f59a6">account_balance_wallet</span>
+      <div>
+        <div class="s-value">{{ formatBillion(summaryTnt()) }}</div>
+        <div class="s-label">TNT tổng</div>
+      </div>
+    </div>
+    <div class="summary-card">
+      <span class="material-icons" style="color:#009640">trending_up</span>
+      <div>
+        <div class="s-value">{{ formatBillion(summaryDuNo()) }}</div>
+        <div class="s-label">Dư nợ cuối kỳ</div>
+      </div>
+    </div>
+    <div class="summary-card">
+      <span class="material-icons" style="color:#7c3aed">people</span>
+      <div>
+        <div class="s-value">{{ summaryKh() | number }}</div>
+        <div class="s-label">Khách hàng</div>
+      </div>
+    </div>
+    <div class="summary-card">
+      <span class="material-icons" style="color:#f59e0b">article</span>
+      <div>
+        <div class="s-value">{{ totalItems() | number }}</div>
+        <div class="s-label">Tổng bản ghi</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FILTER BAR ===== -->
+  <div class="card filter-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Tìm kiếm khách hàng, mã AM...</mat-label>
+      <input matInput [(ngModel)]="searchText" (keyup.enter)="onSearch()">
+      <span class="material-icons" matSuffix style="cursor:pointer;color:#9ca3af" (click)="onSearch()">search</span>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="date-field">
+      <mat-label>Từ ngày</mat-label>
+      <input matInput [matDatepicker]="pFrom" [(ngModel)]="fromDate">
+      <mat-datepicker-toggle matSuffix [for]="pFrom"></mat-datepicker-toggle>
+      <mat-datepicker #pFrom></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="date-field">
+      <mat-label>Đến ngày</mat-label>
+      <input matInput [matDatepicker]="pTo" [(ngModel)]="toDate">
+      <mat-datepicker-toggle matSuffix [for]="pTo"></mat-datepicker-toggle>
+      <mat-datepicker #pTo></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="select-field">
+      <mat-label>Đơn vị</mat-label>
+      <mat-select [(ngModel)]="selectedPhong">
+        <mat-option value="">-- Tất cả --</mat-option>
+        @for (p of phongList; track p.ma) {
+          <mat-option [value]="p.ma">{{ p.ten }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" (click)="loadData()">
+      <span class="material-icons">filter_list</span> Lọc
+    </button>
+    <button mat-stroked-button (click)="resetFilter()">
+      <span class="material-icons">restart_alt</span>
+    </button>
+  </div>
+
+  <!-- ===== DATA TABLE ===== -->
+  <div class="card table-card">
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            @if (auth.isAdmin()) {
+              <th style="width:40px">
+                <mat-checkbox [checked]="allSelected" (change)="toggleAll($event.checked)"></mat-checkbox>
+              </th>
+            }
+            <th>#</th>
+            <th>Ngày</th>
+            <th>Đơn vị cấp 6</th>
+            <th>Cán bộ AM</th>
+            <th>Khách hàng</th>
+            <th>Mã CIF</th>
+            <th>Sản phẩm</th>
+            <th class="num">TNT HĐV FTP</th>
+            <th class="num">TNT Dịch vụ</th>
+            <th class="num">TNT Tín dụng</th>
+            <th class="num">Tổng TNT</th>
+            <th class="num">Dư nợ CK</th>
+            <th class="num">HĐV bình quân</th>
+            <th class="num">HĐV cuối kỳ</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            @for (i of [1,2,3,4,5,6,7,8]; track i) {
+              <tr>
+                <td [attr.colspan]="auth.isAdmin() ? 15 : 14">
+                  <div class="skeleton" style="height:14px"></div>
+                </td>
+              </tr>
+            }
+          } @else if (data().length === 0) {
+            <tr>
+              <td [attr.colspan]="auth.isAdmin() ? 15 : 14" class="empty-cell">
+                <div class="empty-state">
+                  <span class="material-icons">inbox</span>
+                  <p>Không có dữ liệu</p>
+                </div>
+              </td>
+            </tr>
+          } @else {
+            @for (row of data(); track row.id; let i = $index) {
+              <tr class="animate-fade-in" [style.animation-delay]="(i * 0.02) + 's'" [class.selected]="selectedIds.has(row.id)">
+                @if (auth.isAdmin()) {
+                  <td>
+                    <mat-checkbox [checked]="selectedIds.has(row.id)" (change)="toggleRow(row.id)"></mat-checkbox>
+                  </td>
+                }
+                <td class="idx-col">{{ startIdx + i }}</td>
+                <td class="mono">{{ row.ngay }}</td>
+                <td>
+                  <div class="cell-primary">{{ row.tenDonViCap6 }}</div>
+                  <div class="cell-sub">{{ row.maDonViCap6 }}</div>
+                </td>
+                <td>
+                  <div class="cell-primary">{{ row.tenAm }}</div>
+                  <div class="cell-sub mono">{{ row.maAm }}</div>
+                </td>
+                <td>
+                  <div class="cell-primary">{{ row.tenKhachHang }}</div>
+                </td>
+                <td class="mono text-muted">{{ row.maKhCif }}</td>
+                <td>
+                  <div class="cell-sub">{{ row.tenSpCap5 || '–' }}</div>
+                </td>
+                <td class="num">{{ row.thuNhapThuanHdvFtp | number:'1.3-3' }}</td>
+                <td class="num">{{ row.thuNhapThuanDichVu | number:'1.3-3' }}</td>
+                <td class="num">{{ row.thuNhapThuanTinDung | number:'1.3-3' }}</td>
+                <td class="num font-semibold primary-val">{{ row.thuNhapThuan | number:'1.3-3' }}</td>
+                <td class="num">{{ row.duNoTinDungCuoiKy | number:'1.3-3' }}</td>
+                <td class="num">{{ row.huyDongVonBinhQuan | number:'1.3-3' }}</td>
+                <td class="num">{{ row.huyDongVonCuoiKy | number:'1.3-3' }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <span class="pag-info">Hiển thị {{ startIdx }}–{{ endIdx }} trong {{ totalItems() | number }} bản ghi</span>
+      <div class="pag-controls">
+        <button class="pag-btn" [disabled]="currentPage() === 0" (click)="prevPage()">
+          <span class="material-icons">chevron_left</span>
+        </button>
+        <span class="pag-page">Trang {{ currentPage() + 1 }} / {{ totalPages }}</span>
+        <button class="pag-btn" [disabled]="(currentPage() + 1) >= totalPages" (click)="nextPage()">
+          <span class="material-icons">chevron_right</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== IMPORT PANEL (slide-over) ===== -->
+@if (showImportPanel()) {
+  <div class="overlay" (click)="closeImport()"></div>
+  <div class="import-panel animate-slide-left">
+    <div class="import-header">
+      <h2>Import dữ liệu MPA</h2>
+      <button mat-icon-button (click)="closeImport()"><span class="material-icons">close</span></button>
+    </div>
+
+    @if (!importResult) {
+      <!-- Drop zone -->
+      <div class="drop-zone" (dragover)="$event.preventDefault()" (drop)="onFileDrop($event)"
+           [class.has-file]="!!selectedFile">
+        @if (!selectedFile) {
+          <span class="material-icons drop-icon">cloud_upload</span>
+          <p class="drop-title">Kéo thả file Excel vào đây</p>
+          <p class="drop-sub">hoặc</p>
+          <label class="browse-btn">
+            <input type="file" accept=".xlsx,.xls" hidden (change)="onFileChange($event)">
+            Chọn file từ máy tính
+          </label>
+          <p class="drop-hint">Hỗ trợ .xlsx, .xls · Tối đa 50MB</p>
+        } @else {
+          <span class="material-icons drop-icon success">check_circle</span>
+          <p class="drop-title">{{ selectedFile.name }}</p>
+          <p class="drop-sub">{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</p>
+        }
+      </div>
+
+      <!-- Preview -->
+      @if (importPreview.length > 0) {
+        <div class="import-preview">
+          <h4>Danh sách sheets</h4>
+          @for (sheet of importPreview; track sheet.name) {
+            <div class="sheet-item">
+              <span class="material-icons">table_chart</span>
+              <span class="sheet-name">{{ sheet.name }}</span>
+              <span class="sheet-rows">{{ sheet.rows | number }} dòng</span>
+            </div>
+          }
+        </div>
+        <div class="import-actions">
+          <button mat-stroked-button (click)="selectedFile = null; importPreview = []">Chọn lại</button>
+          <button mat-flat-button color="primary" [disabled]="importing()" (click)="startImport()">
+            @if (importing()) {
+              <mat-spinner diameter="18" color="accent"></mat-spinner>
+              <span>Đang import...</span>
+            } @else {
+              <span class="material-icons">upload</span>
+              <span>Bắt đầu import</span>
+            }
+          </button>
+        </div>
+      }
+    } @else {
+      <!-- Result -->
+      <div class="import-result">
+        <span class="material-icons result-icon">task_alt</span>
+        <h3>Import hoàn tất</h3>
+        <div class="result-stats">
+          <div class="stat success">
+            <div class="stat-val">{{ importResult.success | number }}</div>
+            <div class="stat-label">Thành công</div>
+          </div>
+          <div class="stat warn">
+            <div class="stat-val">{{ importResult.skip | number }}</div>
+            <div class="stat-label">Bỏ qua</div>
+          </div>
+          <div class="stat error">
+            <div class="stat-val">{{ importResult.error | number }}</div>
+            <div class="stat-label">Lỗi</div>
+          </div>
+        </div>
+        <button mat-flat-button color="primary" (click)="closeImport()">Đóng</button>
+      </div>
+    }
+  </div>
+}

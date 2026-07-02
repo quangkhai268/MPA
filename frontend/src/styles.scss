@@ -1,0 +1,308 @@
+// ============================================================
+// BIDV MPA Dashboard – Global Styles
+// ============================================================
+
+@use '@angular/material' as mat;
+@use 'sass:map';
+
+// --- BIDV Color Palette ---
+$bidv-primary: (
+  50:  #e3eef8,
+  100: #b9d5ee,
+  200: #8bbae3,
+  300: #5c9fd7,
+  400: #398acf,
+  500: #1676c6,
+  600: #1369b8,
+  700: #0f59a6,
+  800: #0b4994,
+  900: #052d75,
+  contrast: (
+    50:  rgba(0,0,0,.87),
+    100: rgba(0,0,0,.87),
+    200: rgba(0,0,0,.87),
+    300: #fff,
+    400: #fff,
+    500: #fff,
+    600: #fff,
+    700: #fff,
+    800: #fff,
+    900: #fff,
+  )
+);
+
+$bidv-accent: (
+  50:  #e2f4ea,
+  100: #b7e3c9,
+  200: #87d1a6,
+  300: #57be83,
+  400: #33b068,
+  500: #009640,
+  600: #008839,
+  700: #007730,
+  800: #006628,
+  900: #004918,
+  contrast: (
+    50:  rgba(0,0,0,.87),
+    100: rgba(0,0,0,.87),
+    200: rgba(0,0,0,.87),
+    300: rgba(0,0,0,.87),
+    400: #fff,
+    500: #fff,
+    600: #fff,
+    700: #fff,
+    800: #fff,
+    900: #fff,
+  )
+);
+
+$mpa-primary:  mat.define-palette($bidv-primary, 700);
+$mpa-accent:   mat.define-palette($bidv-accent, 500);
+$mpa-warn:     mat.define-palette(mat.$red-palette);
+
+$mpa-theme: mat.define-light-theme((
+  color: (
+    primary: $mpa-primary,
+    accent:  $mpa-accent,
+    warn:    $mpa-warn,
+  ),
+  typography: mat.define-typography-config(
+    $font-family: 'Inter, sans-serif',
+  ),
+  density: 0,
+));
+
+@include mat.all-component-themes($mpa-theme);
+
+// --- CSS Custom Properties ---
+:root {
+  --color-primary:       #0f59a6;
+  --color-primary-dark:  #1C3557;
+  --color-primary-light: #1676c6;
+  --color-accent:        #009640;
+  --color-accent-light:  #33b068;
+  --color-bg:            #F4F6F9;
+  --color-sidebar:       #1C3557;
+  --color-sidebar-hover: #243f6b;
+  --color-card:          #FFFFFF;
+  --color-text:          #1A1A2E;
+  --color-text-muted:    #6B7280;
+  --color-border:        #E5E7EB;
+  --color-success:       #10B981;
+  --color-danger:        #EF4444;
+  --color-warning:       #F59E0B;
+  --color-info:          #3B82F6;
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:  0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+  --shadow-lg:  0 10px 15px rgba(0,0,0,.1), 0 4px 6px rgba(0,0,0,.05);
+  --shadow-card: 0 2px 8px rgba(15,89,166,.08);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --sidebar-w: 240px;
+  --header-h:  60px;
+
+  --transition: 0.2s cubic-bezier(.4,0,.2,1);
+}
+
+// --- Reset & Base ---
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+// --- Scrollbar ---
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c1c8d4; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9aa3b0; }
+
+// --- Typography helpers ---
+.text-xs   { font-size: 11px; }
+.text-sm   { font-size: 12px; }
+.text-base { font-size: 14px; }
+.text-lg   { font-size: 16px; }
+.text-xl   { font-size: 18px; }
+.text-2xl  { font-size: 22px; }
+.text-3xl  { font-size: 28px; }
+
+.font-medium   { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold     { font-weight: 700; }
+
+.text-primary   { color: var(--color-primary); }
+.text-accent    { color: var(--color-accent); }
+.text-muted     { color: var(--color-text-muted); }
+.text-success   { color: var(--color-success); }
+.text-danger    { color: var(--color-danger); }
+.text-warning   { color: var(--color-warning); }
+
+// --- Card ---
+.card {
+  background: var(--color-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+}
+
+// --- Badge ---
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+
+  &.badge-up   { background: #d1fae5; color: #065f46; }
+  &.badge-down { background: #fee2e2; color: #991b1b; }
+  &.badge-flat { background: #f3f4f6; color: #6b7280; }
+}
+
+// --- Number format (financial) ---
+.num-financial {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+// --- Angular Material overrides ---
+.mat-mdc-card { border-radius: var(--radius-md) !important; box-shadow: var(--shadow-card) !important; }
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: var(--radius-lg) !important;
+}
+
+.mat-mdc-table {
+  width: 100%;
+  thead tr { background: #f8fafc; }
+  th.mat-mdc-header-cell {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-bottom: 2px solid var(--color-border) !important;
+  }
+  td.mat-mdc-cell {
+    font-size: 13px;
+    border-bottom-color: var(--color-border) !important;
+  }
+  tr.mat-mdc-row:hover { background: #f8fafc; }
+}
+
+.mat-mdc-paginator { border-top: 1px solid var(--color-border); }
+
+.mat-mdc-form-field .mdc-notched-outline__leading,
+.mat-mdc-form-field .mdc-notched-outline__notch,
+.mat-mdc-form-field .mdc-notched-outline__trailing {
+  border-color: var(--color-border) !important;
+}
+
+.mat-mdc-tab-header { border-bottom: 2px solid var(--color-border); }
+
+// --- Utility ---
+.flex         { display: flex; }
+.flex-col     { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.mt-2 { margin-top: 8px; }
+.mt-4 { margin-top: 16px; }
+.mb-4 { margin-bottom: 16px; }
+.w-full { width: 100%; }
+
+// --- Loading overlay ---
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,.7);
+  border-radius: inherit;
+  z-index: 10;
+}
+
+// --- Page header ---
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+  .subtitle {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin-top: 2px;
+  }
+}
+
+// --- Trend chip ---
+.trend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 12px;
+
+  &.up   { color: var(--color-success); background: #d1fae5; }
+  &.down { color: var(--color-danger);  background: #fee2e2; }
+}
+
+// --- Responsive grid ---
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+// --- Animations ---
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .5; }
+}
+
+.animate-fade-in { animation: fadeIn .35s ease both; }
+.animate-slide-left { animation: slideInLeft .35s ease both; }
+.animate-pulse { animation: pulse 1.5s ease infinite; }
+
+// --- Skeleton loader ---
+.skeleton {
+  background: linear-gradient(90deg, #f0f2f5 25%, #e8eaed 50%, #f0f2f5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

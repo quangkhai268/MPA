@@ -1,0 +1,216 @@
+
+> frontend@0.0.0 start
+> ng serve
+
+- Building...
+
+Initial chunk files | Names                       |  Raw size
+styles.css          | styles                      |  93.55 kB | 
+polyfills.js        | polyfills                   |  88.09 kB | 
+main.js             | main                        |   4.31 kB | 
+chunk-PT37UZKT.js   | -                           |   3.75 kB | 
+chunk-KULJQ72C.js   | -                           |   1.10 kB | 
+
+                    | Initial total               | 190.79 kB
+
+Lazy chunk files    | Names                       |  Raw size
+chunk-UA3WF34H.js   | dashboard-component         | 137.50 kB | 
+chunk-6RP3M4ZP.js   | giao-chi-tieu-component     |  76.68 kB | 
+chunk-ZSD67NQZ.js   | quan-ly-the-component       |  58.81 kB | 
+chunk-XO63GII4.js   | du-lieu-mpa-component       |  57.37 kB | 
+chunk-NPY6RYOG.js   | khach-hang-component        |  54.11 kB | 
+chunk-WS4PCNKV.js   | quan-tri-component          |  53.62 kB | 
+chunk-LVHKS6WL.js   | quan-ly-am-component        |  53.43 kB | 
+chunk-KUBDKAAI.js   | khach-hang-detail-component |  52.84 kB | 
+chunk-HMR23COM.js   | bao-cao-component           |  33.63 kB | 
+chunk-WAKLRBUB.js   | main-layout-component       |  27.80 kB | 
+chunk-ISS7LVWF.js   | login-component             |  18.08 kB | 
+chunk-SWLVXYSP.js   | -                           |   7.53 kB | 
+
+Application bundle generation complete. [24.417 seconds]
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:175:58:
+      175 │ ...iv class="cell-delta" [class.pos]="(row.hdvCuoiKyDelta ?? 0) > 0"
+          ╵                                        ~~~~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:176:39:
+      176 │ ...                     [class.neg]="(row.hdvCuoiKyDelta ?? 0) < 0">
+          ╵                                       ~~~~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:188:58:
+      188 │ ...class="cell-delta" [class.pos]="(row.casaBinhQuanDelta ?? 0) > 0"
+          ╵                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:189:39:
+      189 │ ...                  [class.neg]="(row.casaBinhQuanDelta ?? 0) < 0">
+          ╵                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:201:58:
+      201 │ ...   <div class="cell-delta" [class.pos]="(row.duNoDelta ?? 0) > 0"
+          ╵                                             ~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:202:39:
+      202 │                          [class.neg]="(row.duNoDelta ?? 0) < 0">
+          ╵                                        ~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:214:58:
+      214 │ ...iv class="cell-delta" [class.pos]="(row.tntDichVuDelta ?? 0) > 0"
+          ╵                                        ~~~~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:215:39:
+      215 │ ...                     [class.neg]="(row.tntDichVuDelta ?? 0) < 0">
+          ╵                                       ~~~~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:227:58:
+      227 │ ... <div class="cell-delta" [class.pos]="(row.tntHdvDelta ?? 0) > 0"
+          ╵                                           ~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:228:39:
+      228 │                          [class.neg]="(row.tntHdvDelta ?? 0) < 0">
+          ╵                                        ~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:240:58:
+      240 │ ...v class="cell-delta" [class.pos]="(row.tntTinDungDelta ?? 0) > 0"
+          ╵                                       ~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:241:39:
+      241 │ ...                    [class.neg]="(row.tntTinDungDelta ?? 0) < 0">
+          ╵                                      ~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:253:58:
+      253 │ ...    <div class="cell-delta" [class.pos]="(row.tntDelta ?? 0) > 0"
+          ╵                                              ~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8102: The left side of this nullish coalescing operation does not include 'null' or 'undefined' in its type, therefore the '??' operator can be safely removed. [plugin angular-compiler]
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.html:254:39:
+      254 │                          [class.neg]="(row.tntDelta ?? 0) < 0">
+          ╵                                        ~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component GiaoChiTieuComponent.
+
+    src/app/features/giao-chi-tieu/giao-chi-tieu.component.ts:28:15:
+      28 │   templateUrl: './giao-chi-tieu.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Watch mode enabled. Watching for file changes...
+  ➜  Local:   http://localhost:4200/
+  ➜  press h + enter to show help

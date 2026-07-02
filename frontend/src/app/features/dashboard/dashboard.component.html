@@ -1,0 +1,634 @@
+<div class="dashboard animate-fade-in">
+
+  <!-- ===== ALERT BAR ===== -->
+  <div class="alert-row">
+    @for (alert of alertItems; track alert.count) {
+      <div class="alert-card" [style.border-color]="alert.borderColor" [style.background]="alert.bg">
+        <div class="alert-icon-wrap" [style.color]="alert.color">
+          <span class="material-icons">{{ alert.icon }}</span>
+        </div>
+        <div class="alert-body">
+          <div class="alert-title" [style.color]="alert.color">
+            <strong>{{ alert.count }}</strong> {{ alert.title }}
+          </div>
+          <div class="alert-sub">{{ alert.sub }}</div>
+        </div>
+        <span class="material-icons alert-arrow" [style.color]="alert.color">chevron_right</span>
+      </div>
+    }
+  </div>
+
+  <!-- ===== FILTER BAR ===== -->
+  <div class="filter-bar card">
+    <div class="filter-groups">
+
+      <div class="flt-group">
+        <span class="flt-label">Loại kỳ</span>
+        <select class="flt-select" [(ngModel)]="loaiKy" (change)="onLoaiKyChange()">
+          <option value="thang">Tháng</option>
+          <option value="quy">Quý</option>
+          <option value="nam">Năm</option>
+          <option value="ngay">Ngày</option>
+        </select>
+      </div>
+
+      <div class="flt-group">
+        <span class="flt-label">Kỳ</span>
+        <select class="flt-select flt-select--ky" [(ngModel)]="selectedKy" (change)="onFilterChange()">
+          @for (opt of kyOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="flt-group">
+        <span class="flt-label">So với</span>
+        <select class="flt-select flt-select--sovoi" [(ngModel)]="soVoi" (change)="onFilterChange()">
+          <option value="ky-truoc">Kỳ trước liền kề</option>
+          <option value="dau-nam">So với đầu năm</option>
+          <option value="ngay-truoc">Ngày liền trước</option>
+          <option value="quy-truoc">Quý trước liền kề</option>
+        </select>
+      </div>
+
+      <div class="flt-group">
+        <span class="flt-label">Phân khúc</span>
+        <select class="flt-select flt-select--pk" [(ngModel)]="phanKhuc" (change)="onFilterChange()">
+          <option value="all">Tất cả phân khúc</option>
+          <option value="ban-buon">Khối bán buôn</option>
+          <option value="ban-le">Khối bán lẻ</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="filter-view">
+      <span class="view-label">Đang xem:</span>
+      <span class="view-badge view-badge--current">{{ currentKyLabel }}</span>
+      <span class="view-vs">vs</span>
+      <span class="view-badge view-badge--compare">{{ compareKyLabel }}</span>
+    </div>
+  </div>
+
+  <!-- ===== KPI GRID ===== -->
+  <section class="kpi-section">
+
+    <!-- Section header -->
+    <div class="kpi-section-header">
+      <div>
+        <h3 class="kpi-section-title">Tổng Chi nhánh &mdash; 7 chỉ tiêu kinh doanh</h3>
+        <p class="kpi-section-sub">
+          {{ currentKyLabel }} so với {{ compareKyLabel }}
+          &nbsp;·&nbsp; Click để chọn chỉ tiêu cho chart bên dưới
+        </p>
+      </div>
+    </div>
+
+    <!-- Cards row -->
+    <div class="kpi-grid">
+      @if (loadingKpi()) {
+        @for (i of [1,2,3,4,5,6,7]; track i) {
+          <div class="kpi-card skeleton-card">
+            <div class="skeleton" style="width:70%;height:11px;margin-bottom:10px"></div>
+            <div class="skeleton" style="width:55%;height:28px;margin-bottom:6px"></div>
+            <div class="skeleton" style="width:90%;height:13px;margin-bottom:4px"></div>
+            <div class="skeleton" style="width:60%;height:11px;margin-bottom:10px"></div>
+            <div class="skeleton" style="height:6px;border-radius:4px;margin-bottom:10px"></div>
+            <div class="skeleton" style="height:32px;border-radius:4px"></div>
+          </div>
+        }
+      } @else {
+        @for (m of kpiMetrics(); track m.key; let idx = $index) {
+          <div class="kpi-card animate-fade-in"
+               [class.kpi-card--active]="selectedKpiKey() === m.key"
+               [style.animation-delay]="(idx * 0.04) + 's'"
+               (click)="selectKpi(m.key)">
+
+            <!-- Title -->
+            <div class="kpi-title">{{ m.label }}</div>
+
+            <!-- Main value -->
+            <div class="kpi-value">{{ formatTy(m.value) }} tỷ</div>
+
+            <!-- Change row -->
+            <div class="kpi-change" [class.kpi-change--up]="m.value >= m.valuePrev" [class.kpi-change--down]="m.value < m.valuePrev">
+              @if (m.value >= m.valuePrev) {
+                <svg class="chg-arrow" viewBox="0 0 12 12" fill="currentColor"><path d="M6 1l4 5H7v5H5V6H2z"/></svg>
+              } @else {
+                <svg class="chg-arrow" viewBox="0 0 12 12" fill="currentColor"><path d="M6 11L2 6h3V1h2v5h3z"/></svg>
+              }
+              <span>{{ changeAbs(m) }} tỷ &nbsp;·&nbsp; {{ changePct(m) }}</span>
+            </div>
+
+            <!-- Compare label -->
+            <div class="kpi-sovoi">so với {{ compareKyLabel }}</div>
+
+            <!-- KH BSC năm progress -->
+            <div class="kpi-kh">
+              <div class="kpi-kh-top">
+                <div class="kpi-kh-label-col">
+                  <span class="kpi-kh-label">KH BSC năm</span>
+                  <span class="kpi-kh-target-val">{{ formatTy(m.target) }} tỷ</span>
+                </div>
+                <span class="kpi-kh-pct"
+                      [class.achieve-good]="targetPct(m) >= 100"
+                      [class.achieve-warn]="targetPct(m) >= 80 && targetPct(m) < 100"
+                      [class.achieve-bad]="targetPct(m) < 80">
+                  {{ targetPct(m) | number:'1.1-1' }}%
+                </span>
+              </div>
+              <div class="kpi-kh-bar">
+                <div class="kpi-kh-fill"
+                     [class]="achievementClass(m)"
+                     [style.width.%]="barFillPct(m)"></div>
+              </div>
+              <div class="kpi-kh-sublabel">% thực hiện / KH BSC năm</div>
+            </div>
+
+            <!-- Sparkline -->
+            <div class="kpi-sparkline">
+              <svg width="100%" height="32" viewBox="0 0 90 32" preserveAspectRatio="none">
+                <path [attr.d]="generateSparklinePath(m.sparkline)"
+                      fill="none"
+                      [attr.stroke]="m.value >= m.valuePrev ? '#009640' : '#ef4444'"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+              </svg>
+            </div>
+
+          </div>
+        }
+      }
+    </div>
+
+  </section>
+
+  <!-- ===== BIỂU ĐỒ XU HƯỚNG HOẠT ĐỘNG ===== -->
+  <div class="card" id="section-trend-chart">
+
+    <!-- Header: title + metric selector -->
+    <div class="trend-header">
+      <div class="trend-header-left">
+        <h3>{{ trendTitle }}</h3>
+        <p class="card-sub">{{ trendSubtitle }}</p>
+      </div>
+      <div class="trend-metric-tabs">
+        @for (m of kpiMetrics(); track m.key) {
+          <button class="metric-tab" [class.active]="selectedKpiKey() === m.key" (click)="selectKpi(m.key)">
+            {{ m.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="trend-legend">
+      <div class="trend-legend-item">
+        <span class="trend-legend-line trend-legend-line--solid"></span>
+        <span>{{ trendCurrentLabel }}</span>
+      </div>
+      <div class="trend-legend-item">
+        <span class="trend-legend-line trend-legend-line--dashed"></span>
+        <span>{{ trendPrevLabel }}</span>
+      </div>
+    </div>
+
+    @if (loadingTrend()) {
+      <div class="chart-loader"><mat-spinner diameter="36" color="primary"></mat-spinner></div>
+    } @else {
+      <div class="chart-container" style="height:240px">
+        <canvas baseChart [data]="trendChartData()" [options]="trendChartOptions" type="line"></canvas>
+      </div>
+    }
+  </div>
+
+  <!-- ===== XU HƯỚNG TNT THEO PHÒNG ===== -->
+  <div class="card" id="section-phong-trend">
+
+    <!-- Header row -->
+    <div class="card-header">
+      <div>
+        <h3>Xu hướng theo từng Phòng</h3>
+        <p class="card-sub">So sánh trend của top 5 Phòng với Tổng Chi nhánh &mdash; chiều Phòng &times; Thời gian</p>
+      </div>
+      <div class="card-header-right">
+        <div class="chart-tabs">
+          <button class="tab-btn" [class.active]="phongViewMode() === 'duong'"
+                  (click)="togglePhongView('duong')">Đường</button>
+          <button class="tab-btn" [class.active]="phongViewMode() === 'stacked'"
+                  (click)="togglePhongView('stacked')">Stacked</button>
+        </div>
+        <select class="flt-select phong-metric-select"
+                [ngModel]="selectedPhongMetricKey()"
+                (ngModelChange)="selectPhongMetric($event)">
+          @for (opt of phongMetricOptions; track opt.key) {
+            <option [value]="opt.key">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Chart sub-title -->
+    <div class="phong-trend-subtitle">{{ phongTrendChartTitle }}</div>
+
+    <!-- Chart -->
+    @if (loadingPhongTrend()) {
+      <div class="chart-loader"><mat-spinner diameter="36" color="primary"></mat-spinner></div>
+    } @else {
+      <div class="chart-container" style="height:280px">
+        <canvas baseChart [data]="phongTrendData()" [options]="phongTrendOptions()" type="line"></canvas>
+      </div>
+    }
+
+    <!-- Footer note -->
+    <div class="phong-trend-note">
+      Top 5 Phòng &mdash; bấm tên trong chú thích để ẩn/hiện đường (Tổng CN đã có ở chart trên)
+    </div>
+  </div>
+
+  <!-- ===== SO SÁNH PHÒNG – BAR CHART ===== -->
+  <div class="card" id="section-phong-chart">
+    <div class="card-header">
+      <div>
+        <h3>Đóng góp từng Phòng &mdash; {{ trendCurrentLabel }}</h3>
+        <p class="card-sub">So sánh giữa các Phòng trong cùng kỳ &middot; % thay đổi so với {{ trendPrevLabel }} &middot; bấm vào hàng để xem cán bộ AM</p>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--color-border)">
+      <span style="font-size:13px;font-weight:600;color:var(--color-text)">
+        So sánh các Phòng theo <strong style="color:#1c7a5a">{{ phongBarMetricLabel }}</strong>
+      </span>
+      <select class="flt-select phong-metric-select"
+              [ngModel]="selectedPhongBarMetricKey()"
+              (ngModelChange)="selectPhongBarMetric($event)">
+        @for (opt of phongMetricOptions; track opt.key) {
+          <option [value]="opt.key">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+    @if (loadingPhongBar()) {
+      <div class="chart-loader"><mat-spinner diameter="36" color="primary"></mat-spinner></div>
+    } @else {
+      <div class="chart-container" style="height:250px">
+        <canvas baseChart [data]="phongBarData()" [options]="phongBarOptions" type="bar"></canvas>
+      </div>
+      <div class="chart-footer-legend">
+        <div class="legend-item">
+          <span class="legend-dot" style="background:#006B68"></span>Tăng so kỳ trước
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background:#ef4444"></span>Giảm so kỳ trước
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background:#9ca3af"></span>Chưa có so sánh
+        </div>
+        <div class="legend-sep"></div>
+        <span class="chart-footer-total">
+          Tổng 5 phòng: <strong>{{ phongBarTotal() | number:'1.2-2' }} tỷ</strong>
+          &middot; Cao nhất <strong>{{ phongBarMax() | number:'1.2-2' }} tỷ</strong>
+        </span>
+      </div>
+    }
+  </div>
+
+  <!-- ===== BẢNG CHI TIẾT PHÒNG / AM ===== -->
+  <div class="card" id="section-phong-table">
+    <div class="card-header">
+      <div>
+        <h3>Chi tiết theo Phòng / AM &mdash; {{ trendCurrentLabel }}</h3>
+        <p class="card-sub">Dữ liệu tổng hợp · % thay đổi so với {{ compareKyLabel }}</p>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table phong-metrics-table">
+        <thead>
+          <tr>
+            <th style="min-width:160px">Phòng nghiệp vụ</th>
+            <th class="num">HĐV cuối kỳ</th>
+            <th class="num">CASA bình quân</th>
+            <th class="num">Dư nợ TD</th>
+            <th class="num">TNT dịch vụ</th>
+            <th class="num">TNT HĐV</th>
+            <th class="num">TNT tín dụng</th>
+            <th class="num">Tổng TNT</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loadingPhong()) {
+            @for (i of [1,2,3,4,5]; track i) {
+              <tr><td colspan="8"><div class="skeleton" style="height:14px"></div></td></tr>
+            }
+          } @else {
+            @for (row of sortedPhongData(); track row.maDonViCap6; let idx = $index) {
+              <!-- Phong row – clickable to expand AM detail -->
+              <tr class="phong-row animate-fade-in"
+                  [class.expanded]="expandedPhong() === row.maDonViCap6"
+                  [style.animation-delay]="(idx * 0.04) + 's'"
+                  (click)="onPhongRowClick(row)">
+                <td>
+                  <div class="cell-expand-indicator">
+                    <mat-icon class="expand-icon" [class.rotated]="expandedPhong() === row.maDonViCap6">
+                      chevron_right
+                    </mat-icon>
+                    <div>
+                      <div class="cell-primary">{{ row.tenDonViCap6 }}</div>
+                      <div class="cell-sub">{{ row.soAm }} AM · {{ row.soKhachHang }} KH</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="num">
+                  <div class="metric-val">{{ formatBillion(row.hdvCuoiKy) }} tỷ</div>
+                  <div class="cell-sub" [class]="changeClass(row.hdvCuoiKyChangePercent ?? 0)">
+                    @if (row.hdvCuoiKyChangePercent !== null) {
+                      {{ row.hdvCuoiKyChangePercent! >= 0 ? '+' : '' }}{{ row.hdvCuoiKyChangePercent! | number:'1.1-1' }}%
+                    } @else { — }
+                  </div>
+                </td>
+                <td class="num">
+                  <div class="metric-val">{{ formatBillion(row.hdvBinhQuan) }} tỷ</div>
+                  <div class="cell-sub" [class]="changeClass(row.hdvBinhQuanChangePercent ?? 0)">
+                    @if (row.hdvBinhQuanChangePercent !== null) {
+                      {{ row.hdvBinhQuanChangePercent! >= 0 ? '+' : '' }}{{ row.hdvBinhQuanChangePercent! | number:'1.1-1' }}%
+                    } @else { — }
+                  </div>
+                </td>
+                <td class="num">
+                  <div class="metric-val">{{ formatBillion(row.duNo) }} tỷ</div>
+                  <div class="cell-sub" [class]="changeClass(row.duNoChangePercent ?? 0)">
+                    @if (row.duNoChangePercent !== null) {
+                      {{ row.duNoChangePercent! >= 0 ? '+' : '' }}{{ row.duNoChangePercent! | number:'1.1-1' }}%
+                    } @else { — }
+                  </div>
+                </td>
+                <td class="num">
+                  <div class="metric-val">{{ formatBillion(row.thuNhapThuanDichVu) }} tỷ</div>
+                  <div class="cell-sub" [class]="changeClass(row.tntDichVuChangePercent ?? 0)">
+                    @if (row.tntDichVuChangePercent !== null) {
+                      {{ row.tntDichVuChangePercent! >= 0 ? '+' : '' }}{{ row.tntDichVuChangePercent! | number:'1.1-1' }}%
+                    } @else { — }
+                  </div>
+                </td>
+                <td class="num">
+                  <div class="metric-val">{{ formatBillion(row.thuNhapThuanHdvFtp) }} tỷ</div>
+                  <div class="cell-sub" [class]="changeClass(row.tntHdvChangePercent ?? 0)">
+                    @if (row.tntHdvChangePercent !== null) {
+                      {{ row.tntHdvChangePercent! >= 0 ? '+' : '' }}{{ row.tntHdvChangePercent! | number:'1.1-1' }}%
+                    } @else { — }
+                  </div>
+                </td>
+                <td class="num">
+                  <div class="metric-val">{{ formatBillion(row.thuNhapThuanTinDung) }} tỷ</div>
+                  <div class="cell-sub" [class]="changeClass(row.tntTinDungChangePercent ?? 0)">
+                    @if (row.tntTinDungChangePercent !== null) {
+                      {{ row.tntTinDungChangePercent! >= 0 ? '+' : '' }}{{ row.tntTinDungChangePercent! | number:'1.1-1' }}%
+                    } @else { — }
+                  </div>
+                </td>
+                <td class="num">
+                  <div class="metric-val font-semibold">{{ formatBillion(row.thuNhapThuan) }} tỷ</div>
+                  <div class="cell-sub" [class]="changeClass(row.changePercent ?? 0)">
+                    @if (row.changePercent !== null) {
+                      {{ row.changePercent! >= 0 ? '+' : '' }}{{ row.changePercent! | number:'1.1-1' }}%
+                    } @else { — }
+                  </div>
+                </td>
+              </tr>
+
+              <!-- AM detail expand panel -->
+              @if (expandedPhong() === row.maDonViCap6) {
+                <tr class="am-detail-panel-row">
+                  <td colspan="8" class="am-detail-panel-cell">
+                    <div class="am-detail-panel">
+                      <div class="am-detail-header">
+                        <mat-icon>people</mat-icon>
+                        <span>Chi tiết cán bộ AM – {{ row.tenDonViCap6 }}</span>
+                      </div>
+                      @if (loadingAmDetail()) {
+                        <div class="am-detail-loading">
+                          <mat-spinner diameter="28" color="primary"></mat-spinner>
+                          <span>Đang tải dữ liệu AM...</span>
+                        </div>
+                      } @else if (amDetailData().length === 0) {
+                        <div class="am-detail-empty">Không có dữ liệu AM cho kỳ này.</div>
+                      } @else {
+                        <table class="am-detail-table">
+                          <thead>
+                            <tr>
+                              <th>Cán bộ AM</th>
+                              <th class="num">HĐV cuối kỳ</th>
+                              <th class="num">CASA bình quân</th>
+                              <th class="num">Dư nợ TD</th>
+                              <th class="num">TNT dịch vụ</th>
+                              <th class="num">TNT HĐV</th>
+                              <th class="num">TNT tín dụng</th>
+                              <th class="num">Tổng TNT</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (am of amDetailData(); track am.maAm; let ai = $index) {
+                              <tr class="am-detail-row animate-fade-in"
+                                  [style.animation-delay]="(ai * 0.03) + 's'">
+                                <td>
+                                  <div class="am-name">
+                                    <span class="am-avatar">{{ am.tenAm.charAt(0) }}</span>
+                                    <div>
+                                      <div class="cell-primary">{{ am.tenAm }}</div>
+                                      <div class="cell-sub am-code">{{ am.maAm }}</div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td class="num">
+                                  <div class="am-metric-val">{{ formatBillion(am.hdvCuoiKy) }} tỷ</div>
+                                  <div class="am-change" [class]="changeClass(am.hdvCuoiKyChangePct ?? 0)">
+                                    @if (am.hdvCuoiKyChangePct !== null) {
+                                      {{ am.hdvCuoiKyChangePct! >= 0 ? '+' : '' }}{{ am.hdvCuoiKyChangePct! | number:'1.1-1' }}%
+                                    } @else { — }
+                                  </div>
+                                </td>
+                                <td class="num">
+                                  <div class="am-metric-val">{{ formatBillion(am.hdvBinhQuan) }} tỷ</div>
+                                  <div class="am-change" [class]="changeClass(am.hdvBinhQuanChangePct ?? 0)">
+                                    @if (am.hdvBinhQuanChangePct !== null) {
+                                      {{ am.hdvBinhQuanChangePct! >= 0 ? '+' : '' }}{{ am.hdvBinhQuanChangePct! | number:'1.1-1' }}%
+                                    } @else { — }
+                                  </div>
+                                </td>
+                                <td class="num">
+                                  <div class="am-metric-val">{{ formatBillion(am.duNo) }} tỷ</div>
+                                  <div class="am-change" [class]="changeClass(am.duNoChangePct ?? 0)">
+                                    @if (am.duNoChangePct !== null) {
+                                      {{ am.duNoChangePct! >= 0 ? '+' : '' }}{{ am.duNoChangePct! | number:'1.1-1' }}%
+                                    } @else { — }
+                                  </div>
+                                </td>
+                                <td class="num">
+                                  <div class="am-metric-val">{{ formatBillion(am.thuNhapThuanDichVu) }} tỷ</div>
+                                  <div class="am-change" [class]="changeClass(am.tntDichVuChangePct ?? 0)">
+                                    @if (am.tntDichVuChangePct !== null) {
+                                      {{ am.tntDichVuChangePct! >= 0 ? '+' : '' }}{{ am.tntDichVuChangePct! | number:'1.1-1' }}%
+                                    } @else { — }
+                                  </div>
+                                </td>
+                                <td class="num">
+                                  <div class="am-metric-val">{{ formatBillion(am.thuNhapThuanHdvFtp) }} tỷ</div>
+                                  <div class="am-change" [class]="changeClass(am.tntHdvChangePct ?? 0)">
+                                    @if (am.tntHdvChangePct !== null) {
+                                      {{ am.tntHdvChangePct! >= 0 ? '+' : '' }}{{ am.tntHdvChangePct! | number:'1.1-1' }}%
+                                    } @else { — }
+                                  </div>
+                                </td>
+                                <td class="num">
+                                  <div class="am-metric-val">{{ formatBillion(am.thuNhapThuanTinDung) }} tỷ</div>
+                                  <div class="am-change" [class]="changeClass(am.tntTinDungChangePct ?? 0)">
+                                    @if (am.tntTinDungChangePct !== null) {
+                                      {{ am.tntTinDungChangePct! >= 0 ? '+' : '' }}{{ am.tntTinDungChangePct! | number:'1.1-1' }}%
+                                    } @else { — }
+                                  </div>
+                                </td>
+                                <td class="num">
+                                  <div class="am-metric-val font-semibold">{{ formatBillion(am.thuNhapThuan) }} tỷ</div>
+                                  <div class="am-change" [class]="changeClass(am.thuNhapThuanChangePct ?? 0)">
+                                    @if (am.thuNhapThuanChangePct !== null) {
+                                      {{ am.thuNhapThuanChangePct! >= 0 ? '+' : '' }}{{ am.thuNhapThuanChangePct! | number:'1.1-1' }}%
+                                    } @else { — }
+                                  </div>
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+            <tr class="total-row">
+              <td><strong>TỔNG TOÀN CHI NHÁNH</strong></td>
+              <td class="num"><strong>{{ formatBillion(phongData() | sumField:'hdvCuoiKy') }} tỷ</strong></td>
+              <td class="num"><strong>{{ formatBillion(phongData() | sumField:'hdvBinhQuan') }} tỷ</strong></td>
+              <td class="num"><strong>{{ formatBillion(phongData() | sumField:'duNo') }} tỷ</strong></td>
+              <td class="num"><strong>{{ formatBillion(phongData() | sumField:'thuNhapThuanDichVu') }} tỷ</strong></td>
+              <td class="num"><strong>{{ formatBillion(phongData() | sumField:'thuNhapThuanHdvFtp') }} tỷ</strong></td>
+              <td class="num"><strong>{{ formatBillion(phongData() | sumField:'thuNhapThuanTinDung') }} tỷ</strong></td>
+              <td class="num"><strong>{{ formatBillion(phongData() | sumField:'thuNhapThuan') }} tỷ</strong></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== BIẾN ĐỘNG KHÁCH HÀNG ===== -->
+  <div class="card" id="section-bien-dong">
+    <div class="card-header">
+      <div>
+        <h3>Biến động khách hàng cá thể</h3>
+        <p class="card-sub">Khi biểu đồng khách hàng cá thể – Tháng 03 – Tháng 03/2026</p>
+      </div>
+      <div class="card-header-right">
+        <span class="text-muted text-sm">Theo chỉ tiêu</span>
+        <mat-select class="mini-select" value="tnt">
+          <mat-option value="tnt">Tổng TNT</mat-option>
+        </mat-select>
+      </div>
+    </div>
+
+    <div class="bien-dong-columns">
+      <div class="bd-col-header tang">Top 10 khi động tăng</div>
+      <div class="bd-col-header giam">Top 10 khi giảm</div>
+    </div>
+
+    <div class="bien-dong-grid">
+      <div class="bien-dong-col">
+        @for (kh of bienDongTang(); track kh.maKhCif; let i = $index) {
+          <div class="bien-dong-item animate-fade-in" [style.animation-delay]="(i * 0.04) + 's'">
+            <span class="bd-rank">{{ i + 1 }}</span>
+            <div class="kh-info">
+              <div class="kh-name">{{ kh.tenKhachHang }}</div>
+              <div class="kh-sub">CIF {{ kh.maKhCif }} · {{ kh.tenAm }} · {{ kh.tenDonViCap6 }}</div>
+            </div>
+            <div class="kh-pct tang">+{{ kh.changePercent | number:'1.2-2' }}%</div>
+          </div>
+        }
+      </div>
+      <div class="bien-dong-col">
+        @for (kh of bienDongGiam(); track kh.maKhCif; let i = $index) {
+          <div class="bien-dong-item animate-fade-in" [style.animation-delay]="(i * 0.04) + 's'">
+            <span class="bd-rank">{{ i + 1 }}</span>
+            <div class="kh-info">
+              <div class="kh-name">{{ kh.tenKhachHang }}</div>
+              <div class="kh-sub">CIF {{ kh.maKhCif }} · {{ kh.tenAm }} · {{ kh.tenDonViCap6 }}</div>
+            </div>
+            <div class="kh-pct giam">{{ kh.changePercent | number:'1.2-2' }}%</div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TOP RANKINGS ===== -->
+  <div class="top-three-grid" id="section-top-rankings">
+    <!-- Top 5 Phòng -->
+    <div class="card top-card">
+      <div class="card-header">
+        <div>
+          <h3>Top 5 Phòng</h3>
+          <p class="card-sub">Hàng tháng / Cán bộ AM / Khách hàng đóng góp và nổi trội trong tổng</p>
+        </div>
+      </div>
+      @for (p of topPhong(); track p.maDonViCap6; let i = $index) {
+        <div class="top-item animate-fade-in" [style.animation-delay]="(i * 0.05) + 's'">
+          <div class="top-rank" [class.gold]="i===0" [class.silver]="i===1" [class.bronze]="i===2">{{ i + 1 }}</div>
+          <div class="top-info">
+            <div class="top-name">{{ p.tenDonViCap6 }}</div>
+            <div class="top-sub">{{ p.soAm }} AM</div>
+          </div>
+          <div class="top-value">{{ formatBillion(p.thuNhapThuan) }} tỷ</div>
+        </div>
+      }
+    </div>
+
+    <!-- Top 5 Cán bộ AM -->
+    <div class="card top-card">
+      <div class="card-header">
+        <div>
+          <h3>Top 5 Cán bộ AM</h3>
+          <p class="card-sub">Cán bộ AM có doanh số cao nhất tháng</p>
+        </div>
+      </div>
+      @for (am of topAm(); track am.maAm; let i = $index) {
+        <div class="top-item animate-fade-in" [style.animation-delay]="(i * 0.05) + 's'">
+          <div class="top-rank" [class.gold]="i===0" [class.silver]="i===1" [class.bronze]="i===2">{{ i + 1 }}</div>
+          <div class="top-info">
+            <div class="top-name">{{ am.tenAm }}</div>
+            <div class="top-sub">{{ am.tenDonViCap6 }}</div>
+          </div>
+          <div class="top-value">{{ formatMillion(am.thuNhapThuan) }}</div>
+        </div>
+      }
+    </div>
+
+    <!-- Top 5 Khách hàng -->
+    <div class="card top-card">
+      <div class="card-header">
+        <div>
+          <h3>Top 5 Khách hàng</h3>
+          <p class="card-sub">Khách hàng có đóng góp lớn nhất tháng</p>
+        </div>
+      </div>
+      @for (kh of topKh(); track kh.maKhCif; let i = $index) {
+        <div class="top-item animate-fade-in" [style.animation-delay]="(i * 0.05) + 's'">
+          <div class="top-rank" [class.gold]="i===0" [class.silver]="i===1" [class.bronze]="i===2">{{ i + 1 }}</div>
+          <div class="top-info">
+            <div class="top-name">{{ kh.tenKhachHang }}</div>
+            <div class="top-sub">{{ kh.maKhCif }}</div>
+          </div>
+          <div class="top-value">{{ formatMillion(kh.thuNhapThuan) }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
+</div>

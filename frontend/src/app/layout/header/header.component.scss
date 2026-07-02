@@ -1,0 +1,135 @@
+:host { display: block; }
+
+.app-header {
+  height: var(--header-h);
+  background: #fff;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+
+.page-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.page-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+// Actions
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-btn {
+  color: var(--color-text-muted) !important;
+  transition: color var(--transition) !important;
+
+  .material-icons { font-size: 22px; }
+
+  &:hover { color: var(--color-primary) !important; }
+}
+
+// User menu trigger
+.user-menu-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background var(--transition);
+  margin-left: 4px;
+
+  &:hover { background: var(--color-bg); }
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  .name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+  .sub {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+}
+
+.chevron {
+  font-size: 18px !important;
+  color: var(--color-text-muted);
+}
+
+// User dropdown menu
+.menu-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px !important;
+  opacity: 1 !important;
+}
+
+.menu-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.menu-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.menu-role {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.logout-item {
+  color: var(--color-danger) !important;
+  .material-icons { color: var(--color-danger) !important; }
+}

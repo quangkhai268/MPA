@@ -1,0 +1,24 @@
+package com.mpa.service;
+
+import com.mpa.dto.ThePhatHanhResponse;
+import com.mpa.dto.TheSummaryResponse;
+import org.springframework.data.domain.Page;
+
+import java.util.List;
+
+public interface ThePhatHanhService {
+
+    Page<ThePhatHanhResponse> getList(
+            String search, String trangThai, String hinhThuc, String productCode,
+            String loaiTheTinDung,
+            boolean chuaKichHoat, boolean chuaPsgd, boolean chuaDatPtn,
+            int page, int size);
+
+    TheSummaryResponse getSummary();
+
+    List<String> getDistinctTrangThai();
+
+    List<String> getDistinctHinhThuc();
+
+    List<String> getDistinctProductCode();
+}

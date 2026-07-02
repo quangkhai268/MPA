@@ -1,0 +1,158 @@
+<div class="page animate-fade-in">
+
+  <!-- ===== HEADER ===== -->
+  <div class="page-top">
+    <div>
+      <h1 class="page-title">Báo cáo & Thống kê</h1>
+      <p class="page-sub">Phân tích và xuất báo cáo theo nhiều chiều dữ liệu</p>
+    </div>
+    <div class="page-actions">
+      <button mat-stroked-button [disabled]="exporting()" (click)="exportExcel()">
+        <span class="material-icons">table_chart</span>
+        {{ exporting() ? 'Đang xuất...' : 'Xuất Excel' }}
+      </button>
+      <button mat-flat-button color="primary" [disabled]="exporting()" (click)="exportPdf()">
+        <span class="material-icons">picture_as_pdf</span>
+        {{ exporting() ? 'Đang xuất...' : 'Xuất PDF' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== REPORT TYPE SELECTOR ===== -->
+  <div class="report-types">
+    @for (rt of reportTypes; track rt.id) {
+      <div class="rt-card" [class.active]="activeReport() === rt.id"
+           [style.--rt-color]="rt.color" (click)="selectReport(rt.id)">
+        <div class="rt-icon" [style.background]="rt.color + '20'" [style.color]="rt.color">
+          <span class="material-icons">{{ rt.icon }}</span>
+        </div>
+        <div class="rt-body">
+          <div class="rt-label">{{ rt.label }}</div>
+          <div class="rt-desc">{{ rt.desc }}</div>
+        </div>
+        @if (activeReport() === rt.id) {
+          <span class="material-icons rt-check" [style.color]="rt.color">check_circle</span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ===== FILTER BAR ===== -->
+  <div class="card filter-bar">
+    <mat-form-field appearance="outline" class="date-field">
+      <mat-label>Từ ngày</mat-label>
+      <input matInput [matDatepicker]="pFrom" [(ngModel)]="fromDate">
+      <mat-datepicker-toggle matSuffix [for]="pFrom"></mat-datepicker-toggle>
+      <mat-datepicker #pFrom></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="date-field">
+      <mat-label>Đến ngày</mat-label>
+      <input matInput [matDatepicker]="pTo" [(ngModel)]="toDate">
+      <mat-datepicker-toggle matSuffix [for]="pTo"></mat-datepicker-toggle>
+      <mat-datepicker #pTo></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="select-field">
+      <mat-label>Đơn vị</mat-label>
+      <mat-select [(ngModel)]="selectedPhong">
+        <mat-option value="">-- Tất cả --</mat-option>
+        @for (p of phongList; track p.ma) {
+          <mat-option [value]="p.ma">{{ p.ten }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" (click)="loadReport()">
+      <span class="material-icons">refresh</span> Cập nhật
+    </button>
+  </div>
+
+  <!-- ===== REPORT CONTENT ===== -->
+  @if (loading()) {
+    <div class="loading-block">
+      <mat-spinner diameter="40" color="primary"></mat-spinner>
+      <p>Đang tải dữ liệu báo cáo...</p>
+    </div>
+  } @else {
+    <div class="report-layout">
+
+      <!-- Main Chart Card -->
+      <div class="card chart-area">
+        <div class="card-header">
+          <div>
+            <h3>{{ getActiveReportLabel() }}</h3>
+            <p class="card-sub">Từ {{ formatDate(fromDate) }} đến {{ formatDate(toDate) }}</p>
+          </div>
+        </div>
+
+        @if (activeReport() === 'xu-huong') {
+          <div class="chart-container" style="height:320px">
+            <canvas baseChart [data]="lineChartData()" [options]="lineChartOptions" type="line"></canvas>
+          </div>
+        } @else {
+          <div class="dual-charts">
+            <div class="chart-container" style="height:280px;flex:1.5">
+              <canvas baseChart [data]="barChartData()" [options]="barChartOptions" type="bar"></canvas>
+            </div>
+            <div class="chart-container" style="height:280px;width:260px">
+              <canvas baseChart [data]="pieChartData()" [options]="doughnutOptions" type="doughnut"></canvas>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Detail Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Chi tiết dữ liệu</h3>
+          <span class="badge badge-flat">{{ tableRows().length }} dòng</span>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Tên đơn vị / AM / KH</th>
+                <th class="num">Kỳ này</th>
+                <th class="num">Kỳ trước</th>
+                <th class="num">Thay đổi</th>
+                <th class="num">% Thay đổi</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of tableRows(); track row.name; let i = $index) {
+                <tr class="animate-fade-in" [style.animation-delay]="(i * 0.03) + 's'">
+                  <td class="idx">{{ i + 1 }}</td>
+                  <td>
+                    <div class="cell-primary">{{ row.name }}</div>
+                    <div class="cell-sub">{{ row.unit }}</div>
+                  </td>
+                  <td class="num primary-val">{{ row.value | number:'1.3-3' }}</td>
+                  <td class="num text-muted">{{ row.prev | number:'1.3-3' }}</td>
+                  <td class="num" [class]="changeClass(row.change)">
+                    {{ row.change > 0 ? '+' : '' }}{{ row.change | number:'1.3-3' }}
+                  </td>
+                  <td class="num">
+                    <span class="pct-chip" [class]="changeClass(row.changePct)">
+                      <span class="material-icons">{{ changeIcon(row.changePct) }}</span>
+                      {{ row.changePct > 0 ? '+' : '' }}{{ row.changePct | number:'1.1-1' }}%
+                    </span>
+                  </td>
+                </tr>
+              }
+              <tr class="total-row">
+                <td colspan="2"><strong>Tổng cộng</strong></td>
+                <td class="num primary-val"><strong>{{ totalValue() | number:'1.3-3' }}</strong></td>
+                <td class="num text-muted"><strong>{{ totalPrev() | number:'1.3-3' }}</strong></td>
+                <td colspan="2"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  }
+
+</div>

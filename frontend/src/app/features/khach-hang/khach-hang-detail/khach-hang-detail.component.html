@@ -1,0 +1,330 @@
+<div class="detail-wrapper">
+
+  <!-- ── Back nav ───────────────────────────────────────────────────── -->
+  <div class="back-nav">
+    <button class="back-btn" (click)="goBack()">
+      <span class="material-icons">arrow_back</span>
+      Quay lại danh sách
+    </button>
+  </div>
+
+  <!-- ── Loading ────────────────────────────────────────────────────── -->
+  @if (loading()) {
+    <div class="loading-wrap">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
+
+  @if (!loading()) {
+    @if (data(); as kh) {
+
+      <!-- ── Customer card ───────────────────────────────────────────── -->
+      <div class="kh-card">
+        <div class="kh-avatar">
+          <span class="material-icons">person</span>
+        </div>
+        <div class="kh-card-body">
+          <div class="kh-header-row">
+            <h1 class="kh-name">{{ kh.tenKhachHang }}</h1>
+            <span class="kh-cif">CIF {{ kh.maKhCif }}</span>
+            @if (kh.typeKhachHang) {
+              <span class="pk-badge" [ngClass]="phanKhucClass(kh.typeKhachHang)">
+                {{ phanKhucLabel(kh.typeKhachHang) }}
+              </span>
+            }
+          </div>
+          <div class="kh-meta-row">
+            <div class="meta-item">
+              <span class="material-icons meta-icon">badge</span>
+              AM: <strong>{{ kh.tenAm || '—' }}</strong>
+              @if (kh.maAm) { <span class="meta-code">{{ kh.maAm }}</span> }
+            </div>
+            <div class="meta-item">
+              <span class="material-icons meta-icon">apartment</span>
+              Phòng: <strong>{{ kh.tenDonViCap6 || '—' }}</strong>
+            </div>
+            @if (kh.soDienThoai) {
+              <div class="meta-item">
+                <span class="material-icons meta-icon">phone</span>
+                {{ kh.soDienThoai }}
+              </div>
+            }
+            @if (kh.email) {
+              <div class="meta-item">
+                <span class="material-icons meta-icon">email</span>
+                {{ kh.email }}
+              </div>
+            }
+            @if (kh.ngayBatDau) {
+              <div class="meta-item">
+                <span class="material-icons meta-icon">calendar_today</span>
+                Mở từ: {{ kh.ngayBatDau | date:'dd/MM/yyyy' }}
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Filter bar ──────────────────────────────────────────────── -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Năm</label>
+          <select [(ngModel)]="selectedNam" (ngModelChange)="load()">
+            @for (n of namOptions; track n) {
+              <option [ngValue]="n">{{ n }}</option>
+            }
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Tháng</label>
+          <select [(ngModel)]="selectedThang" (ngModelChange)="load()">
+            <option [ngValue]="null">Cả năm</option>
+            @for (t of thangOptions; track t) {
+              <option [ngValue]="t">Tháng {{ t }}</option>
+            }
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>So với</label>
+          <div class="toggle-group">
+            <button class="toggle-btn" [class.active]="soVoi === 'ky-truoc'"
+                    (click)="setSoVoi('ky-truoc')">
+              Kỳ trước liền kề
+            </button>
+            <button class="toggle-btn" [class.active]="soVoi === 'cung-ky-nam-truoc'"
+                    (click)="setSoVoi('cung-ky-nam-truoc')">
+              Cùng kỳ năm trước
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Section header ─────────────────────────────────────────── -->
+      <div class="section-header">
+        <h2>A. Các chỉ tiêu kinh doanh của khách hàng</h2>
+        <p class="section-sub">
+          Kỳ <strong>{{ kh.kyHienTai }}</strong>
+          · so với <strong>{{ kh.kyTruoc }}</strong>
+          @if (kh.tenPhanKhuc) {
+            · benchmark: <strong>Trung bình KH cùng phân khúc ({{ phanKhucLabel(kh.typeKhachHang) }})</strong>
+          }
+        </p>
+      </div>
+
+      <!-- ── KPI Cards ──────────────────────────────────────────────── -->
+      <div class="kpi-grid">
+
+        <!-- HĐV cuối kỳ -->
+        <div class="kpi-card">
+          <div class="kpi-label">Huy động vốn cuối kỳ</div>
+          <div class="kpi-value">{{ fmt(kh.hdvCuoiKy) }}</div>
+          <div class="kpi-change" [class.up]="isUp(kh.hdvCuoiKy, kh.hdvCuoiKyPrev)"
+                                   [class.down]="!isUp(kh.hdvCuoiKy, kh.hdvCuoiKyPrev)">
+            <span class="material-icons trend-icon">{{ isUp(kh.hdvCuoiKy, kh.hdvCuoiKyPrev) ? 'trending_up' : 'trending_down' }}</span>
+            {{ fmtDiff(kh.hdvCuoiKy, kh.hdvCuoiKyPrev) }}
+            @if (pct(kh.hdvCuoiKy, kh.hdvCuoiKyPrev); as p) {
+              <span class="kpi-pct">· {{ p }}</span>
+            }
+          </div>
+          <div class="kpi-sub">so với {{ kh.kyTruoc }}</div>
+          <div class="kpi-bench">
+            <span>TB phân khúc: <strong>{{ fmt(kh.hdvCuoiKyTb) }}</strong></span>
+            @if (pctVsTb(kh.hdvCuoiKy, kh.hdvCuoiKyTb); as p) {
+              <span class="vs-tb" [class.up]="pctVsTbUp(kh.hdvCuoiKy, kh.hdvCuoiKyTb)"
+                                   [class.down]="!pctVsTbUp(kh.hdvCuoiKy, kh.hdvCuoiKyTb)">
+                So với TB: {{ p }}
+              </span>
+            } @else {
+              <span class="vs-tb muted">So với TB: —</span>
+            }
+          </div>
+          <svg class="sparkline" viewBox="0 0 80 28" preserveAspectRatio="none">
+            <path [attr.d]="sparklinePath(kh.hdvCuoiKyTrend)" fill="none" stroke="#009640" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <!-- CASA bình quân -->
+        <div class="kpi-card">
+          <div class="kpi-label">CASA bình quân</div>
+          <div class="kpi-value">{{ fmt(kh.casaBinhQuan) }}</div>
+          <div class="kpi-change" [class.up]="isUp(kh.casaBinhQuan, kh.casaBinhQuanPrev)"
+                                   [class.down]="!isUp(kh.casaBinhQuan, kh.casaBinhQuanPrev)">
+            <span class="material-icons trend-icon">{{ isUp(kh.casaBinhQuan, kh.casaBinhQuanPrev) ? 'trending_up' : 'trending_down' }}</span>
+            {{ fmtDiff(kh.casaBinhQuan, kh.casaBinhQuanPrev) }}
+            @if (pct(kh.casaBinhQuan, kh.casaBinhQuanPrev); as p) {
+              <span class="kpi-pct">· {{ p }}</span>
+            }
+          </div>
+          <div class="kpi-sub">so với {{ kh.kyTruoc }}</div>
+          <div class="kpi-bench">
+            <span>TB phân khúc: <strong>{{ fmt(kh.casaBinhQuanTb) }}</strong></span>
+            @if (pctVsTb(kh.casaBinhQuan, kh.casaBinhQuanTb); as p) {
+              <span class="vs-tb" [class.up]="pctVsTbUp(kh.casaBinhQuan, kh.casaBinhQuanTb)"
+                                   [class.down]="!pctVsTbUp(kh.casaBinhQuan, kh.casaBinhQuanTb)">
+                So với TB: {{ p }}
+              </span>
+            } @else {
+              <span class="vs-tb muted">So với TB: —</span>
+            }
+          </div>
+          <svg class="sparkline" viewBox="0 0 80 28" preserveAspectRatio="none">
+            <path [attr.d]="sparklinePath(kh.casaBinhQuanTrend)" fill="none" stroke="#009640" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <!-- Dư nợ -->
+        <div class="kpi-card">
+          <div class="kpi-label">Dư nợ</div>
+          <div class="kpi-value">{{ fmt(kh.duNo) }}</div>
+          <div class="kpi-change" [class.up]="isUp(kh.duNo, kh.duNoPrev)"
+                                   [class.down]="!isUp(kh.duNo, kh.duNoPrev)">
+            <span class="material-icons trend-icon">{{ isUp(kh.duNo, kh.duNoPrev) ? 'trending_up' : 'trending_down' }}</span>
+            {{ fmtDiff(kh.duNo, kh.duNoPrev) }}
+            @if (pct(kh.duNo, kh.duNoPrev); as p) {
+              <span class="kpi-pct">· {{ p }}</span>
+            }
+          </div>
+          <div class="kpi-sub">so với {{ kh.kyTruoc }}</div>
+          <div class="kpi-bench">
+            <span>TB phân khúc: <strong>{{ fmt(kh.duNoTb) }}</strong></span>
+            @if (pctVsTb(kh.duNo, kh.duNoTb); as p) {
+              <span class="vs-tb" [class.up]="pctVsTbUp(kh.duNo, kh.duNoTb)"
+                                   [class.down]="!pctVsTbUp(kh.duNo, kh.duNoTb)">
+                So với TB: {{ p }}
+              </span>
+            } @else {
+              <span class="vs-tb muted">So với TB: —</span>
+            }
+          </div>
+          <svg class="sparkline" viewBox="0 0 80 28" preserveAspectRatio="none">
+            <path [attr.d]="sparklinePath(kh.duNoTrend)" fill="none" stroke="#009640" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <!-- TNT từ dịch vụ -->
+        <div class="kpi-card">
+          <div class="kpi-label">TNT từ dịch vụ</div>
+          <div class="kpi-value">{{ fmt(kh.tntDichVu) }}</div>
+          <div class="kpi-change" [class.up]="isUp(kh.tntDichVu, kh.tntDichVuPrev)"
+                                   [class.down]="!isUp(kh.tntDichVu, kh.tntDichVuPrev)">
+            <span class="material-icons trend-icon">{{ isUp(kh.tntDichVu, kh.tntDichVuPrev) ? 'trending_up' : 'trending_down' }}</span>
+            {{ fmtDiff(kh.tntDichVu, kh.tntDichVuPrev) }}
+            @if (pct(kh.tntDichVu, kh.tntDichVuPrev); as p) {
+              <span class="kpi-pct">· {{ p }}</span>
+            }
+          </div>
+          <div class="kpi-sub">so với {{ kh.kyTruoc }}</div>
+          <div class="kpi-bench">
+            <span>TB phân khúc: <strong>{{ fmt(kh.tntDichVuTb) }}</strong></span>
+            @if (pctVsTb(kh.tntDichVu, kh.tntDichVuTb); as p) {
+              <span class="vs-tb" [class.up]="pctVsTbUp(kh.tntDichVu, kh.tntDichVuTb)"
+                                   [class.down]="!pctVsTbUp(kh.tntDichVu, kh.tntDichVuTb)">
+                So với TB: {{ p }}
+              </span>
+            } @else {
+              <span class="vs-tb muted">So với TB: —</span>
+            }
+          </div>
+          <svg class="sparkline" viewBox="0 0 80 28" preserveAspectRatio="none">
+            <path [attr.d]="sparklinePath(kh.tntDichVuTrend)" fill="none" stroke="#009640" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <!-- TNT từ HĐV -->
+        <div class="kpi-card">
+          <div class="kpi-label">TNT từ HĐV</div>
+          <div class="kpi-value">{{ fmt(kh.tntHdv) }}</div>
+          <div class="kpi-change" [class.up]="isUp(kh.tntHdv, kh.tntHdvPrev)"
+                                   [class.down]="!isUp(kh.tntHdv, kh.tntHdvPrev)">
+            <span class="material-icons trend-icon">{{ isUp(kh.tntHdv, kh.tntHdvPrev) ? 'trending_up' : 'trending_down' }}</span>
+            {{ fmtDiff(kh.tntHdv, kh.tntHdvPrev) }}
+            @if (pct(kh.tntHdv, kh.tntHdvPrev); as p) {
+              <span class="kpi-pct">· {{ p }}</span>
+            }
+          </div>
+          <div class="kpi-sub">so với {{ kh.kyTruoc }}</div>
+          <div class="kpi-bench">
+            <span>TB phân khúc: <strong>{{ fmt(kh.tntHdvTb) }}</strong></span>
+            @if (pctVsTb(kh.tntHdv, kh.tntHdvTb); as p) {
+              <span class="vs-tb" [class.up]="pctVsTbUp(kh.tntHdv, kh.tntHdvTb)"
+                                   [class.down]="!pctVsTbUp(kh.tntHdv, kh.tntHdvTb)">
+                So với TB: {{ p }}
+              </span>
+            } @else {
+              <span class="vs-tb muted">So với TB: —</span>
+            }
+          </div>
+          <svg class="sparkline" viewBox="0 0 80 28" preserveAspectRatio="none">
+            <path [attr.d]="sparklinePath(kh.tntHdvTrend)" fill="none" stroke="#009640" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <!-- TNT từ tín dụng -->
+        <div class="kpi-card">
+          <div class="kpi-label">TNT từ tín dụng</div>
+          <div class="kpi-value">{{ fmt(kh.tntTinDung) }}</div>
+          <div class="kpi-change" [class.up]="isUp(kh.tntTinDung, kh.tntTinDungPrev)"
+                                   [class.down]="!isUp(kh.tntTinDung, kh.tntTinDungPrev)">
+            <span class="material-icons trend-icon">{{ isUp(kh.tntTinDung, kh.tntTinDungPrev) ? 'trending_up' : 'trending_down' }}</span>
+            {{ fmtDiff(kh.tntTinDung, kh.tntTinDungPrev) }}
+            @if (pct(kh.tntTinDung, kh.tntTinDungPrev); as p) {
+              <span class="kpi-pct">· {{ p }}</span>
+            }
+          </div>
+          <div class="kpi-sub">so với {{ kh.kyTruoc }}</div>
+          <div class="kpi-bench">
+            <span>TB phân khúc: <strong>{{ fmt(kh.tntTinDungTb) }}</strong></span>
+            @if (pctVsTb(kh.tntTinDung, kh.tntTinDungTb); as p) {
+              <span class="vs-tb" [class.up]="pctVsTbUp(kh.tntTinDung, kh.tntTinDungTb)"
+                                   [class.down]="!pctVsTbUp(kh.tntTinDung, kh.tntTinDungTb)">
+                So với TB: {{ p }}
+              </span>
+            } @else {
+              <span class="vs-tb muted">So với TB: —</span>
+            }
+          </div>
+          <svg class="sparkline" viewBox="0 0 80 28" preserveAspectRatio="none">
+            <path [attr.d]="sparklinePath(kh.tntTinDungTrend)" fill="none" stroke="#009640" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <!-- Tổng TNT -->
+        <div class="kpi-card kpi-card--highlight">
+          <div class="kpi-label">Tổng TNT</div>
+          <div class="kpi-value">{{ fmt(kh.tongTnt) }}</div>
+          <div class="kpi-change" [class.up]="isUp(kh.tongTnt, kh.tongTntPrev)"
+                                   [class.down]="!isUp(kh.tongTnt, kh.tongTntPrev)">
+            <span class="material-icons trend-icon">{{ isUp(kh.tongTnt, kh.tongTntPrev) ? 'trending_up' : 'trending_down' }}</span>
+            {{ fmtDiff(kh.tongTnt, kh.tongTntPrev) }}
+            @if (pct(kh.tongTnt, kh.tongTntPrev); as p) {
+              <span class="kpi-pct">· {{ p }}</span>
+            }
+          </div>
+          <div class="kpi-sub">so với {{ kh.kyTruoc }}</div>
+          <div class="kpi-bench">
+            <span>TB phân khúc: <strong>{{ fmt(kh.tongTntTb) }}</strong></span>
+            @if (pctVsTb(kh.tongTnt, kh.tongTntTb); as p) {
+              <span class="vs-tb" [class.up]="pctVsTbUp(kh.tongTnt, kh.tongTntTb)"
+                                   [class.down]="!pctVsTbUp(kh.tongTnt, kh.tongTntTb)">
+                So với TB: {{ p }}
+              </span>
+            } @else {
+              <span class="vs-tb muted">So với TB: —</span>
+            }
+          </div>
+          <svg class="sparkline" viewBox="0 0 80 28" preserveAspectRatio="none">
+            <path [attr.d]="sparklinePath(kh.tongTntTrend)" fill="none" stroke="#005BAA" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+      </div>
+    } @else {
+      <!-- Empty state -->
+      <div class="empty-state">
+        <span class="material-icons">search_off</span>
+        <p>Không tìm thấy dữ liệu cho khách hàng này.</p>
+      </div>
+    }
+  }
+
+</div>

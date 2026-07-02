@@ -1,0 +1,403 @@
+// ── Variables ─────────────────────────────────────────────────────────
+$primary:      #005BAA;
+$primary-dark: #1C3557;
+$green:        #009640;
+$red:          #EF4444;
+$yellow:       #F59E0B;
+$purple:       #7C3AED;
+$gray:         #6b7280;
+$gray-bg:      #f9fafb;
+$gray-border:  #e5e7eb;
+$text:         #1A1A2E;
+
+// ── Page ──────────────────────────────────────────────────────────────
+.page-wrapper {
+  padding: 24px;
+  background: #F4F6F9;
+  min-height: 100%;
+}
+
+// ── Header ────────────────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.header-left { display: flex; flex-direction: column; gap: 4px; }
+.page-title  { font-size: 24px; font-weight: 700; color: $text; margin: 0; }
+.page-subtitle { font-size: 13px; color: $gray; margin: 0; }
+.header-actions { display: flex; gap: 10px; align-items: center; }
+
+.btn-outline {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  border: 1.5px solid $primary; background: #fff; color: $primary;
+  border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background 0.15s;
+  .material-icons { font-size: 16px; }
+  &:hover { background: #e8f0f9; }
+}
+
+// ── KPI Grid ──────────────────────────────────────────────────────────
+.kpi-loading {
+  display: flex; justify-content: center;
+  padding: 24px 0; margin-bottom: 20px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+
+  @media (max-width: 1200px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 768px)  { grid-template-columns: repeat(2, 1fr); }
+}
+
+.kpi-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid $gray-border;
+  padding: 16px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  transition: box-shadow 0.15s;
+
+  &:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+}
+
+.kpi-icon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  .material-icons { font-size: 22px; color: #fff; }
+
+  &.kpi-blue   { background: #005BAA; }
+  &.kpi-red    { background: #EF4444; }
+  &.kpi-yellow { background: #F59E0B; }
+  &.kpi-green  { background: #009640; }
+  &.kpi-purple { background: #7C3AED; }
+}
+
+.kpi-body { flex: 1; min-width: 0; }
+.kpi-label { font-size: 11px; color: $gray; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 4px; }
+.kpi-value { font-size: 22px; font-weight: 700; color: $text; margin-bottom: 2px; white-space: nowrap; }
+.kpi-sub   { font-size: 11px; color: $gray; }
+
+// ── Tab Navigation ────────────────────────────────────────────────────
+.tab-nav {
+  display: flex;
+  gap: 0;
+  background: #fff;
+  border: 1px solid $gray-border;
+  border-radius: 10px 10px 0 0;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 18px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: $gray;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+
+  .tab-icon { font-size: 16px; }
+
+  &.active {
+    color: $primary;
+    border-bottom-color: $primary;
+    font-weight: 600;
+  }
+
+  &:hover:not(.active) {
+    background: $gray-bg;
+    color: $text;
+  }
+}
+
+.tab-badge {
+  background: #EF4444;
+  color: #fff;
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+// ── Filter ────────────────────────────────────────────────────────────
+.filter-card {
+  background: #fff;
+  border: 1px solid $gray-border;
+  border-top: none;
+  border-radius: 0 0 0 0;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-row-1 {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-row-2 {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.search-field {
+  flex: 2;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  label { font-size: 11px; font-weight: 600; color: $gray; }
+}
+
+.search-input-wrap { position: relative; }
+
+.search-icon {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  color: $gray; font-size: 17px;
+}
+
+.search-input {
+  width: 100%; box-sizing: border-box;
+  padding: 8px 10px 8px 34px;
+  border: 1.5px solid $gray-border; border-radius: 7px;
+  font-size: 13px; color: $text; background: #fff;
+  transition: border-color 0.15s;
+  &:focus { outline: none; border-color: $primary; }
+}
+
+.filter-field {
+  display: flex; flex-direction: column; gap: 5px;
+  min-width: 130px;
+
+  label { font-size: 11px; font-weight: 600; color: $gray; }
+
+  select {
+    padding: 8px 24px 8px 10px;
+    border: 1.5px solid $gray-border; border-radius: 7px;
+    font-size: 13px; color: $text; background: #fff;
+    cursor: pointer; transition: border-color 0.15s;
+    &:focus { outline: none; border-color: $primary; }
+  }
+
+  &.filter-field-wide { min-width: 180px; }
+}
+
+.filter-checks {
+  display: flex; flex-direction: column; gap: 6px; padding-bottom: 2px;
+}
+
+.check-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: $text; cursor: pointer; white-space: nowrap;
+
+  input[type="checkbox"] { cursor: pointer; accent-color: $primary; }
+}
+
+.btn-search {
+  padding: 8px 22px;
+  border: none; background: $primary-dark; color: #fff;
+  border-radius: 7px; font-size: 13px; font-weight: 600;
+  cursor: pointer; white-space: nowrap; height: 36px;
+  transition: background 0.15s;
+  margin-left: auto;
+  &:hover { background: darken($primary-dark, 6%); }
+}
+
+// ── Loading ───────────────────────────────────────────────────────────
+.loading-wrap {
+  display: flex; justify-content: center; padding: 48px 0;
+}
+
+// ── Result bar ────────────────────────────────────────────────────────
+.result-bar {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: $gray; margin-bottom: 10px;
+  .material-icons { font-size: 16px; }
+  strong { color: $text; font-weight: 700; margin: 0 2px; }
+}
+
+// ── Table card ────────────────────────────────────────────────────────
+.table-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid $gray-border;
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  min-width: 1100px;
+
+  thead tr {
+    background: $gray-bg;
+    border-bottom: 1.5px solid $gray-border;
+  }
+
+  th {
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 11px; font-weight: 700; color: $gray;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    white-space: nowrap;
+    &.col-num, &.col-stt { text-align: center; }
+  }
+
+  td {
+    padding: 11px 12px;
+    border-bottom: 1px solid $gray-border;
+    color: $text;
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #f8fafc; }
+}
+
+.col-stt  { width: 44px; text-align: center; }
+.col-the  { min-width: 160px; }
+.col-num  { min-width: 110px; text-align: center; }
+.col-ptn  { min-width: 150px; }
+.col-date { min-width: 110px; }
+
+.text-gray { color: $gray; font-size: 11px; }
+
+// ── Số thẻ cell ───────────────────────────────────────────────────────
+.card-number { font-size: 12.5px; font-weight: 700; color: $primary; }
+.card-sub    { font-size: 11px; color: $gray; margin-top: 2px; }
+.card-type   {
+  display: inline-block; margin-top: 3px;
+  padding: 1px 6px;
+  background: #e8f0f9; color: $primary;
+  border-radius: 4px; font-size: 10px; font-weight: 600;
+}
+
+// ── Chủ thẻ ───────────────────────────────────────────────────────────
+.card-holder { font-weight: 600; }
+
+// ── Sản phẩm ──────────────────────────────────────────────────────────
+.product-code { font-size: 12.5px; font-weight: 500; margin-bottom: 3px; }
+
+.net-badge {
+  display: inline-block;
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 700;
+
+  &.net-visa  { background: #1a1f71; color: #fff; }
+  &.net-jcb   { background: #0e4c96; color: #fff; }
+  &.net-mc    { background: #eb5c1e; color: #fff; }
+  &.net-other { background: $gray-bg; color: $gray; }
+}
+
+// ── Số tiền ───────────────────────────────────────────────────────────
+.amount      { font-weight: 600; font-size: 12.5px; }
+.amount-unit { font-size: 11px; color: $gray; }
+
+// ── % labels ─────────────────────────────────────────────────────────
+.pct-label { font-size: 11px; margin-top: 2px; }
+.pct-green  { color: #009640; }
+.pct-yellow { color: #F59E0B; }
+.pct-red    { color: #EF4444; }
+
+// ── PTN column ───────────────────────────────────────────────────────
+.ptn-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 4px;
+}
+.ptn-doanh-so { font-weight: 600; font-size: 12.5px; }
+.ptn-pct      { font-size: 11px; }
+
+.ptn-progress-wrap {
+  height: 4px; background: $gray-border; border-radius: 2px; overflow: hidden;
+  margin-bottom: 3px;
+}
+.ptn-progress-bar {
+  height: 100%; background: $primary; border-radius: 2px;
+  transition: width 0.3s;
+}
+.ptn-threshold { font-size: 10px; color: $gray; font-weight: 700; }
+
+// ── Trạng thái badge ─────────────────────────────────────────────────
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px; border-radius: 5px;
+  font-size: 11px; font-weight: 600;
+  white-space: nowrap;
+
+  &.badge-red    { background: #fff1f2; color: #EF4444; border: 1px solid #fecdd3; }
+  &.badge-green  { background: #f0fdf4; color: #009640; border: 1px solid #bbf7d0; }
+  &.badge-yellow { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+  &.badge-gray   { background: $gray-bg; color: $gray; border: 1px solid $gray-border; }
+}
+
+// ── Kích hoạt / PSGD ─────────────────────────────────────────────────
+.date-row {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 12px; color: $text; margin-bottom: 3px;
+
+  &:last-child { margin-bottom: 0; }
+}
+
+.date-icon { font-size: 13px; color: $yellow; }
+
+// ── Ngày phát hành ────────────────────────────────────────────────────
+.date-main { font-size: 12px; color: $text; }
+.hsd-label { font-size: 11px; color: $gray; margin-top: 2px; }
+
+// ── Empty ─────────────────────────────────────────────────────────────
+.empty-cell {
+  text-align: center; padding: 48px !important;
+  color: $gray; font-size: 13px;
+}
+
+// ── Pagination ────────────────────────────────────────────────────────
+.pagination {
+  display: flex; align-items: center; gap: 4px;
+  padding: 12px 18px; border-top: 1px solid $gray-border; flex-wrap: wrap;
+}
+
+.page-btn {
+  min-width: 32px; height: 32px;
+  border: 1.5px solid $gray-border; background: #fff;
+  border-radius: 6px; font-size: 12px; font-weight: 500; color: $text;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  .material-icons { font-size: 16px; }
+  &.active { background: $primary; color: #fff; border-color: $primary; }
+  &:not(.active):hover { background: $gray-bg; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.page-ellipsis { font-size: 13px; color: $gray; padding: 0 4px; }
+.page-info     { margin-left: 8px; font-size: 12px; color: $gray; }

@@ -1,0 +1,255 @@
+<div class="page-wrapper">
+
+  <!-- ── Header ──────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Khách hàng</h1>
+      <p class="page-subtitle">Tìm kiếm và xem chi tiết khách hàng (KH 360°)</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-outline" (click)="exportExcel()">
+        <span class="material-icons">download</span>
+        Xuất Excel
+      </button>
+      <button class="btn-primary" (click)="openAdd()">
+        <span class="material-icons">add</span>
+        Thêm khách hàng
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Search bar ──────────────────────────────────────────────── -->
+  <div class="search-card">
+    <div class="search-field">
+      <label>Tìm theo CIF, tên KH, SĐT hoặc email</label>
+      <div class="search-input-wrap">
+        <span class="material-icons search-icon">search</span>
+        <input
+          class="search-input"
+          [(ngModel)]="searchText"
+          (keyup.enter)="search()"
+          placeholder="VD: 100001 hoặc 'ABC' hoặc 'Nguyễn'">
+      </div>
+    </div>
+    <div class="filter-field">
+      <label>Phân khúc</label>
+      <select [(ngModel)]="selectedType" (ngModelChange)="onTypeChange()">
+        <option [ngValue]="null">Tất cả phân khúc</option>
+        @for (t of phanKhucTypes(); track t.value) {
+          <option [ngValue]="t.value">{{ t.label }}</option>
+        }
+      </select>
+    </div>
+    <button class="btn-search" (click)="search()">Tìm kiếm</button>
+  </div>
+
+  <!-- ── Loading ─────────────────────────────────────────────────── -->
+  @if (loading()) {
+    <div class="loading-wrap">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  }
+
+  <!-- ── Result count + Table ────────────────────────────────────── -->
+  @if (!loading()) {
+    <div class="result-bar">
+      <span class="material-icons">people</span>
+      Tìm thấy <strong>{{ totalElements }}</strong> khách hàng
+    </div>
+
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="col-stt">STT</th>
+            <th>CIF</th>
+            <th>TÊN KHÁCH HÀNG</th>
+            <th>PHÂN KHÚC</th>
+            <th>AM PHỤ TRÁCH</th>
+            <th>PHÒNG</th>
+            <th>LIÊN HỆ</th>
+            <th>NGÀY MỞ</th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (items.length === 0) {
+            <tr><td colspan="9" class="empty-cell">Không có dữ liệu</td></tr>
+          }
+          @for (item of items; track item.id; let i = $index) {
+            <tr class="clickable-row" (click)="goToDetail(item.maKhCif)">
+              <td class="col-stt">{{ stt(i) }}</td>
+              <td class="cell-cif">{{ item.maKhCif }}</td>
+              <td class="cell-ten">{{ item.tenKhachHang }}</td>
+              <td>
+                @if (item.typeKhachHang) {
+                  <span class="pk-badge" [ngClass]="phanKhucClass(item.typeKhachHang)">
+                    {{ phanKhucLabel(item.typeKhachHang) }}
+                  </span>
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+              <td class="cell-am">
+                @if (item.tenAm) {
+                  <div class="am-name">{{ item.tenAm }}</div>
+                  <div class="am-code">{{ item.maAm }}</div>
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+              <td class="cell-phong">{{ item.tenPhong || '—' }}</td>
+              <td class="cell-lien-he">
+                @if (item.soDienThoai) {
+                  <div>{{ item.soDienThoai }}</div>
+                }
+                @if (item.email) {
+                  <div class="email-text">{{ item.email }}</div>
+                }
+                @if (!item.soDienThoai && !item.email) {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+              <td class="cell-date">
+                {{ item.ngayBatDau ? (item.ngayBatDau | date:'dd/MM/yyyy') : '—' }}
+              </td>
+              <td class="col-actions" (click)="$event.stopPropagation()">
+                <button class="icon-btn edit-btn" (click)="openEdit(item)" matTooltip="Chỉnh sửa">
+                  <span class="material-icons">edit</span>
+                </button>
+                <button class="icon-btn delete-btn" (click)="delete(item.id)" matTooltip="Xóa">
+                  <span class="material-icons">delete</span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      @if (totalPages > 1) {
+        <div class="pagination">
+          <button class="page-btn" [disabled]="currentPage === 0" (click)="loadPage(currentPage - 1)">
+            <span class="material-icons">chevron_left</span>
+          </button>
+          @if (currentPage > 2) {
+            <button class="page-btn" (click)="loadPage(0)">1</button>
+            @if (currentPage > 3) { <span class="page-ellipsis">…</span> }
+          }
+          @for (p of pageNumbers(); track p) {
+            <button class="page-btn" [class.active]="p === currentPage" (click)="loadPage(p)">
+              {{ p + 1 }}
+            </button>
+          }
+          @if (currentPage < totalPages - 3) {
+            @if (currentPage < totalPages - 4) { <span class="page-ellipsis">…</span> }
+            <button class="page-btn" (click)="loadPage(totalPages - 1)">{{ totalPages }}</button>
+          }
+          <button class="page-btn" [disabled]="currentPage >= totalPages - 1" (click)="loadPage(currentPage + 1)">
+            <span class="material-icons">chevron_right</span>
+          </button>
+          <span class="page-info">Trang {{ currentPage + 1 }} / {{ totalPages }}</span>
+        </div>
+      }
+    </div>
+  }
+
+</div>
+
+<!-- ══════════════════ DIALOG ADD / EDIT ══════════════════════════ -->
+@if (showDialog()) {
+  <div class="dialog-overlay" (click)="closeDialog()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+
+      <div class="dialog-header">
+        <h2>{{ editId ? 'Cập nhật khách hàng' : 'Thêm khách hàng' }}</h2>
+        <button class="dialog-close" (click)="closeDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="dialog-body">
+        <div class="form-row">
+          <div class="form-field">
+            <label>Mã CIF <span class="required">*</span></label>
+            <input [(ngModel)]="dlg.maKhCif" placeholder="100001">
+          </div>
+          <div class="form-field">
+            <label>Tên khách hàng <span class="required">*</span></label>
+            <input [(ngModel)]="dlg.tenKhachHang" placeholder="CONG TY CP ABC">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Phân khúc</label>
+            <select [(ngModel)]="dlg.typeKhachHang">
+              <option [ngValue]="null">-- Chọn phân khúc --</option>
+              <option [ngValue]="1">Khối Bán Buôn</option>
+              <option [ngValue]="2">Khối Bán Lẻ</option>
+              <option [ngValue]="3">Khối FDI</option>
+              <option [ngValue]="4">Khách hàng đặc biệt</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>AM phụ trách</label>
+            <select [(ngModel)]="dlg.maAm" (ngModelChange)="onAmChange()">
+              <option [ngValue]="null">-- Chọn AM --</option>
+              @for (a of amOptions(); track a.ma) {
+                <option [value]="a.ma">{{ a.ten }} ({{ a.ma }})</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Phòng / Chi nhánh</label>
+            <select [(ngModel)]="dlg.maDonViCap6">
+              <option [ngValue]="null">-- Chọn phòng --</option>
+              @for (p of phongOptions(); track p.ma) {
+                <option [value]="p.ma">{{ p.ten }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Ngày mở</label>
+            <input [(ngModel)]="dlg.ngayBatDau" type="date">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Số điện thoại</label>
+            <input [(ngModel)]="dlg.soDienThoai" placeholder="0912345678">
+          </div>
+          <div class="form-field">
+            <label>Email</label>
+            <input [(ngModel)]="dlg.email" placeholder="kh@company.com" type="email">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Trạng thái</label>
+            <select [(ngModel)]="dlg.trangThai">
+              <option [ngValue]="1">Hoạt động</option>
+              <option [ngValue]="0">Không hoạt động</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="dialog-footer">
+        <button class="btn-cancel" (click)="closeDialog()">Hủy</button>
+        <button class="btn-save" [disabled]="!canSave" (click)="saveDialog()">
+          @if (saving()) {
+            <mat-spinner diameter="16"></mat-spinner>
+          } @else {
+            {{ editId ? 'Cập nhật' : 'Thêm mới' }}
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

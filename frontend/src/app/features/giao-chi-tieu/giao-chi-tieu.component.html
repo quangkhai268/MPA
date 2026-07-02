@@ -1,0 +1,452 @@
+<div class="page-wrapper">
+
+  <!-- ── PAGE HEADER ──────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Giao chỉ tiêu BSC</h1>
+      <p class="page-subtitle">Quản lý chỉ tiêu kinh doanh phân giao tới Phòng/Cán bộ + Dashboard so sánh thực hiện vs kế hoạch</p>
+    </div>
+  </div>
+
+  <!-- ── FILTER BAR ────────────────────────────────────────────────── -->
+  <div class="filter-bar">
+    <div class="filter-fields">
+
+      <div class="filter-item">
+        <label>Loại kỳ</label>
+        <select [(ngModel)]="loaiKy" (change)="onFilterChange()">
+          <option value="thang">Tháng</option>
+          <option value="quy">Quý</option>
+          <option value="nam">Năm</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label>Năm</label>
+        <select [(ngModel)]="selectedNam" (change)="onFilterChange()">
+          @for (y of namOptions; track y) {
+            <option [value]="y">{{ y }}</option>
+          }
+        </select>
+      </div>
+
+      @if (loaiKy === 'thang') {
+        <div class="filter-item">
+          <label>Tháng</label>
+          <select [(ngModel)]="selectedThang" (change)="onFilterChange()">
+            @for (m of thangOptions; track m) {
+              <option [value]="m">Tháng {{ m < 10 ? '0' + m : m }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      @if (loaiKy === 'quy') {
+        <div class="filter-item">
+          <label>Quý</label>
+          <select [(ngModel)]="selectedQuy" (change)="onFilterChange()">
+            @for (q of quyOptions; track q) {
+              <option [value]="q">{{ q }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <div class="filter-item">
+        <label>Đối tượng giao</label>
+        <select [(ngModel)]="doiTuong" (change)="onFilterChange()">
+          <option value="phong">Phòng nghiệp vụ</option>
+          <option value="chi-nhanh">Chi nhánh</option>
+          <option value="am">Cán bộ AM</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="period-badge">{{ periodLabel }}</div>
+  </div>
+
+  <!-- ── TABS ──────────────────────────────────────────────────────── -->
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'so-sanh'" (click)="setTab('so-sanh')">
+      <mat-icon>bar_chart</mat-icon> Dashboard so sánh
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'xu-huong'" (click)="setTab('xu-huong')">
+      <mat-icon>trending_up</mat-icon> Xu hướng theo tháng
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'quan-ly'" (click)="setTab('quan-ly')">
+      <mat-icon>settings</mat-icon> Quản lý chỉ tiêu
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!--  TAB: DASHBOARD SO SÁNH                                       -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  @if (activeTab === 'so-sanh') {
+
+    @if (loading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span>Đang tải dữ liệu...</span>
+      </div>
+    } @else {
+
+      <!-- Summary cards -->
+      <div class="summary-cards">
+        <div class="summary-card dat">
+          <div class="summary-label">Đạt kế hoạch (≥100%)</div>
+          <div class="summary-value">{{ data()?.datKeHoach ?? 0 }}</div>
+          @if (data()) {
+            <div class="summary-sub">
+              {{ (data()!.datKeHoach / data()!.total * 100 | number:'1.0-0') }}% / {{ data()!.total }} chỉ tiêu
+            </div>
+          }
+        </div>
+
+        <div class="summary-card canh">
+          <div class="summary-label">Cảnh báo (80-99%)</div>
+          <div class="summary-value">{{ data()?.canhBao ?? 0 }}</div>
+        </div>
+
+        <div class="summary-card rui">
+          <div class="summary-label">Rủi ro (&lt;80%)</div>
+          <div class="summary-value">{{ data()?.ruiRo ?? 0 }}</div>
+        </div>
+
+        <div class="summary-card chua">
+          <div class="summary-label">Chưa giao chỉ tiêu</div>
+          <div class="summary-value">{{ data()?.chuaGiao ?? 0 }}</div>
+        </div>
+      </div>
+
+      <!-- Table header row -->
+      <div class="table-toolbar">
+        <div class="table-title">
+          {{ tableTitle }}
+        </div>
+        <div class="table-actions">
+          <label class="delta-toggle">
+            <input type="checkbox" [(ngModel)]="showDelta" />
+            Hiển thị Δ% so với kỳ trước
+          </label>
+          <button class="btn-export" (click)="exportExcel()">
+            <mat-icon>download</mat-icon> Xuất Excel
+          </button>
+        </div>
+      </div>
+
+      <!-- Comparison table -->
+      <div class="table-container">
+        <table class="bsc-table">
+          <thead>
+            <tr>
+              <th class="th-unit sticky-col">{{ unitColumnLabel }}</th>
+              <th>HĐV CUỐI KỲ</th>
+              <th>CASA BÌNH QUÂN</th>
+              <th>DƯ NỢ</th>
+              <th>TNT TỪ DỊCH VỤ</th>
+              <th>TNT TỪ HĐV</th>
+              <th>TNT TỪ TÍN DỤNG</th>
+              <th>TỔNG TNT</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (!data() || data()!.rows.length === 0) {
+              <tr>
+                <td colspan="8" class="empty-row">
+                  <mat-icon>inbox</mat-icon>
+                  <span>Không có dữ liệu cho kỳ đã chọn</span>
+                </td>
+              </tr>
+            }
+            @for (row of data()?.rows ?? []; track row.maUnit) {
+              <tr>
+                <td class="td-unit sticky-col">
+                  <div class="unit-name">{{ row.tenUnit }}</div>
+                  <div class="unit-code">{{ row.maUnit }}</div>
+                </td>
+
+                <!-- HĐV Cuối kỳ -->
+                <td [class]="cellClass(row.hdvCuoiKyPct)">
+                  <div class="cell-pct">{{ pctText(row.hdvCuoiKyPct) }}</div>
+                  <div class="cell-th">{{ formatTy(row.hdvCuoiKyTh) }}</div>
+                  <div class="cell-kh">/ {{ formatTy(row.hdvCuoiKyKh) }}</div>
+                  @if (showDelta && row.hdvCuoiKyDelta !== null) {
+                    <div class="cell-delta" [class.pos]="(row.hdvCuoiKyDelta ?? 0) > 0"
+                         [class.neg]="(row.hdvCuoiKyDelta ?? 0) < 0">
+                      {{ deltaSign(row.hdvCuoiKyDelta) }}
+                    </div>
+                  }
+                </td>
+
+                <!-- CASA Bình quân -->
+                <td [class]="cellClass(row.casaBinhQuanPct)">
+                  <div class="cell-pct">{{ pctText(row.casaBinhQuanPct) }}</div>
+                  <div class="cell-th">{{ formatTy(row.casaBinhQuanTh) }}</div>
+                  <div class="cell-kh">/ {{ formatTy(row.casaBinhQuanKh) }}</div>
+                  @if (showDelta && row.casaBinhQuanDelta !== null) {
+                    <div class="cell-delta" [class.pos]="(row.casaBinhQuanDelta ?? 0) > 0"
+                         [class.neg]="(row.casaBinhQuanDelta ?? 0) < 0">
+                      {{ deltaSign(row.casaBinhQuanDelta) }}
+                    </div>
+                  }
+                </td>
+
+                <!-- Dư nợ -->
+                <td [class]="cellClass(row.duNoPct)">
+                  <div class="cell-pct">{{ pctText(row.duNoPct) }}</div>
+                  <div class="cell-th">{{ formatTy(row.duNoTh) }}</div>
+                  <div class="cell-kh">/ {{ formatTy(row.duNoKh) }}</div>
+                  @if (showDelta && row.duNoDelta !== null) {
+                    <div class="cell-delta" [class.pos]="(row.duNoDelta ?? 0) > 0"
+                         [class.neg]="(row.duNoDelta ?? 0) < 0">
+                      {{ deltaSign(row.duNoDelta) }}
+                    </div>
+                  }
+                </td>
+
+                <!-- TNT Dịch vụ -->
+                <td [class]="cellClass(row.tntDichVuPct)">
+                  <div class="cell-pct">{{ pctText(row.tntDichVuPct) }}</div>
+                  <div class="cell-th">{{ formatTy(row.tntDichVuTh) }}</div>
+                  <div class="cell-kh">/ {{ formatTy(row.tntDichVuKh) }}</div>
+                  @if (showDelta && row.tntDichVuDelta !== null) {
+                    <div class="cell-delta" [class.pos]="(row.tntDichVuDelta ?? 0) > 0"
+                         [class.neg]="(row.tntDichVuDelta ?? 0) < 0">
+                      {{ deltaSign(row.tntDichVuDelta) }}
+                    </div>
+                  }
+                </td>
+
+                <!-- TNT HĐV -->
+                <td [class]="cellClass(row.tntHdvPct)">
+                  <div class="cell-pct">{{ pctText(row.tntHdvPct) }}</div>
+                  <div class="cell-th">{{ formatTy(row.tntHdvTh) }}</div>
+                  <div class="cell-kh">/ {{ formatTy(row.tntHdvKh) }}</div>
+                  @if (showDelta && row.tntHdvDelta !== null) {
+                    <div class="cell-delta" [class.pos]="(row.tntHdvDelta ?? 0) > 0"
+                         [class.neg]="(row.tntHdvDelta ?? 0) < 0">
+                      {{ deltaSign(row.tntHdvDelta) }}
+                    </div>
+                  }
+                </td>
+
+                <!-- TNT Tín dụng -->
+                <td [class]="cellClass(row.tntTinDungPct)">
+                  <div class="cell-pct">{{ pctText(row.tntTinDungPct) }}</div>
+                  <div class="cell-th">{{ formatTy(row.tntTinDungTh) }}</div>
+                  <div class="cell-kh">/ {{ formatTy(row.tntTinDungKh) }}</div>
+                  @if (showDelta && row.tntTinDungDelta !== null) {
+                    <div class="cell-delta" [class.pos]="(row.tntTinDungDelta ?? 0) > 0"
+                         [class.neg]="(row.tntTinDungDelta ?? 0) < 0">
+                      {{ deltaSign(row.tntTinDungDelta) }}
+                    </div>
+                  }
+                </td>
+
+                <!-- Tổng TNT -->
+                <td [class]="cellClass(row.tntPct)">
+                  <div class="cell-pct">{{ pctText(row.tntPct) }}</div>
+                  <div class="cell-th">{{ formatTy(row.tntTh) }}</div>
+                  <div class="cell-kh">/ {{ formatTy(row.tntKh) }}</div>
+                  @if (showDelta && row.tntDelta !== null) {
+                    <div class="cell-delta" [class.pos]="(row.tntDelta ?? 0) > 0"
+                         [class.neg]="(row.tntDelta ?? 0) < 0">
+                      {{ deltaSign(row.tntDelta) }}
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend">
+        <span class="legend-item legend-dat"><span class="dot"></span>Đạt ≥100%</span>
+        <span class="legend-item legend-canh"><span class="dot"></span>Cảnh báo 80-99%</span>
+        <span class="legend-item legend-rui"><span class="dot"></span>Rủi ro &lt;80%</span>
+      </div>
+
+    }
+  }
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!--  TAB: XU HƯỚNG THEO THÁNG                                     -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  @if (activeTab === 'xu-huong') {
+    <div class="placeholder-tab">
+      <mat-icon>trending_up</mat-icon>
+      <h3>Xu hướng theo tháng</h3>
+      <p>Biểu đồ xu hướng thực hiện so với kế hoạch từng tháng trong năm.</p>
+      <span class="coming-soon">Đang phát triển</span>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!--  TAB: QUẢN LÝ CHỈ TIÊU                                        -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  @if (activeTab === 'quan-ly') {
+
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+      <div class="table-title">Quản lý chỉ tiêu BSC kế hoạch – Năm {{ selectedNam }}</div>
+      <div class="table-actions">
+        <button class="btn-add" (click)="openDialog()">
+          <mat-icon>add</mat-icon> Thêm chỉ tiêu
+        </button>
+        <button class="btn-export" (click)="exportExcel()">
+          <mat-icon>download</mat-icon> Xuất Excel
+        </button>
+      </div>
+    </div>
+
+    <!-- List table -->
+    @if (loadingQuanLy()) {
+      <div class="loading-state">
+        <mat-spinner diameter="36"></mat-spinner>
+        <span>Đang tải...</span>
+      </div>
+    } @else {
+      <div class="table-container">
+        <table class="bsc-table">
+          <thead>
+            <tr>
+              <th class="th-stt">STT</th>
+              <th class="th-unit sticky-col">{{ unitColumnLabel }}</th>
+              <th>HĐV CUỐI KỲ</th>
+              <th>CASA BQ</th>
+              <th>DƯ NỢ</th>
+              <th>TNT DV</th>
+              <th>TNT HĐV</th>
+              <th>TNT TD</th>
+              <th>TỔNG TNT</th>
+              <th class="th-action">THAO TÁC</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (quanLyList().length === 0) {
+              <tr>
+                <td colspan="10" class="empty-row">
+                  <mat-icon>inbox</mat-icon>
+                  <span>Chưa có chỉ tiêu. Nhấn "Thêm chỉ tiêu" để bắt đầu giao.</span>
+                </td>
+              </tr>
+            }
+            @for (row of quanLyList(); track row.id; let i = $index) {
+              <tr>
+                <td class="td-stt">{{ i + 1 }}</td>
+                <td class="td-unit sticky-col">
+                  <div class="unit-name">{{ row.tenUnit }}</div>
+                  <div class="unit-code">{{ row.maUnit }}</div>
+                </td>
+                <td class="ql-num">{{ formatTy(row.hdvCuoiKy) }}</td>
+                <td class="ql-num">{{ formatTy(row.casaBinhQuan) }}</td>
+                <td class="ql-num">{{ formatTy(row.duNoTinDung) }}</td>
+                <td class="ql-num">{{ formatTy(row.tntDichVu) }}</td>
+                <td class="ql-num">{{ formatTy(row.tntHdvFtp) }}</td>
+                <td class="ql-num">{{ formatTy(row.tntTinDung) }}</td>
+                <td class="ql-num ql-total">{{ formatTy(row.thuNhapThuan) }}</td>
+                <td class="td-action">
+                  <button class="btn-del" (click)="deleteChiTieu(row.id)"
+                          matTooltip="Xóa chỉ tiêu">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- ── ADD DIALOG ─────────────────────────────────────────────── -->
+    @if (showDialog()) {
+      <div class="dialog-overlay" (click)="closeDialog()">
+        <div class="dialog-box" (click)="$event.stopPropagation()">
+
+          <!-- Header -->
+          <div class="dialog-header">
+            <span class="dialog-icon">◎</span>
+            <h3>Thêm chỉ tiêu BSC</h3>
+            <button class="dialog-close" (click)="closeDialog()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+
+          <!-- Body -->
+          <div class="dialog-body">
+
+            <!-- Kỳ (readonly) -->
+            <div class="form-row">
+              <label class="form-label">Kỳ</label>
+              <div class="period-display">
+                {{ periodLabel }}
+                <span class="period-hint">(đổi ở filter bên trên)</span>
+              </div>
+            </div>
+
+            <!-- Đối tượng -->
+            <div class="form-row">
+              <label class="form-label">Đối tượng giao</label>
+              <div class="toggle-group">
+                <button class="toggle-btn" [class.active]="dlgDoiTuong === 'chi-nhanh'"
+                        (click)="onDlgDoiTuongChange('chi-nhanh')">Chi nhánh</button>
+                <button class="toggle-btn" [class.active]="dlgDoiTuong === 'phong'"
+                        (click)="onDlgDoiTuongChange('phong')">Phòng</button>
+                <button class="toggle-btn" [class.active]="dlgDoiTuong === 'am'"
+                        (click)="onDlgDoiTuongChange('am')">Cán bộ AM</button>
+              </div>
+            </div>
+
+            <!-- Unit select -->
+            <div class="form-row">
+              <label class="form-label">Chọn {{ doiTuongLabelMap[dlgDoiTuong] }}</label>
+              <select [(ngModel)]="dlgMaUnit" (change)="onUnitSelect()" class="form-select">
+                <option value="">— Chọn —</option>
+                @for (opt of unitOptions(); track opt.ma) {
+                  <option [value]="opt.ma">{{ opt.ten }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Chỉ tiêu -->
+            <div class="form-row">
+              <label class="form-label">Chỉ tiêu</label>
+              <select [(ngModel)]="dlgChiTieu" class="form-select">
+                @for (ct of chiTieuOptions; track ct.value) {
+                  <option [value]="ct.value">{{ ct.label }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Mục tiêu -->
+            <div class="form-row">
+              <label class="form-label">Mục tiêu (triệu VND)</label>
+              <input type="number" [(ngModel)]="dlgMucTieu"
+                     placeholder="VD: 350000"
+                     class="form-input"
+                     min="0" step="0.001" />
+            </div>
+
+          </div>
+
+          <!-- Footer -->
+          <div class="dialog-footer">
+            <button class="btn-cancel" (click)="closeDialog()">Hủy</button>
+            <button class="btn-save" (click)="saveDialog()" [disabled]="!dlgCanSave">
+              @if (savingDialog()) {
+                <mat-spinner diameter="16"></mat-spinner>
+              }
+              Lưu chỉ tiêu
+            </button>
+          </div>
+
+        </div>
+      </div>
+    }
+
+  }
+
+</div>
