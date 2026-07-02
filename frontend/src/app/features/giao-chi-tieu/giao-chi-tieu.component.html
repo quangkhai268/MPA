@@ -172,8 +172,8 @@
                   <div class="cell-th">{{ formatTy(row.hdvCuoiKyTh) }}</div>
                   <div class="cell-kh">/ {{ formatTy(row.hdvCuoiKyKh) }}</div>
                   @if (showDelta && row.hdvCuoiKyDelta !== null) {
-                    <div class="cell-delta" [class.pos]="(row.hdvCuoiKyDelta ?? 0) > 0"
-                         [class.neg]="(row.hdvCuoiKyDelta ?? 0) < 0">
+                    <div class="cell-delta" [class.pos]="row.hdvCuoiKyDelta > 0"
+                         [class.neg]="row.hdvCuoiKyDelta < 0">
                       {{ deltaSign(row.hdvCuoiKyDelta) }}
                     </div>
                   }
@@ -185,8 +185,8 @@
                   <div class="cell-th">{{ formatTy(row.casaBinhQuanTh) }}</div>
                   <div class="cell-kh">/ {{ formatTy(row.casaBinhQuanKh) }}</div>
                   @if (showDelta && row.casaBinhQuanDelta !== null) {
-                    <div class="cell-delta" [class.pos]="(row.casaBinhQuanDelta ?? 0) > 0"
-                         [class.neg]="(row.casaBinhQuanDelta ?? 0) < 0">
+                    <div class="cell-delta" [class.pos]="row.casaBinhQuanDelta > 0"
+                         [class.neg]="row.casaBinhQuanDelta < 0">
                       {{ deltaSign(row.casaBinhQuanDelta) }}
                     </div>
                   }
@@ -198,8 +198,8 @@
                   <div class="cell-th">{{ formatTy(row.duNoTh) }}</div>
                   <div class="cell-kh">/ {{ formatTy(row.duNoKh) }}</div>
                   @if (showDelta && row.duNoDelta !== null) {
-                    <div class="cell-delta" [class.pos]="(row.duNoDelta ?? 0) > 0"
-                         [class.neg]="(row.duNoDelta ?? 0) < 0">
+                    <div class="cell-delta" [class.pos]="row.duNoDelta > 0"
+                         [class.neg]="row.duNoDelta < 0">
                       {{ deltaSign(row.duNoDelta) }}
                     </div>
                   }
@@ -211,8 +211,8 @@
                   <div class="cell-th">{{ formatTy(row.tntDichVuTh) }}</div>
                   <div class="cell-kh">/ {{ formatTy(row.tntDichVuKh) }}</div>
                   @if (showDelta && row.tntDichVuDelta !== null) {
-                    <div class="cell-delta" [class.pos]="(row.tntDichVuDelta ?? 0) > 0"
-                         [class.neg]="(row.tntDichVuDelta ?? 0) < 0">
+                    <div class="cell-delta" [class.pos]="row.tntDichVuDelta > 0"
+                         [class.neg]="row.tntDichVuDelta < 0">
                       {{ deltaSign(row.tntDichVuDelta) }}
                     </div>
                   }
@@ -224,8 +224,8 @@
                   <div class="cell-th">{{ formatTy(row.tntHdvTh) }}</div>
                   <div class="cell-kh">/ {{ formatTy(row.tntHdvKh) }}</div>
                   @if (showDelta && row.tntHdvDelta !== null) {
-                    <div class="cell-delta" [class.pos]="(row.tntHdvDelta ?? 0) > 0"
-                         [class.neg]="(row.tntHdvDelta ?? 0) < 0">
+                    <div class="cell-delta" [class.pos]="row.tntHdvDelta > 0"
+                         [class.neg]="row.tntHdvDelta < 0">
                       {{ deltaSign(row.tntHdvDelta) }}
                     </div>
                   }
@@ -237,8 +237,8 @@
                   <div class="cell-th">{{ formatTy(row.tntTinDungTh) }}</div>
                   <div class="cell-kh">/ {{ formatTy(row.tntTinDungKh) }}</div>
                   @if (showDelta && row.tntTinDungDelta !== null) {
-                    <div class="cell-delta" [class.pos]="(row.tntTinDungDelta ?? 0) > 0"
-                         [class.neg]="(row.tntTinDungDelta ?? 0) < 0">
+                    <div class="cell-delta" [class.pos]="row.tntTinDungDelta > 0"
+                         [class.neg]="row.tntTinDungDelta < 0">
                       {{ deltaSign(row.tntTinDungDelta) }}
                     </div>
                   }
