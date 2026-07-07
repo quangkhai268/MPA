@@ -57,7 +57,7 @@ export class TheDetailComponent implements OnInit {
 
   formatTrieu(value: number | null | undefined): string {
     if (value == null) return '—';
-    return value.toLocaleString('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' triệu';
+    return Math.round(value).toLocaleString('vi-VN');
   }
 
   formatSoTienVnd(value: number | null | undefined): string {

@@ -7,127 +7,39 @@
 Initial chunk files | Names                       |  Raw size
 styles.css          | styles                      |  93.55 kB | 
 polyfills.js        | polyfills                   |  88.09 kB | 
-main.js             | main                        |   4.31 kB | 
+main.js             | main                        |   4.45 kB | 
 chunk-PT37UZKT.js   | -                           |   3.75 kB | 
 chunk-KULJQ72C.js   | -                           |   1.10 kB | 
 
-                    | Initial total               | 190.79 kB
-
-Lazy chunk files    | Names                       |  Raw size
-chunk-DEG3CDB5.js   | dashboard-component         | 137.50 kB | 
-chunk-M5IJXZZC.js   | quan-ly-the-component       |  80.21 kB | 
-chunk-7OYQGXZF.js   | giao-chi-tieu-component     |  75.59 kB | 
-chunk-4JYJL7YU.js   | du-lieu-mpa-component       |  57.37 kB | 
-chunk-QZUW27DL.js   | khach-hang-component        |  54.11 kB | 
-chunk-WS4PCNKV.js   | quan-tri-component          |  53.62 kB | 
-chunk-ST4A2Y4E.js   | quan-ly-am-component        |  53.43 kB | 
-chunk-VDGUGPGO.js   | khach-hang-detail-component |  52.84 kB | 
-chunk-HR2SSI35.js   | bao-cao-component           |  33.63 kB | 
-chunk-WAKLRBUB.js   | main-layout-component       |  27.80 kB | 
-chunk-ISS7LVWF.js   | login-component             |  18.08 kB | 
-chunk-2IZF2HTW.js   | -                           |   7.58 kB | 
-
-Application bundle generation complete. [22.377 seconds]
-
-Watch mode enabled. Watching for file changes...
-  ➜  Local:   http://localhost:4200/
-- Changes detected. Rebuilding...
-
-
-No output file changes.
-
-Application bundle generation complete. [3.500 seconds]
-
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                       |  Raw size
-main.js             | main                        |   4.31 kB | 
-
-Lazy chunk files    | Names                       |  Raw size
-chunk-NGFFEUA5.js   | dashboard-component         | 137.50 kB | 
-chunk-JQRZXXNB.js   | quan-ly-the-component       |  80.21 kB | 
-chunk-C6JRDTA2.js   | giao-chi-tieu-component     |  75.59 kB | 
-chunk-4CV3A5VB.js   | du-lieu-mpa-component       |  57.37 kB | 
-chunk-LM3OT3FE.js   | khach-hang-component        |  54.11 kB | 
-chunk-G5G5IR6K.js   | quan-ly-am-component        |  53.43 kB | 
-chunk-KMQ4YBVN.js   | khach-hang-detail-component |  52.84 kB | 
-chunk-DF7KWDKJ.js   | bao-cao-component           |  33.63 kB | 
-chunk-M5KSGFLG.js   | -                           |   7.58 kB | 
-
-Application bundle generation complete. [0.342 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                       |  Raw size
-main.js             | main                        |   4.31 kB | 
+                    | Initial total               | 190.93 kB
 
 Lazy chunk files    | Names                       |  Raw size
 chunk-JZZ3M6TU.js   | dashboard-component         | 137.50 kB | 
-chunk-JJFVPYUS.js   | quan-ly-the-component       |  80.21 kB | 
+chunk-GWLKYOJA.js   | quan-ly-the-component       |  81.32 kB | 
 chunk-NL4RJ2UY.js   | giao-chi-tieu-component     |  75.59 kB | 
 chunk-NMIEEMHR.js   | du-lieu-mpa-component       |  57.37 kB | 
 chunk-PSPNMX5O.js   | khach-hang-component        |  54.11 kB | 
+chunk-WS4PCNKV.js   | quan-tri-component          |  53.62 kB | 
 chunk-DVB6PMQL.js   | quan-ly-am-component        |  53.43 kB | 
 chunk-QGIZ3A6H.js   | khach-hang-detail-component |  52.84 kB | 
+chunk-LUN4TJIL.js   | the-detail-component        |  47.27 kB | 
 chunk-ASO35QLR.js   | bao-cao-component           |  33.63 kB | 
+chunk-WAKLRBUB.js   | main-layout-component       |  27.80 kB | 
+chunk-ISS7LVWF.js   | login-component             |  18.08 kB | 
 chunk-WTAJNCYJ.js   | -                           |   7.66 kB | 
 
-Application bundle generation complete. [3.457 seconds]
+Application bundle generation complete. [22.136 seconds]
 
-Page reload sent to client(s).
+Watch mode enabled. Watching for file changes...
+  ➜  Local:   http://localhost:4200/
 - Changes detected. Rebuilding...
 
 Initial chunk files | Names                | Raw size
 main.js             | main                 |  4.45 kB | 
 
 Lazy chunk files    | Names                | Raw size
-chunk-LUN4TJIL.js   | the-detail-component | 47.27 kB | 
+chunk-RRVK3675.js   | the-detail-component | 47.21 kB | 
 
-Application bundle generation complete. [1.548 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                 | Raw size
-main.js             | main                  |  4.45 kB | 
-
-Lazy chunk files    | Names                 | Raw size
-chunk-YKNVTNMV.js   | quan-ly-the-component | 80.29 kB | 
-
-Application bundle generation complete. [1.433 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                 | Raw size
-main.js             | main                  |  4.45 kB | 
-
-Lazy chunk files    | Names                 | Raw size
-chunk-5TJIF4NA.js   | quan-ly-the-component | 80.36 kB | 
-
-Application bundle generation complete. [0.649 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                 | Raw size
-main.js             | main                  |  4.45 kB | 
-
-Lazy chunk files    | Names                 | Raw size
-chunk-LXRADFND.js   | quan-ly-the-component | 81.20 kB | 
-
-Application bundle generation complete. [0.641 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                 | Raw size
-main.js             | main                  |  4.45 kB | 
-
-Lazy chunk files    | Names                 | Raw size
-chunk-GWLKYOJA.js   | quan-ly-the-component | 81.32 kB | 
-
-Application bundle generation complete. [0.705 seconds]
+Application bundle generation complete. [6.329 seconds]
 
 Page reload sent to client(s).
