@@ -1,7 +1,9 @@
 package com.mpa.service.impl;
 
+import com.mpa.dto.ThePhatHanhDetailResponse;
 import com.mpa.dto.ThePhatHanhResponse;
 import com.mpa.dto.TheSummaryResponse;
+import com.mpa.entity.ThePhatHanh;
 import com.mpa.repository.ThePhatHanhRepository;
 import com.mpa.service.ThePhatHanhService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +25,7 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
     public Page<ThePhatHanhResponse> getList(
             String search, String trangThai, String hinhThuc, String productCode,
             String loaiTheTinDung,
-            boolean chuaKichHoat, boolean chuaPsgd, boolean chuaDatPtn,
+            boolean chuaKichHoat, int soNgayMin, boolean chuaPsgd, boolean chuaDatPtn,
             int page, int size) {
 
         String s   = (search == null) ? "" : search.trim();
@@ -32,8 +34,15 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
         String pc  = (productCode == null || productCode.isBlank()) ? null : productCode;
         String ltd = (loaiTheTinDung == null || loaiTheTinDung.isBlank()) ? null : loaiTheTinDung;
 
-        return repo.search(s, tt, ht, pc, ltd, chuaKichHoat, chuaPsgd, chuaDatPtn, PageRequest.of(page, size))
+        return repo.search(s, tt, ht, pc, ltd, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, PageRequest.of(page, size))
                    .map(ThePhatHanhResponse::from);
+    }
+
+    @Override
+    public ThePhatHanhDetailResponse getDetail(Long id) {
+        ThePhatHanh entity = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thẻ id=" + id));
+        return ThePhatHanhDetailResponse.from(entity);
     }
 
     @Override

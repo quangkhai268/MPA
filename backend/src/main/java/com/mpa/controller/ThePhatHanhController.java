@@ -1,5 +1,6 @@
 package com.mpa.controller;
 
+import com.mpa.dto.ThePhatHanhDetailResponse;
 import com.mpa.dto.ThePhatHanhResponse;
 import com.mpa.dto.TheSummaryResponse;
 import com.mpa.service.ThePhatHanhService;
@@ -25,15 +26,25 @@ public class ThePhatHanhController {
             @RequestParam(defaultValue = "")    String productCode,
             @RequestParam(defaultValue = "")    String loaiTheTinDung,
             @RequestParam(defaultValue = "false") boolean chuaKichHoat,
+            @RequestParam(defaultValue = "0")   int soNgayMin,
             @RequestParam(defaultValue = "false") boolean chuaPsgd,
             @RequestParam(defaultValue = "false") boolean chuaDatPtn,
             @RequestParam(defaultValue = "0")   int page,
             @RequestParam(defaultValue = "20")  int size) {
         try {
             return ApiResponse.ok(service.getList(search, trangThai, hinhThuc, productCode,
-                    loaiTheTinDung, chuaKichHoat, chuaPsgd, chuaDatPtn, page, size));
+                    loaiTheTinDung, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, page, size));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi tải danh sách thẻ: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<ThePhatHanhDetailResponse> getDetail(@PathVariable Long id) {
+        try {
+            return ApiResponse.ok(service.getDetail(id));
+        } catch (Exception e) {
+            return ApiResponse.error("Lỗi tải chi tiết thẻ: " + e.getMessage());
         }
     }
 

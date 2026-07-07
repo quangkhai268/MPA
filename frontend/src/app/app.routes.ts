@@ -48,6 +48,10 @@ export const routes: Routes = [
       {
         path: 'quan-ly-the',
         loadComponent: () => import('./features/quan-ly-the/quan-ly-the.component').then(m => m.QuanLyTheComponent)
+      },
+      {
+        path: 'quan-ly-the/:id',
+        loadComponent: () => import('./features/quan-ly-the/the-detail/the-detail.component').then(m => m.TheDetailComponent)
       }
     ]
   },

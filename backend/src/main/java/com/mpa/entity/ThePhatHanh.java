@@ -136,4 +136,13 @@ public class ThePhatHanh {
     // Computed in view: 'TDQT' hoặc 'KHAC'
     @Column(name = "loai_the_tin_dung")
     private String loaiTheTinDung;
+
+    @Column(name = "ly_do_phat_hanh")
+    private String lyDoPhatHanh;
+
+    @Column(name = "liab_top_contract")
+    private String liabTopContract;
+
+    @Column(name = "so_gttt")
+    private String soGttt;
 }

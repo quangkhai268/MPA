@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -18,6 +19,7 @@ import { PageResponse } from '../../core/models/user.model';
 })
 export class QuanLyTheComponent implements OnInit {
   private mpaService = inject(MpaService);
+  private router = inject(Router);
 
   // ── Tab ───────────────────────────────────────────────────────────────
   activeTab = 0;
@@ -31,6 +33,17 @@ export class QuanLyTheComponent implements OnInit {
   chuaKichHoat   = false;
   chuaPsgd       = false;
   chuaDatPtn     = false;
+  soNgayMin      = 7;
+
+  // ── Chưa kích hoạt: tùy chọn ngưỡng số ngày ────────────────────────────
+  soNgayMinOptions = [
+    { value: 0,  label: 'Tất cả thẻ chưa kích hoạt' },
+    { value: 7,  label: '> 7 ngày' },
+    { value: 14, label: '> 14 ngày' },
+    { value: 30, label: '> 30 ngày' },
+    { value: 60, label: '> 60 ngày' },
+    { value: 90, label: '> 90 ngày' },
+  ];
 
   // ── Dropdown options ─────────────────────────────────────────────────
   trangThaiOptions  = signal<string[]>([]);
@@ -95,7 +108,7 @@ export class QuanLyTheComponent implements OnInit {
       this.searchText.trim(),
       this.trangThai, this.hinhThuc, this.productCode,
       this.loaiTheTinDung,
-      this.chuaKichHoat, this.chuaPsgd, this.chuaDatPtn,
+      this.chuaKichHoat, this.soNgayMin, this.chuaPsgd, this.chuaDatPtn,
       page, this.pageSize
     ).subscribe({
       next: res => {
@@ -107,6 +120,10 @@ export class QuanLyTheComponent implements OnInit {
   }
 
   search(): void { this.loadPage(0); }
+
+  goToDetail(id: number): void {
+    this.router.navigate(['/quan-ly-the', id]);
+  }
 
   // ── Pagination helpers ────────────────────────────────────────────────
 
@@ -153,6 +170,11 @@ export class QuanLyTheComponent implements OnInit {
 
   getDisplayTrangThai(tt: string | null): string {
     return tt?.trim() || '—';
+  }
+
+  formatSdt(sdt: string | null): string {
+    if (!sdt) return '';
+    return sdt.trim().replace(/^\/+|\/+$/g, '');
   }
 
   trangThaiBadgeClass(tt: string | null): string {

@@ -112,66 +112,93 @@
     </button>
   </div>
 
+  <!-- ── Báo cáo chưa kích hoạt ─────────────────────────────────────── -->
+  @if (activeTab === 1) {
+    <div class="info-banner">
+      <span class="material-icons banner-icon">schedule</span>
+      <div class="banner-text">
+        <div class="banner-title">Báo cáo KH chưa kích hoạt thẻ trong vòng X ngày</div>
+        <div class="banner-sub">Liệt kê KH đã phát hành thẻ &gt; X ngày nhưng vẫn chưa kích hoạt. AM cần liên hệ KH hướng dẫn kích hoạt qua app BIDV SmartBanking.</div>
+      </div>
+    </div>
+
+    <div class="filter-card">
+      <div class="filter-row-1">
+        <div class="filter-field">
+          <label>Chưa kích hoạt trên (ngày)</label>
+          <select [(ngModel)]="soNgayMin" (ngModelChange)="search()">
+            @for (opt of soNgayMinOptions; track opt.value) {
+              <option [ngValue]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="filter-count-right">{{ totalElements }} thẻ chưa kích hoạt</div>
+      </div>
+    </div>
+  }
+
   <!-- ── Filter ────────────────────────────────────────────────────── -->
-  <div class="filter-card">
-    <div class="filter-row-1">
-      <div class="search-field">
-        <label>Tìm theo CIF, tên KH, số thẻ hoặc số hợp đồng</label>
-        <div class="search-input-wrap">
-          <span class="material-icons search-icon">search</span>
-          <input class="search-input"
-                 [(ngModel)]="searchText"
-                 (keyup.enter)="search()"
-                 placeholder="VD: 100001 hoặc '4636' hoặc 'Nguyễn'">
+  @if (activeTab !== 1) {
+    <div class="filter-card">
+      <div class="filter-row-1">
+        <div class="search-field">
+          <label>Tìm theo CIF, tên KH, số thẻ hoặc số hợp đồng</label>
+          <div class="search-input-wrap">
+            <span class="material-icons search-icon">search</span>
+            <input class="search-input"
+                   [(ngModel)]="searchText"
+                   (keyup.enter)="search()"
+                   placeholder="VD: 100001 hoặc '4636' hoặc 'Nguyễn'">
+          </div>
+        </div>
+
+        <div class="filter-field">
+          <label>Trạng thái thẻ</label>
+          <select [(ngModel)]="trangThai">
+            <option value="">Tất cả</option>
+            @for (opt of trangThaiOptions(); track opt) {
+              <option [value]="opt">{{ opt }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label>Loại thẻ</label>
+          <select [(ngModel)]="loaiTheTinDung">
+            <option value="">Tất cả</option>
+            <option value="TDQT">Tín dụng QT</option>
+            <option value="KHAC">Khác</option>
+          </select>
+        </div>
+
+        <div class="filter-field filter-field-wide">
+          <label>Sản phẩm</label>
+          <select [(ngModel)]="productCode">
+            <option value="">Tất cả sản phẩm</option>
+            @for (opt of productOptions(); track opt) {
+              <option [value]="opt">{{ opt }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="filter-checks">
+          <label class="check-label">
+            <input type="checkbox" [(ngModel)]="chuaKichHoat"> Chưa kích hoạt
+          </label>
+          <label class="check-label">
+            <input type="checkbox" [(ngModel)]="chuaPsgd"> Đã kích hoạt, chưa psgd
+          </label>
         </div>
       </div>
 
-      <div class="filter-field">
-        <label>Trạng thái thẻ</label>
-        <select [(ngModel)]="trangThai">
-          <option value="">Tất cả</option>
-          @for (opt of trangThaiOptions(); track opt) {
-            <option [value]="opt">{{ opt }}</option>
-          }
-        </select>
-      </div>
-
-      <div class="filter-field">
-        <label>Loại thẻ</label>
-        <select [(ngModel)]="loaiTheTinDung">
-          <option value="">Tất cả</option>
-          <option value="TDQT">Tín dụng QT</option>
-          <option value="KHAC">Khác</option>
-        </select>
-      </div>
-
-      <div class="filter-field filter-field-wide">
-        <label>Sản phẩm</label>
-        <select [(ngModel)]="productCode">
-          <option value="">Tất cả sản phẩm</option>
-          @for (opt of productOptions(); track opt) {
-            <option [value]="opt">{{ opt }}</option>
-          }
-        </select>
-      </div>
-
-      <div class="filter-checks">
+      <div class="filter-row-2">
         <label class="check-label">
-          <input type="checkbox" [(ngModel)]="chuaKichHoat"> Chưa kích hoạt
+          <input type="checkbox" [(ngModel)]="chuaDatPtn"> Chưa đạt doanh số miền PTN
         </label>
-        <label class="check-label">
-          <input type="checkbox" [(ngModel)]="chuaPsgd"> Đã kích hoạt, chưa psgd
-        </label>
+        <button class="btn-search" (click)="search()">Tìm kiếm</button>
       </div>
     </div>
-
-    <div class="filter-row-2">
-      <label class="check-label">
-        <input type="checkbox" [(ngModel)]="chuaDatPtn"> Chưa đạt doanh số miền PTN
-      </label>
-      <button class="btn-search" (click)="search()">Tìm kiếm</button>
-    </div>
-  </div>
+  }
 
   <!-- ── Loading ────────────────────────────────────────────────────── -->
   @if (loading()) {
@@ -179,7 +206,7 @@
   }
 
   <!-- ── Result + Table ─────────────────────────────────────────────── -->
-  @if (!loading()) {
+  @if (!loading() && activeTab !== 1) {
     <div class="result-bar">
       <span class="material-icons">credit_card</span>
       Tìm thấy <strong>{{ totalElements }}</strong> thẻ
@@ -207,7 +234,7 @@
               <tr><td colspan="10" class="empty-cell">Không có dữ liệu</td></tr>
             }
             @for (item of items; track item.id; let i = $index) {
-              <tr>
+              <tr class="row-clickable" (click)="goToDetail(item.id)">
                 <td class="col-stt text-gray">{{ stt(i) }}</td>
 
                 <!-- Số thẻ -->
@@ -215,6 +242,9 @@
                   <div class="card-number">{{ item.soTheDaPhatHanh || '—' }}</div>
                   @if (item.loaiThe) {
                     <div class="card-type">{{ item.loaiThe }}</div>
+                  }
+                  @if (item.nhomKhThe) {
+                    <div class="card-nhom-kh">{{ item.nhomKhThe }}</div>
                   }
                 </td>
 
@@ -308,6 +338,117 @@
                     <div class="hsd-label">HSD: {{ item.thoiHanHieuLucThe }}</div>
                   }
                   @if (!item.ngayPhatHanhHienThi && !item.thoiHanHieuLucThe) {
+                    <span class="text-gray">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPages > 1) {
+        <div class="pagination">
+          <button class="page-btn" [disabled]="currentPage === 0" (click)="loadPage(currentPage - 1)">
+            <span class="material-icons">chevron_left</span>
+          </button>
+          @if (currentPage > 2) {
+            <button class="page-btn" (click)="loadPage(0)">1</button>
+            @if (currentPage > 3) { <span class="page-ellipsis">…</span> }
+          }
+          @for (p of pageNumbers(); track p) {
+            <button class="page-btn" [class.active]="p === currentPage" (click)="loadPage(p)">{{ p + 1 }}</button>
+          }
+          @if (currentPage < totalPages - 3) {
+            @if (currentPage < totalPages - 4) { <span class="page-ellipsis">…</span> }
+            <button class="page-btn" (click)="loadPage(totalPages - 1)">{{ totalPages }}</button>
+          }
+          <button class="page-btn" [disabled]="currentPage >= totalPages - 1" (click)="loadPage(currentPage + 1)">
+            <span class="material-icons">chevron_right</span>
+          </button>
+          <span class="page-info">Trang {{ currentPage + 1 }} / {{ totalPages }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Bảng: Báo cáo chưa kích hoạt ──────────────────────────────── -->
+  @if (!loading() && activeTab === 1) {
+    <div class="table-card">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="col-stt">STT</th>
+              <th>THẺ</th>
+              <th>CHỦ THẺ</th>
+              <th>SẢN PHẨM</th>
+              <th class="col-date">NGÀY PHÁT HÀNH</th>
+              <th class="col-num">SỐ NGÀY CHỜ</th>
+              <th>LIÊN HỆ</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (items.length === 0) {
+              <tr><td colspan="7" class="empty-cell">Không có dữ liệu</td></tr>
+            }
+            @for (item of items; track item.id; let i = $index) {
+              <tr class="row-clickable" (click)="goToDetail(item.id)">
+                <td class="col-stt text-gray">{{ stt(i) }}</td>
+
+                <!-- Thẻ -->
+                <td class="col-the">
+                  <div class="card-number">{{ item.soTheDaPhatHanh || '—' }}</div>
+                  @if (item.loaiThe) {
+                    <div class="card-type">{{ item.loaiThe }}</div>
+                  }
+                  @if (item.nhomKhThe) {
+                    <div class="card-nhom-kh">{{ item.nhomKhThe }}</div>
+                  }
+                </td>
+
+                <!-- Chủ thẻ -->
+                <td>
+                  <div class="card-holder">{{ item.tenChuTheChinh || '—' }}</div>
+                  @if (item.cifChuTheChinh || item.soCifKhachHangPht) {
+                    <div class="card-sub">CIF: {{ item.cifChuTheChinh || item.soCifKhachHangPht }}</div>
+                  }
+                </td>
+
+                <!-- Sản phẩm -->
+                <td>
+                  <div class="product-code">{{ item.productCode || '—' }}</div>
+                  @if (item.mangLuoi) {
+                    <span class="net-badge" [ngClass]="networkBadgeClass(item.mangLuoi)">
+                      {{ item.mangLuoi }}
+                    </span>
+                  }
+                </td>
+
+                <!-- Ngày phát hành -->
+                <td class="col-date">
+                  @if (item.ngayPhatHanhHienThi) {
+                    <div class="date-main">{{ item.ngayPhatHanhHienThi | date:'dd/MM/yyyy' }}</div>
+                  } @else {
+                    <span class="text-gray">—</span>
+                  }
+                </td>
+
+                <!-- Số ngày chờ -->
+                <td class="col-num">
+                  <span class="wait-badge">{{ item.soNgayChuaKichHoat }} ngày</span>
+                </td>
+
+                <!-- Liên hệ -->
+                <td>
+                  @if (item.sdt) {
+                    <div class="contact-row"><span class="material-icons contact-icon">call</span>{{ formatSdt(item.sdt) }}</div>
+                  }
+                  @if (item.email) {
+                    <div class="contact-row"><span class="material-icons contact-icon">mail</span>{{ item.email }}</div>
+                  }
+                  @if (!item.sdt && !item.email) {
                     <span class="text-gray">—</span>
                   }
                 </td>

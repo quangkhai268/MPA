@@ -192,6 +192,50 @@ CREATE TABLE public.thuc_hien_bsc_chi_nhanh (
 
 ---
 
+### View quản lý thẻ tín dụng: `public.v_the_phat_hanh`
+
+View tổng hợp thông tin thẻ tín dụng đã phát hành, là nguồn dữ liệu **duy nhất** cho toàn bộ tính năng "Quản lý thẻ" (`/quan-ly-the`): danh sách thẻ, báo cáo thẻ chưa kích hoạt, báo cáo chưa phát sinh giao dịch (chưa PSGD), báo cáo doanh số miễn phí thường niên (PTN), và màn hình chi tiết thẻ (`/quan-ly-the/:id`).
+
+**Nguồn dữ liệu (base tables):**
+```sql
+FROM the_phat_hanh tph
+  LEFT JOIN card_client_code ccc ON ccc.client_name = tph.nhom_kh_the
+  LEFT JOIN LATERAL (
+    SELECT ... FROM card_fee_rule r
+    WHERE r.code = tph.product_code AND ...
+    ORDER BY (khớp thuoc_client_code trước, khac_client_code sau)
+    LIMIT 1
+  ) cfr ON true
+```
+- `the_phat_hanh`: bảng gốc, mỗi dòng là 1 thẻ đã phát hành (không lưu lịch sử/snapshot — chỉ có trạng thái hiện tại).
+- `card_client_code`: map `nhom_kh_the` (tên nhóm KH) → `client_code`.
+- `card_fee_rule`: bảng quy tắc phí thường niên theo `product_code`, dùng để suy ra `doanh_so_mien_ptn` (mức doanh số cần đạt để miễn phí thường niên) và `loai_match` (thẻ có thuộc client_code ưu đãi hay không).
+
+**Các cột chính (đầy đủ trong view, ánh xạ 1-1 qua entity `ThePhatHanh`):**
+
+| Nhóm | Cột | Ghi chú |
+|---|---|---|
+| Định danh thẻ | `id`, `card_id`, `so_the_da_phat_hanh`, `loai_the` (MAIN_CARD/…), `hinh_thuc_the` (PHYSICAL/DIGITAL), `plastic_status`, `ly_do_phat_hanh` | |
+| Trạng thái | `trang_thai_the`, `so_ngay_chua_kich_hoat`, `ngay_phat_hanh_the`, `ngay_cap_nhat_trang_thai_card_contract` (≈ ngày kích hoạt), `ngay_cap_nhat_trang_thai_issuing_contract` (≈ ngày PSGD đầu tiên) | Không có bảng lịch sử/snapshot — ngày kích hoạt/PSGD suy ra trực tiếp từ 2 cột timestamp này, không phải tính delta. |
+| Hợp đồng phát hành (IC) | `issuing_contract_nbr`, `hmtd_issuing_contract`, `thoi_han_hmtd`, `trang_thai_issuing_contract`, `am_issuing_contract`, `cn_qlt` (chi nhánh quản lý), `liab_top_contract` | |
+| Chủ thẻ | `so_cif_khach_hang_pht`, `ho_ten_khach_hang_pht`, `cif_chu_the_chinh`, `ten_chu_the_chinh`, `sdt`, `email`, `so_gttt` (CMND/CCCD, đã mask), `sinh_trac_hoc_khach_hang` | |
+| Phí thường niên / PTN | `doanh_so_giao_dich_mien_ptn` (doanh số thực tế), `doanh_so_mien_ptn` (mức cần đạt, từ `card_fee_rule.so_tien`), `so_tien_phi_thuong_nien`, `muc_phi_thuong_nien_the`, `ngay_thu_phi_thuong_nien_gan_nhat`, `dac_quyen_the` | % hoàn thành PTN = `doanh_so_giao_dich_mien_ptn / doanh_so_mien_ptn * 100`. |
+| Khác | `am_card`, `ma_can_bo_gioi_thieu`, `kenh_phat_hanh`, `nhom_kh_the`, `client_code`, `thuoc_client_code`, `khac_client_code`, `loai_match`, `product_code`, `thoi_han_hieu_luc_the` | |
+| Computed | `loai_the_tin_dung` (`CASE WHEN left(product_code,3) IN ('PVJ','PVC','PMC') THEN 'TDQT' ELSE 'KHAC'`) | |
+
+**Giới hạn dữ liệu quan trọng** (không có nguồn nào trong DB, các màn hình liên quan phải hiển thị `—`):
+- Không có **dư nợ hiện tại, lãi phải thu, phí phải thu, chi tiêu miễn phí, ngày chốt sao kê** — không có bảng dư nợ/sao kê thẻ.
+- Không có **lịch sử/snapshot giao dịch theo thời gian** — `the_phat_hanh` chỉ lưu trạng thái hiện tại, không phù hợp để vẽ biểu đồ "doanh số theo ngày/tháng".
+- Không có **mã lãi suất, hạng thẻ** — không có cột tương ứng ở bất kỳ bảng nào.
+- `ly_do_phat_hanh`, `liab_top_contract`, `so_gttt` tồn tại sẵn ở bảng gốc `the_phat_hanh` nhưng phải **ALTER VIEW** để expose (đã thực hiện — append cuối danh sách cột để không phá vỡ `CREATE OR REPLACE VIEW`).
+
+**Dùng ở đâu trong code:**
+- Entity: `backend/src/main/java/com/mpa/entity/ThePhatHanh.java` (`@Table(name = "v_the_phat_hanh")`).
+- DTO danh sách: `ThePhatHanhResponse`; DTO chi tiết: `ThePhatHanhDetailResponse`.
+- API: `GET /api/the-phat-hanh` (danh sách, filter, phân trang), `GET /api/the-phat-hanh/{id}` (chi tiết), `GET /api/the-phat-hanh/summary` (KPI tổng quan).
+
+---
+
 ## 5. Thiết Kế UI/UX (theo ảnh tham khảo)
 
 ### 5.1 Màu sắc & Branding

@@ -23,7 +23,7 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long> 
         AND (:hinhThuc  IS NULL OR t.hinhThucThe = :hinhThuc)
         AND (:productCode IS NULL OR t.productCode = :productCode)
         AND (:loaiTheTinDung IS NULL OR t.loaiTheTinDung = :loaiTheTinDung)
-        AND (:chuaKichHoat = false OR t.soNgayChuaKichHoat > 0)
+        AND (:chuaKichHoat = false OR t.soNgayChuaKichHoat > :soNgayMin)
         AND (:chuaPsgd = false OR (t.soNgayChuaKichHoat = 0 AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn = 0)))
         AND (:chuaDatPtn = false OR (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn < t.doanhSoMienPtn))
         ORDER BY t.id DESC
@@ -35,6 +35,7 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long> 
             @Param("productCode") String productCode,
             @Param("loaiTheTinDung") String loaiTheTinDung,
             @Param("chuaKichHoat") boolean chuaKichHoat,
+            @Param("soNgayMin") int soNgayMin,
             @Param("chuaPsgd") boolean chuaPsgd,
             @Param("chuaDatPtn") boolean chuaDatPtn,
             Pageable pageable);

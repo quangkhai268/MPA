@@ -1,0 +1,438 @@
+<div class="detail-wrapper">
+
+  <!-- ── Loading ────────────────────────────────────────────────────── -->
+  @if (loading()) {
+    <div class="loading-wrap"><mat-spinner diameter="40"></mat-spinner></div>
+  }
+
+  @if (!loading()) {
+    @if (data(); as d) {
+
+      <!-- ── Header ───────────────────────────────────────────────────── -->
+      <div class="detail-header">
+        <div class="header-left">
+          <button class="back-btn" (click)="goBack()">
+            <span class="material-icons">arrow_back</span>
+          </button>
+          <div>
+            <h1 class="page-title">Chi tiết thẻ <span class="title-card-no">{{ d.soTheDaPhatHanh || '—' }}</span></h1>
+            <p class="page-subtitle">
+              {{ d.productCode || '—' }} · Phát hành {{ d.ngayPhatHanhHienThi | date:'dd/MM/yyyy' }}
+            </p>
+          </div>
+        </div>
+        <button class="btn-kh360" (click)="goToKh360()">
+          <span class="material-icons">account_circle</span>
+          KH 360°
+        </button>
+      </div>
+
+      <div class="detail-grid">
+
+        <!-- ══ Cột trái ══════════════════════════════════════════════ -->
+        <div class="col-left">
+
+          <!-- Thẻ vật lý (visual) -->
+          <div class="card-visual">
+            <div class="card-visual-top">
+              <span class="card-brand">BIDV · {{ d.productCode || '—' }}</span>
+              <span class="card-status-badge" [ngClass]="trangThaiBadgeClass(d.trangThaiHienThi)">
+                {{ d.trangThaiHienThi || '—' }}
+              </span>
+            </div>
+            <div class="card-visual-number">{{ d.soTheDaPhatHanh || '—' }}</div>
+            <div class="card-visual-row">
+              <div>
+                <div class="card-visual-label">CHỦ THẺ</div>
+                <div class="card-visual-value">{{ d.tenChuTheChinh || '—' }}</div>
+              </div>
+              <div>
+                <div class="card-visual-label">HIỆU LỰC</div>
+                <div class="card-visual-value">{{ d.thoiHanHieuLucThe || '—' }}</div>
+              </div>
+              @if (d.mangLuoi) {
+                <span class="net-badge" [ngClass]="networkBadgeClass(d.mangLuoi)">{{ d.mangLuoi }}</span>
+              }
+            </div>
+            <div class="card-visual-footer">
+              <span>Hợp đồng: {{ d.issuingContractNbr || '—' }}</span>
+              <span>HMTD: {{ formatTrieu(d.hmtdIssuingContract) }}</span>
+            </div>
+          </div>
+
+          <!-- Dư nợ hiện tại (chưa có nguồn dữ liệu) -->
+          <div class="info-panel">
+            <div class="panel-row-top">
+              <span class="panel-label">Dư nợ hiện tại</span>
+              <span class="panel-pct-muted">— % hạn mức</span>
+            </div>
+            <div class="panel-value-lg">—</div>
+            <div class="panel-sub">Còn lại: — / Hạn mức {{ formatTrieu(d.hmtdIssuingContract) }}</div>
+            <div class="progress-wrap">
+              <div class="progress-bar" style="width: 0%"></div>
+            </div>
+
+            <div class="panel-grid-2">
+              <div>
+                <div class="panel-mini-label">Lãi phải thu</div>
+                <div class="panel-mini-value">—</div>
+              </div>
+              <div>
+                <div class="panel-mini-label">Phí phải thu</div>
+                <div class="panel-mini-value">—</div>
+              </div>
+              <div>
+                <div class="panel-mini-label">Chi tiêu miễn phí</div>
+                <div class="panel-mini-value">—</div>
+              </div>
+              <div>
+                <div class="panel-mini-label">Ngày chốt</div>
+                <div class="panel-mini-value">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trạng thái sử dụng thẻ -->
+          <div class="info-panel">
+            <div class="panel-title">
+              <span class="material-icons panel-title-icon">show_chart</span>
+              Trạng thái sử dụng thẻ
+            </div>
+
+            <div class="status-timeline">
+              <div class="status-item">
+                <span class="material-icons status-icon">credit_card</span>
+                <div>
+                  <div class="status-label">Phát hành thẻ</div>
+                  <div class="status-value">{{ d.ngayPhatHanhHienThi | date:'dd/MM/yyyy' || '—' }}</div>
+                </div>
+              </div>
+              <div class="status-item">
+                <span class="material-icons status-icon">bolt</span>
+                <div>
+                  <div class="status-label">Kích hoạt thẻ</div>
+                  <div class="status-value">
+                    {{ d.ngayKichHoat ? (d.ngayKichHoat | date:'dd/MM/yyyy') : '—' }}
+                  </div>
+                </div>
+              </div>
+              <div class="status-item">
+                <span class="material-icons status-icon">trending_up</span>
+                <div>
+                  <div class="status-label">Phát sinh GD đầu tiên</div>
+                  <div class="status-value">
+                    {{ d.ngayPsgd ? (d.ngayPsgd | date:'dd/MM/yyyy') : '—' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ══ Cột phải ══════════════════════════════════════════════ -->
+        <div class="col-right">
+
+          <!-- Doanh số giao dịch theo thời gian (chưa có dữ liệu lịch sử) -->
+          <div class="info-panel">
+            <div class="panel-title">
+              <span class="material-icons panel-title-icon">show_chart</span>
+              Doanh số giao dịch theo thời gian
+            </div>
+
+            <div class="chart-toolbar">
+              <div class="chart-tabs">
+                <button class="chart-tab-btn" [class.active]="doanhSoTab === 'ngay'" (click)="setDoanhSoTab('ngay')">Theo ngày</button>
+                <button class="chart-tab-btn" [class.active]="doanhSoTab === 'thang'" (click)="setDoanhSoTab('thang')">Theo tháng</button>
+              </div>
+              <span class="chart-total">Tổng: —</span>
+            </div>
+
+            <div class="chart-empty">
+              <span class="material-icons chart-empty-icon">bar_chart</span>
+              <p>Chưa có dữ liệu lịch sử giao dịch theo thời gian cho thẻ này.</p>
+            </div>
+          </div>
+
+          <!-- Doanh số miễn phí thường niên -->
+          <div class="info-panel">
+            <div class="panel-title">
+              <span class="material-icons panel-title-icon">emoji_events</span>
+              Doanh số miễn phí thường niên
+            </div>
+
+            <div class="panel-row-top">
+              <span class="panel-label">DOANH SỐ TÍCH LŨY CHU KỲ</span>
+              <span class="panel-pct" [class.pct-green]="(d.pctPtn ?? 0) >= 100" [class.pct-yellow]="(d.pctPtn ?? 0) < 100 && (d.pctPtn ?? 0) >= 50" [class.pct-red]="(d.pctPtn ?? 0) < 50">
+                {{ d.pctPtn | number:'1.0-1' }}%
+              </span>
+            </div>
+            <div class="panel-value-lg">{{ formatTrieu(d.doanhSoGiaoDichMienPtn) }}</div>
+
+            <div class="progress-wrap">
+              <div class="progress-bar" [class.bar-green]="daDatMucPtn(d)" [style.width.%]="clamp100(d.pctPtn)"></div>
+            </div>
+            <div class="panel-sub-row">
+              <span>0</span>
+              <span>/ {{ formatTrieu(d.doanhSoMienPtn) }} cần đạt</span>
+            </div>
+
+            @if (daDatMucPtn(d)) {
+              <div class="banner banner-success">
+                <span class="material-icons">emoji_events</span>
+                <div>
+                  <div class="banner-title">Đã đạt mức miễn phí thường niên</div>
+                  <div class="banner-sub">KH đã chi tiêu vượt mức yêu cầu — không phải đóng phí TN kỳ này.</div>
+                </div>
+              </div>
+            } @else {
+              <div class="banner banner-warning">
+                <span class="material-icons">info</span>
+                <div>
+                  <div class="banner-title">Chưa đạt mức miễn phí thường niên</div>
+                  <div class="banner-sub">Cần chi tiêu thêm {{ formatTrieu(soTienConThieuPtn(d)) }} để được miễn phí thường niên kỳ này.</div>
+                </div>
+              </div>
+            }
+
+            <div class="policy-box">
+              <div class="policy-title">{{ d.mucPhiThuongNienThe || '—' }}</div>
+              <div class="policy-grid">
+                <div>
+                  <div class="panel-mini-label">Phí TN</div>
+                  <div class="panel-mini-value">{{ formatSoTienVnd(d.soTienPhiThuongNien) }}</div>
+                </div>
+                <div>
+                  <div class="panel-mini-label">Mức miễn phí</div>
+                  <div class="panel-mini-value">{{ formatTrieu(d.doanhSoMienPtn) }}</div>
+                </div>
+                <div>
+                  <div class="panel-mini-label">Năm đầu</div>
+                  <div class="panel-mini-value">—</div>
+                </div>
+                <div>
+                  <div class="panel-mini-label">Mã phí</div>
+                  <div class="panel-mini-value">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ Thông tin thẻ ═══════════════════════════════════════════ -->
+      <div class="info-panel">
+        <div class="panel-title">
+          <span class="material-icons panel-title-icon">credit_card</span>
+          Thông tin thẻ
+        </div>
+        <div class="field-grid">
+          <div class="field-item">
+            <span class="material-icons field-icon">credit_card</span>
+            <div>
+              <div class="field-label">SỐ THẺ</div>
+              <div class="field-value">{{ d.soTheDaPhatHanh || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">credit_card</span>
+            <div>
+              <div class="field-label">LOẠI THẺ</div>
+              <div class="field-value">{{ d.loaiThe || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">credit_card</span>
+            <div>
+              <div class="field-label">HÌNH THỨC</div>
+              <div class="field-value">{{ d.hinhThucThe || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">military_tech</span>
+            <div>
+              <div class="field-label">HẠNG THẺ</div>
+              <div class="field-value">—</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">verified</span>
+            <div>
+              <div class="field-label">TÌNH TRẠNG PHÔI</div>
+              <div class="field-value">{{ d.plasticStatus || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">info</span>
+            <div>
+              <div class="field-label">LÝ DO PHÁT HÀNH</div>
+              <div class="field-value">{{ d.lyDoPhatHanh || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">apartment</span>
+            <div>
+              <div class="field-label">KÊNH PHÁT HÀNH</div>
+              <div class="field-value">{{ d.kenhPhatHanh || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">event</span>
+            <div>
+              <div class="field-label">HIỆU LỰC</div>
+              <div class="field-value">{{ d.thoiHanHieuLucThe || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">military_tech</span>
+            <div>
+              <div class="field-label">HẠNG PHÍ THƯỜNG NIÊN</div>
+              <div class="field-value">{{ d.mucPhiThuongNienThe || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">military_tech</span>
+            <div>
+              <div class="field-label">ƯU ĐÃI</div>
+              <div class="field-value">{{ d.dacQuyenThe || '—' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ Hợp đồng phát hành (IC) ═════════════════════════════════ -->
+      <div class="info-panel">
+        <div class="panel-title">
+          <span class="material-icons panel-title-icon">workspace_premium</span>
+          Hợp đồng phát hành (IC)
+        </div>
+        <div class="field-grid">
+          <div class="field-item">
+            <span class="material-icons field-icon">badge</span>
+            <div>
+              <div class="field-label">SỐ HĐ</div>
+              <div class="field-value">{{ d.issuingContractNbr || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">credit_card</span>
+            <div>
+              <div class="field-label">HẠN MỨC TD</div>
+              <div class="field-value">{{ formatTrieu(d.hmtdIssuingContract) }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">event</span>
+            <div>
+              <div class="field-label">KỲ HẠN HMTD</div>
+              <div class="field-value">{{ d.thoiHanHmtd ? (d.thoiHanHmtd | date:'dd/MM/yyyy') : '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">verified</span>
+            <div>
+              <div class="field-label">TRẠNG THÁI HĐ</div>
+              <div class="field-value">{{ d.trangThaiIssuingContract || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">percent</span>
+            <div>
+              <div class="field-label">MÃ LÃI SUẤT</div>
+              <div class="field-value">—</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">person</span>
+            <div>
+              <div class="field-label">AM</div>
+              <div class="field-value">{{ d.amIssuingContract || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">apartment</span>
+            <div>
+              <div class="field-label">CHI NHÁNH QUẢN LÝ</div>
+              <div class="field-value">{{ d.cnQlt || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">badge</span>
+            <div>
+              <div class="field-label">HĐ LIAB GỐC</div>
+              <div class="field-value">{{ d.liabTopContract || '—' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ Thông tin chủ thẻ ═══════════════════════════════════════ -->
+      <div class="info-panel">
+        <div class="panel-title">
+          <span class="material-icons panel-title-icon">person</span>
+          Thông tin chủ thẻ
+        </div>
+        <div class="field-grid">
+          <div class="field-item">
+            <span class="material-icons field-icon">badge</span>
+            <div>
+              <div class="field-label">CIF</div>
+              <div class="field-value">{{ d.soCifKhachHangPht || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">person</span>
+            <div>
+              <div class="field-label">HỌ TÊN</div>
+              <div class="field-value">{{ d.hoTenKhachHangPht || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">call</span>
+            <div>
+              <div class="field-label">SĐT</div>
+              <div class="field-value">{{ formatSdt(d.sdt) }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">mail</span>
+            <div>
+              <div class="field-label">EMAIL</div>
+              <div class="field-value">{{ d.email || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">badge</span>
+            <div>
+              <div class="field-label">CMND/CCCD</div>
+              <div class="field-value">{{ d.soGttt || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">verified_user</span>
+            <div>
+              <div class="field-label">SINH TRẮC HỌC</div>
+              <div class="field-value">
+                @if (d.sinhTracHocKhachHang) {
+                  <span class="verified-badge">{{ d.sinhTracHocKhachHang }}</span>
+                } @else { — }
+              </div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">groups</span>
+            <div>
+              <div class="field-label">NHÓM KH</div>
+              <div class="field-value">{{ d.nhomKhThe || '—' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    } @else {
+      <div class="empty-cell">Không tìm thấy thông tin thẻ.</div>
+    }
+  }
+
+</div>

@@ -1,0 +1,231 @@
+// ── Variables ─────────────────────────────────────────────────────────
+$primary:      #005BAA;
+$primary-dark: #1C3557;
+$green:        #009640;
+$red:          #EF4444;
+$yellow:       #F59E0B;
+$gray:         #6b7280;
+$gray-bg:      #f9fafb;
+$gray-border:  #e5e7eb;
+$text:         #1A1A2E;
+
+.detail-wrapper {
+  padding: 24px;
+  background: #F4F6F9;
+  min-height: 100%;
+}
+
+.loading-wrap { display: flex; justify-content: center; padding: 60px 0; }
+.empty-cell   { padding: 60px 0; text-align: center; color: $gray; }
+
+// ── Header ────────────────────────────────────────────────────────────
+.detail-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.header-left { display: flex; align-items: flex-start; gap: 12px; }
+
+.back-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid $gray-border; background: #fff; color: $text;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0; margin-top: 2px;
+  transition: background 0.15s;
+  &:hover { background: $gray-bg; }
+}
+
+.page-title { font-size: 22px; font-weight: 700; color: $text; margin: 0; }
+.title-card-no { color: $primary; }
+.page-subtitle { font-size: 13px; color: $gray; margin: 4px 0 0; }
+
+.btn-kh360 {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 18px;
+  border: 1.5px solid $primary; background: #fff; color: $primary;
+  border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background 0.15s;
+  .material-icons { font-size: 18px; }
+  &:hover { background: #e8f0f9; }
+}
+
+// ── Grid layout ───────────────────────────────────────────────────────
+.detail-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: start;
+
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+.col-left, .col-right { display: flex; flex-direction: column; gap: 16px; }
+
+// ── Card visual ───────────────────────────────────────────────────────
+.card-visual {
+  background: linear-gradient(135deg, #0b6b62, #0a3d38);
+  border-radius: 14px;
+  padding: 20px;
+  color: #fff;
+}
+
+.card-visual-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 22px;
+}
+.card-brand { font-size: 13px; font-weight: 600; opacity: 0.9; }
+
+.card-status-badge {
+  padding: 3px 11px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  background: rgba(255,255,255,0.18); color: #fff;
+  &.badge-green  { background: rgba(16,185,129,0.25); color: #6ee7b7; }
+  &.badge-red    { background: rgba(239,68,68,0.28);  color: #fca5a5; }
+  &.badge-yellow { background: rgba(245,158,11,0.28); color: #fcd34d; }
+}
+
+.card-visual-number {
+  font-size: 22px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 18px;
+}
+
+.card-visual-row {
+  display: flex; align-items: flex-end; gap: 24px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.card-visual-label { font-size: 10px; opacity: 0.7; letter-spacing: 0.04em; margin-bottom: 3px; }
+.card-visual-value { font-size: 13px; font-weight: 600; }
+
+.card-visual-footer {
+  display: flex; justify-content: space-between; gap: 12px;
+  font-size: 12px; opacity: 0.85;
+  padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.18);
+  flex-wrap: wrap;
+}
+
+.net-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 4px;
+  font-size: 11px; font-weight: 700;
+  background: rgba(255,255,255,0.18); color: #fff;
+}
+
+// ── Info panel (shared card) ────────────────────────────────────────────
+.info-panel {
+  background: #fff;
+  border: 1px solid $gray-border;
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+
+  &:last-child { margin-bottom: 0; }
+}
+
+.panel-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 700; color: $text;
+  margin-bottom: 14px;
+}
+.panel-title-icon { font-size: 18px; color: $primary; }
+
+.panel-row-top { display: flex; align-items: center; justify-content: space-between; }
+.panel-label { font-size: 11px; font-weight: 600; color: $gray; text-transform: uppercase; letter-spacing: 0.03em; }
+.panel-pct-muted { font-size: 12px; color: $gray; }
+.panel-pct { font-size: 13px; font-weight: 700; }
+.pct-green  { color: $green; }
+.pct-yellow { color: $yellow; }
+.pct-red    { color: $red; }
+
+.panel-value-lg { font-size: 24px; font-weight: 700; color: $text; margin-top: 4px; }
+.panel-sub { font-size: 12px; color: $gray; margin-top: 4px; }
+.panel-sub-row {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: $gray; margin-top: 6px;
+}
+
+.progress-wrap {
+  height: 8px; background: $gray-bg; border-radius: 4px; overflow: hidden;
+  margin-top: 10px;
+}
+.progress-bar {
+  height: 100%; background: $primary; border-radius: 4px;
+  transition: width 0.2s;
+  &.bar-green { background: $green; }
+}
+
+.panel-grid-2 {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 14px; margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid $gray-border;
+}
+.panel-mini-label { font-size: 11px; color: $gray; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 3px; }
+.panel-mini-value { font-size: 13.5px; font-weight: 600; color: $text; }
+
+// ── Trạng thái sử dụng thẻ ──────────────────────────────────────────────
+.status-timeline { display: flex; flex-direction: column; gap: 16px; }
+.status-item { display: flex; align-items: flex-start; gap: 12px; }
+.status-icon {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #e8f0f9; color: $primary;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.status-label { font-size: 11px; color: $gray; }
+.status-value { font-size: 13.5px; font-weight: 600; color: $text; margin-top: 2px; }
+
+// ── Chart (doanh số theo thời gian) ─────────────────────────────────────
+.chart-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+.chart-tabs { display: flex; gap: 2px; background: $gray-bg; border-radius: 20px; padding: 3px; }
+.chart-tab-btn {
+  padding: 6px 16px; border: none; background: transparent; border-radius: 20px;
+  font-size: 12px; font-weight: 600; color: $gray; cursor: pointer;
+  transition: all 0.15s;
+  &.active { background: #fff; color: $primary; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+}
+.chart-total { font-size: 12.5px; color: $gray; }
+
+.chart-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; padding: 48px 16px; text-align: center;
+  border: 1.5px dashed $gray-border; border-radius: 10px; background: $gray-bg;
+  color: $gray; font-size: 13px;
+}
+.chart-empty-icon { font-size: 34px; color: #d1d5db; }
+
+// ── Banner (PTN) ─────────────────────────────────────────────────────────
+.banner {
+  display: flex; align-items: flex-start; gap: 10px;
+  border-radius: 8px; padding: 12px 14px; margin-top: 14px;
+  .material-icons { font-size: 20px; margin-top: 1px; }
+}
+.banner-title { font-size: 13px; font-weight: 700; }
+.banner-sub   { font-size: 12px; margin-top: 3px; line-height: 1.5; }
+
+.banner-success {
+  background: #ECFDF5; border: 1px solid #A7F3D0;
+  .material-icons { color: $green; }
+  .banner-title, .banner-sub { color: #065F46; }
+}
+.banner-warning {
+  background: #FFFBEB; border: 1px solid #FDE68A;
+  .material-icons { color: $yellow; }
+  .banner-title, .banner-sub { color: #92600A; }
+}
+
+.policy-box { margin-top: 16px; padding-top: 16px; border-top: 1px solid $gray-border; }
+.policy-title { font-size: 13px; font-weight: 700; color: $text; margin-bottom: 12px; }
+.policy-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+
+// ── Field grid (Thông tin thẻ / Hợp đồng / Chủ thẻ) ─────────────────────
+.field-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 20px 24px;
+
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 560px) { grid-template-columns: 1fr; }
+}
+.field-item { display: flex; align-items: flex-start; gap: 10px; }
+.field-icon { font-size: 18px; color: $gray; margin-top: 2px; }
+.field-label { font-size: 11px; color: $gray; text-transform: uppercase; letter-spacing: 0.03em; }
+.field-value { font-size: 13.5px; font-weight: 600; color: $text; margin-top: 3px; }
+
+.verified-badge {
+  display: inline-block; padding: 2px 9px; border-radius: 4px;
+  background: #ECFDF5; color: $green; font-size: 11px; font-weight: 700;
+}

@@ -9,7 +9,7 @@ import {
   BscSoSanhResult, ChiTieuBscRequest, ChiTieuQuanLyRow, UnitOption,
   ThongTinAmItem, ThongTinAmSaveRequest,
   ThongTinKhachHangItem, ThongTinKhachHangSaveRequest, KhachHangChiTiet,
-  ThePhatHanhItem, TheSummary
+  ThePhatHanhItem, TheSummary, ThePhatHanhDetail
 } from '../models/mpa.model';
 
 @Injectable({ providedIn: 'root' })
@@ -239,7 +239,7 @@ export class MpaService {
   getTheList(
     search: string, trangThai: string, hinhThuc: string, productCode: string,
     loaiTheTinDung: string,
-    chuaKichHoat: boolean, chuaPsgd: boolean, chuaDatPtn: boolean,
+    chuaKichHoat: boolean, soNgayMin: number, chuaPsgd: boolean, chuaDatPtn: boolean,
     page: number, size: number
   ): Observable<ApiResponse<PageResponse<ThePhatHanhItem>>> {
     let params = new HttpParams()
@@ -249,11 +249,16 @@ export class MpaService {
       .set('productCode', productCode)
       .set('loaiTheTinDung', loaiTheTinDung)
       .set('chuaKichHoat', String(chuaKichHoat))
+      .set('soNgayMin', String(soNgayMin))
       .set('chuaPsgd', String(chuaPsgd))
       .set('chuaDatPtn', String(chuaDatPtn))
       .set('page', String(page))
       .set('size', String(size));
     return this.http.get<ApiResponse<PageResponse<ThePhatHanhItem>>>(`${this.api}/the-phat-hanh`, { params });
+  }
+
+  getTheDetail(id: number): Observable<ApiResponse<ThePhatHanhDetail>> {
+    return this.http.get<ApiResponse<ThePhatHanhDetail>>(`${this.api}/the-phat-hanh/${id}`);
   }
 
   getTheSummary(): Observable<ApiResponse<TheSummary>> {

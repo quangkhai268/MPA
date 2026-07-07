@@ -44,6 +44,8 @@ public class ThePhatHanhResponse {
     private String kenhPhatHanh;
     private String mangLuoi;
     private String loaiTheTinDung;
+    private String sdt;
+    private String email;
 
     public static ThePhatHanhResponse from(ThePhatHanh e) {
         ThePhatHanhResponse r = new ThePhatHanhResponse();
@@ -69,6 +71,8 @@ public class ThePhatHanhResponse {
         r.nhomKhThe                 = e.getNhomKhThe();
         r.kenhPhatHanh              = e.getKenhPhatHanh();
         r.loaiTheTinDung            = e.getLoaiTheTinDung();
+        r.sdt                       = e.getSdt();
+        r.email                     = e.getEmail();
 
         r.trangThaiHienThi = e.getTrangThaiThe();
 

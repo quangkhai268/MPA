@@ -337,6 +337,54 @@ export interface ThePhatHanhItem {
   kenhPhatHanh: string | null;
   mangLuoi: string | null;
   loaiTheTinDung: string | null;
+  sdt: string | null;
+  email: string | null;
+}
+
+// ── Chi tiết thẻ ─────────────────────────────────────────────────────
+export interface ThePhatHanhDetail {
+  id: number;
+  soTheDaPhatHanh: string | null;
+  productCode: string | null;
+  ngayPhatHanhHienThi: string | null;
+  trangThaiHienThi: string | null;
+  tenChuTheChinh: string | null;
+  thoiHanHieuLucThe: string | null;
+  mangLuoi: string | null;
+  loaiThe: string | null;
+  hinhThucThe: string | null;
+  plasticStatus: string | null;
+  lyDoPhatHanh: string | null;
+  kenhPhatHanh: string | null;
+  nhomKhThe: string | null;
+  dacQuyenThe: string | null;
+  soNgayChuaKichHoat: number | null;
+
+  issuingContractNbr: string | null;
+  hmtdIssuingContract: number | null;
+  thoiHanHmtd: string | null;
+  trangThaiIssuingContract: string | null;
+  amIssuingContract: string | null;
+  cnQlt: string | null;
+  liabTopContract: string | null;
+
+  soCifKhachHangPht: string | null;
+  hoTenKhachHangPht: string | null;
+  cifChuTheChinh: string | null;
+  sdt: string | null;
+  email: string | null;
+  soGttt: string | null;
+  sinhTracHocKhachHang: string | null;
+
+  doanhSoGiaoDichMienPtn: number | null;
+  doanhSoMienPtn: number | null;
+  pctPtn: number | null;
+  soTienPhiThuongNien: number | null;
+  mucPhiThuongNienThe: string | null;
+
+  ngayKichHoat: string | null;
+  ngayPsgd: string | null;
+  ngayPhatHanhThe: string | null;
 }
 
 export interface TheSummary {
