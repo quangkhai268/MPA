@@ -1,12 +1,14 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { MpaService } from '../../core/services/mpa.service';
+import { AuthService } from '../../core/services/auth.service';
+import { SystemSettingService } from '../../core/services/system-setting.service';
 import { ThePhatHanhItem, TheSummary } from '../../core/models/mpa.model';
 import { PageResponse } from '../../core/models/user.model';
 
@@ -20,6 +22,9 @@ import { PageResponse } from '../../core/models/user.model';
 export class QuanLyTheComponent implements OnInit {
   private mpaService = inject(MpaService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private systemSettingService = inject(SystemSettingService);
+  auth = inject(AuthService);
 
   // ── Tab ───────────────────────────────────────────────────────────────
   activeTab = 0;
@@ -34,6 +39,7 @@ export class QuanLyTheComponent implements OnInit {
   chuaPsgd       = false;
   chuaDatPtn     = false;
   soNgayMin      = 7;
+  soNgayMinLaMacDinhHeThong = false;
 
   // ── Chưa kích hoạt: tùy chọn ngưỡng số ngày ────────────────────────────
   soNgayMinOptions = [
@@ -60,10 +66,82 @@ export class QuanLyTheComponent implements OnInit {
   currentPage = 0;
   readonly pageSize = 20;
 
+  // ── Giữ vị trí cuộn khi back từ trang chi tiết thẻ ─────────────────────
+  private readonly scrollKey = 'qlt-scroll-pos';
+
   ngOnInit(): void {
-    this.loadSummary();
-    this.loadDropdowns();
-    this.loadPage(0);
+    const qp = this.route.snapshot.queryParamMap;
+    const hasFilters = qp.keys.length > 0;
+    if (hasFilters) {
+      this.activeTab       = Number(qp.get('tab') ?? 0);
+      this.searchText      = qp.get('q') ?? '';
+      this.trangThai       = qp.get('trangThai') ?? '';
+      this.productCode     = qp.get('productCode') ?? '';
+      this.loaiTheTinDung  = qp.get('loaiTheTinDung') ?? '';
+      this.chuaKichHoat    = qp.get('chuaKichHoat') === '1';
+      this.chuaPsgd        = qp.get('chuaPsgd') === '1';
+      this.chuaDatPtn      = qp.get('chuaDatPtn') === '1';
+      this.currentPage     = Number(qp.get('page') ?? 0);
+      const soNgay = qp.get('soNgayMin');
+      if (soNgay != null) {
+        this.soNgayMin = Number(soNgay);
+        this.soNgayMinLaMacDinhHeThong = false;
+      }
+    }
+
+    const savedScroll = sessionStorage.getItem(this.scrollKey);
+    const restoreScrollY = savedScroll != null ? Number(savedScroll) : null;
+
+    this.systemSettingService.getAll().subscribe({
+      next: res => {
+        if (res.success && !hasFilters) {
+          const setting = res.data.find(s => s.settingKey === 'CHUA_KICH_HOAT_SO_NGAY');
+          const value = setting?.settingValue ? parseInt(setting.settingValue, 10) : NaN;
+          if (!isNaN(value)) {
+            this.soNgayMin = value;
+            this.soNgayMinLaMacDinhHeThong = true;
+          }
+        }
+        this.loadSummary();
+        this.loadDropdowns();
+        this.loadPage(this.currentPage, restoreScrollY);
+      },
+      error: () => {
+        this.loadSummary();
+        this.loadDropdowns();
+        this.loadPage(this.currentPage, restoreScrollY);
+      }
+    });
+  }
+
+  // Vùng nội dung chính (main.main-content) mới thực sự cuộn, không phải window
+  private getScrollContainer(): Element | null {
+    return document.querySelector('main.main-content');
+  }
+
+  private restoreScroll(y: number): void {
+    sessionStorage.removeItem(this.scrollKey);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const el = this.getScrollContainer();
+      if (el) el.scrollTop = y; else window.scrollTo({ top: y });
+    }));
+  }
+
+  // ── Giữ nguyên filter trên URL để back từ trang chi tiết không mất ─────
+  private syncQueryParams(): void {
+    const params: Record<string, string | null> = {
+      tab:            this.activeTab ? String(this.activeTab) : null,
+      q:              this.searchText.trim() || null,
+      trangThai:      this.trangThai || null,
+      productCode:    this.productCode || null,
+      loaiTheTinDung: this.loaiTheTinDung || null,
+      chuaKichHoat:   this.chuaKichHoat ? '1' : null,
+      chuaPsgd:       this.chuaPsgd ? '1' : null,
+      chuaDatPtn:     this.chuaDatPtn ? '1' : null,
+      soNgayMin:      this.soNgayMinLaMacDinhHeThong ? null : String(this.soNgayMin),
+      page:           this.currentPage ? String(this.currentPage) : null,
+    };
+    this.router.navigate([], { relativeTo: this.route, queryParams: params, replaceUrl: true });
   }
 
   // ── Tabs ──────────────────────────────────────────────────────────────
@@ -101,8 +179,9 @@ export class QuanLyTheComponent implements OnInit {
     });
   }
 
-  loadPage(page: number): void {
+  loadPage(page: number, restoreScrollY: number | null = null): void {
     this.currentPage = page;
+    this.syncQueryParams();
     this.loading.set(true);
     this.mpaService.getTheList(
       this.searchText.trim(),
@@ -114,6 +193,7 @@ export class QuanLyTheComponent implements OnInit {
       next: res => {
         if (res.success) this.pageData.set(res.data);
         this.loading.set(false);
+        if (restoreScrollY != null) this.restoreScroll(restoreScrollY);
       },
       error: () => this.loading.set(false)
     });
@@ -121,8 +201,23 @@ export class QuanLyTheComponent implements OnInit {
 
   search(): void { this.loadPage(0); }
 
+  onSoNgayMinChange(): void {
+    this.soNgayMinLaMacDinhHeThong = false;
+    this.search();
+  }
+
   goToDetail(id: number): void {
-    this.router.navigate(['/quan-ly-the', id]);
+    const el = this.getScrollContainer();
+    sessionStorage.setItem(this.scrollKey, String(el ? el.scrollTop : window.scrollY));
+    this.router.navigate(['/quan-ly-the', id], { queryParams: { returnUrl: this.router.url } });
+  }
+
+  goToCaiDat(): void {
+    this.router.navigate(['/quan-ly-the/cai-dat']);
+  }
+
+  goToChienDich(): void {
+    this.router.navigate(['/quan-ly-the/chien-dich']);
   }
 
   // ── Pagination helpers ────────────────────────────────────────────────

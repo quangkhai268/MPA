@@ -32,7 +32,25 @@ spring:
       max-file-size: 50MB
       max-request-size: 50MB
 
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:25}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS:true}
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
 app:
+  mail:
+    from: ${MAIL_FROM:no-reply@bidv.com.vn}
   jwt:
     secret: ${JWT_SECRET:bidv-mpa-jwt-secret-key-2026-very-long-and-secure}
     expiration: 86400000        # 24 giờ

@@ -344,6 +344,7 @@ export interface ThePhatHanhItem {
 // ── Chi tiết thẻ ─────────────────────────────────────────────────────
 export interface ThePhatHanhDetail {
   id: number;
+  cardId: string | null;
   soTheDaPhatHanh: string | null;
   productCode: string | null;
   ngayPhatHanhHienThi: string | null;
@@ -367,6 +368,7 @@ export interface ThePhatHanhDetail {
   amIssuingContract: string | null;
   cnQlt: string | null;
   liabTopContract: string | null;
+  maCanBoGioiThieu: string | null;
 
   soCifKhachHangPht: string | null;
   hoTenKhachHangPht: string | null;
@@ -449,4 +451,98 @@ export interface KhachHangChiTiet {
   // Mô tả kỳ
   kyHienTai: string;
   kyTruoc: string;
+}
+
+// ── Cài đặt cảnh báo / gửi email thẻ ──────────────────────────────────
+export interface SystemSetting {
+  id: number;
+  settingKey: string;
+  settingValue: string | null;
+  valueType: string;
+  moTa: string | null;
+  updatedAt: string | null;
+  updatedBy: string | null;
+}
+
+export interface EmailTemplate {
+  id: number;
+  loaiThongBao: string;
+  tieuDe: string;
+  noiDung: string;
+  active: boolean;
+  updatedAt: string | null;
+}
+
+export interface EmailLogItem {
+  id: number;
+  cardId: string;
+  loaiThongBao: string;
+  emailTo: string | null;
+  ngayGui: string;
+  trangThai: string;
+  loiChiTiet: string | null;
+  campaignId: number | null;
+  milestoneId: number | null;
+}
+
+export interface JobRunResult {
+  eligible: number;
+  sent: number;
+  skippedDedup: number;
+  skippedDisabled: number;
+  failed: number;
+}
+
+export interface CardRevenueMilestone {
+  id: number;
+  soNgayTuPhatHanh: number;
+  nguongDoanhSo: number;
+  moTa: string | null;
+  active: boolean;
+}
+
+export interface RevenueSeriesPoint {
+  label: string;
+  value: number;
+}
+
+export interface RevenueSeriesResponse {
+  points: RevenueSeriesPoint[];
+  tong: number;
+  chuaDuLieu: boolean;
+}
+
+// ── Chiến dịch khuyến mại thẻ ─────────────────────────────────────────
+export interface CampaignCriteria {
+  tieuChiField: string;
+  tieuChiValue: string;
+}
+
+export interface Campaign {
+  id: number;
+  tenChienDich: string;
+  moTa: string | null;
+  ngayBatDau: string | null;
+  ngayKetThuc: string | null;
+  trangThai: string;
+  tieuDeEmail: string | null;
+  noiDungEmail: string | null;
+  criteria: CampaignCriteria[];
+  createdAt: string | null;
+}
+
+export interface CampaignRequest {
+  tenChienDich: string;
+  moTa: string | null;
+  ngayBatDau: string | null;
+  ngayKetThuc: string | null;
+  trangThai: string;
+  tieuDeEmail: string | null;
+  noiDungEmail: string | null;
+  criteria: CampaignCriteria[];
+}
+
+export interface CampaignPreview {
+  soLuong: number;
+  mauKhachHang: ThePhatHanhItem[];
 }

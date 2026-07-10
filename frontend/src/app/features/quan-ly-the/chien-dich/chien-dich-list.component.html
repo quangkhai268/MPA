@@ -1,0 +1,70 @@
+<div class="page-wrapper">
+
+  @if (!auth.isAdmin()) {
+    <div class="empty-cell">Bạn không có quyền truy cập trang này.</div>
+  } @else {
+
+    <div class="page-header">
+      <div class="header-left">
+        <button class="back-btn" (click)="goBack()">
+          <span class="material-icons">arrow_back</span>
+        </button>
+        <div>
+          <h1 class="page-title">Chiến dịch khuyến mại thẻ</h1>
+          <p class="page-subtitle">Quản lý chiến dịch gửi email khuyến mại theo tiêu chí loại thẻ</p>
+        </div>
+      </div>
+      <button class="btn-primary" (click)="goToCreate()">
+        <span class="material-icons">add</span>
+        Tạo chiến dịch
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-wrap"><mat-spinner diameter="36"></mat-spinner></div>
+    } @else {
+      <div class="table-card">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>TÊN CHIẾN DỊCH</th>
+                <th>TRẠNG THÁI</th>
+                <th class="col-date">THỜI GIAN ÁP DỤNG</th>
+                <th class="col-date">NGÀY TẠO</th>
+                <th class="col-actions">HÀNH ĐỘNG</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (campaigns().length === 0) {
+                <tr><td colspan="5" class="empty-cell">Chưa có chiến dịch nào</td></tr>
+              }
+              @for (c of campaigns(); track c.id) {
+                <tr class="row-clickable" (click)="goToEdit(c.id)">
+                  <td>
+                    <div class="campaign-name">{{ c.tenChienDich }}</div>
+                    @if (c.moTa) { <div class="campaign-desc">{{ c.moTa }}</div> }
+                  </td>
+                  <td><span class="status-badge" [ngClass]="trangThaiClass(c.trangThai)">{{ trangThaiLabel(c.trangThai) }}</span></td>
+                  <td class="col-date">
+                    @if (c.ngayBatDau || c.ngayKetThuc) {
+                      {{ c.ngayBatDau | date:'dd/MM/yyyy' }} - {{ c.ngayKetThuc | date:'dd/MM/yyyy' }}
+                    } @else { <span class="text-gray">—</span> }
+                  </td>
+                  <td class="col-date">{{ c.createdAt | date:'dd/MM/yyyy' }}</td>
+                  <td class="col-actions">
+                    <button class="icon-btn" (click)="deleteCampaign(c, $event)" title="Xóa">
+                      <span class="material-icons">delete_outline</span>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+  }
+
+</div>

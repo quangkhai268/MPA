@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class ThePhatHanhDetailResponse {
 
     private Long id;
+    private String cardId;
     private String soTheDaPhatHanh;
     private String productCode;
     private LocalDate ngayPhatHanhHienThi;
@@ -35,6 +36,7 @@ public class ThePhatHanhDetailResponse {
     private String amIssuingContract;
     private String cnQlt;
     private String liabTopContract;
+    private String maCanBoGioiThieu;
 
     private String soCifKhachHangPht;
     private String hoTenKhachHangPht;
@@ -57,6 +59,7 @@ public class ThePhatHanhDetailResponse {
     public static ThePhatHanhDetailResponse from(ThePhatHanh e) {
         ThePhatHanhDetailResponse r = new ThePhatHanhDetailResponse();
         r.id                       = e.getId();
+        r.cardId                   = e.getCardId();
         r.soTheDaPhatHanh          = e.getSoTheDaPhatHanh();
         r.productCode              = e.getProductCode();
         r.trangThaiHienThi         = e.getTrangThaiThe();
@@ -78,6 +81,7 @@ public class ThePhatHanhDetailResponse {
         r.amIssuingContract        = e.getAmIssuingContract();
         r.cnQlt                    = e.getCnQlt();
         r.liabTopContract          = e.getLiabTopContract();
+        r.maCanBoGioiThieu         = e.getMaCanBoGioiThieu();
 
         r.soCifKhachHangPht        = e.getSoCifKhachHangPht();
         r.hoTenKhachHangPht        = e.getHoTenKhachHangPht();

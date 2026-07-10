@@ -4,12 +4,15 @@ import com.mpa.entity.ThePhatHanh;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long> {
+public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>, JpaSpecificationExecutor<ThePhatHanh> {
 
     @Query("""
         SELECT t FROM ThePhatHanh t
@@ -49,6 +52,12 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long> 
     @Query("SELECT DISTINCT t.productCode FROM ThePhatHanh t WHERE t.productCode IS NOT NULL ORDER BY t.productCode")
     List<String> findDistinctProductCode();
 
+    @Query("SELECT DISTINCT t.loaiThe FROM ThePhatHanh t WHERE t.loaiThe IS NOT NULL ORDER BY t.loaiThe")
+    List<String> findDistinctLoaiThe();
+
+    @Query("SELECT DISTINCT t.nhomKhThe FROM ThePhatHanh t WHERE t.nhomKhThe IS NOT NULL ORDER BY t.nhomKhThe")
+    List<String> findDistinctNhomKhThe();
+
     @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE t.soNgayChuaKichHoat > 0")
     long countChuaKichHoat();
 
@@ -63,4 +72,31 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long> 
 
     @Query("SELECT COALESCE(SUM(t.doanhSoGiaoDichMienPtn), 0) FROM ThePhatHanh t")
     java.math.BigDecimal sumDoanhSo();
+
+    // ── Dùng cho job cảnh báo gửi email (không đụng tới search() ở trên) ──
+
+    @Query("""
+        SELECT t FROM ThePhatHanh t
+        WHERE t.soNgayChuaKichHoat > :soNgayMin
+          AND t.email IS NOT NULL AND t.email <> ''
+        """)
+    List<ThePhatHanh> findChuaKichHoatForNotify(@Param("soNgayMin") int soNgayMin);
+
+    @Query("""
+        SELECT t FROM ThePhatHanh t
+        WHERE t.soNgayChuaKichHoat = 0
+          AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn = 0)
+          AND t.ngayCapNhatTrangThaiCardContract IS NOT NULL
+          AND t.ngayCapNhatTrangThaiCardContract <= :nguong
+          AND t.email IS NOT NULL AND t.email <> ''
+        """)
+    List<ThePhatHanh> findChuaPsgdForNotify(@Param("nguong") LocalDateTime nguong);
+
+    @Query("""
+        SELECT t FROM ThePhatHanh t
+        WHERE t.ngayPhatHanhThe IS NOT NULL
+          AND FUNCTION('DATE', t.ngayPhatHanhThe) = :targetDate
+          AND t.email IS NOT NULL AND t.email <> ''
+        """)
+    List<ThePhatHanh> findByNgayPhatHanhDate(@Param("targetDate") LocalDate targetDate);
 }

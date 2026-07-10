@@ -1,0 +1,287 @@
+<div class="page-wrapper">
+
+  <!-- ── Toast thông báo thành công/lỗi ───────────────────────────────── -->
+  @if (toast(); as t) {
+    <div class="toast" [class.toast-success]="t.success" [class.toast-error]="!t.success">
+      <span class="material-icons toast-icon">{{ t.success ? 'check_circle' : 'error' }}</span>
+      <span class="toast-text">{{ t.text }}</span>
+      <button class="toast-close" (click)="closeToast()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  }
+
+  @if (!auth.isAdmin()) {
+    <div class="empty-cell">Bạn không có quyền truy cập trang này.</div>
+  } @else {
+
+    <div class="page-header">
+      <div class="header-left">
+        <button class="back-btn" routerLink="/quan-ly-the">
+          <span class="material-icons">arrow_back</span>
+        </button>
+        <div>
+          <h1 class="page-title">Cài đặt cảnh báo &amp; gửi email thẻ</h1>
+          <p class="page-subtitle">Cấu hình ngưỡng ngày, mẫu email và theo dõi nhật ký gửi</p>
+        </div>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-wrap"><mat-spinner diameter="36"></mat-spinner></div>
+    } @else {
+
+      <!-- ── Công tắc an toàn ─────────────────────────────────────────── -->
+      <div class="panel">
+        <div class="panel-title">
+          <span class="material-icons panel-title-icon">security</span>
+          Công tắc an toàn gửi email
+        </div>
+        <div class="safety-row">
+          <mat-slide-toggle [(ngModel)]="emailEnabled" color="primary">
+            Cho phép gửi email thật tới khách hàng
+          </mat-slide-toggle>
+          @if (!emailEnabled) {
+            <span class="hint-off">Đang TẮT — mọi lần chạy job sẽ chỉ ghi nhật ký (SKIPPED_DISABLED), không gửi email thật.</span>
+          }
+        </div>
+        <div class="field-row">
+          <label>Email test override (nếu có giá trị, MỌI email thật sẽ redirect về đây)</label>
+          <input class="text-input" type="email" placeholder="vd: dev-test@bidv.com.vn"
+                 [ngModel]="get('CARD_TEST_EMAIL_OVERRIDE')"
+                 (ngModelChange)="set('CARD_TEST_EMAIL_OVERRIDE', $event)">
+        </div>
+      </div>
+
+      <!-- ── Ngưỡng cảnh báo ──────────────────────────────────────────── -->
+      <div class="panel">
+        <div class="panel-title">
+          <span class="material-icons panel-title-icon">tune</span>
+          Ngưỡng cảnh báo (ngày)
+        </div>
+        <div class="threshold-grid">
+          <div class="field-row">
+            <label>Chưa kích hoạt sau (ngày)</label>
+            <input class="text-input" type="number" min="1"
+                   [ngModel]="get('CHUA_KICH_HOAT_SO_NGAY')"
+                   (ngModelChange)="set('CHUA_KICH_HOAT_SO_NGAY', $event)">
+          </div>
+          <div class="field-row">
+            <label>Lặp lại gửi sau (ngày)</label>
+            <input class="text-input" type="number" min="1"
+                   [ngModel]="get('CHUA_KICH_HOAT_LAP_LAI_SO_NGAY')"
+                   (ngModelChange)="set('CHUA_KICH_HOAT_LAP_LAI_SO_NGAY', $event)">
+          </div>
+          <div class="field-row">
+            <label>Chưa PSGD sau (ngày kể từ kích hoạt)</label>
+            <input class="text-input" type="number" min="1"
+                   [ngModel]="get('CHUA_PSGD_SO_NGAY')"
+                   (ngModelChange)="set('CHUA_PSGD_SO_NGAY', $event)">
+          </div>
+          <div class="field-row">
+            <label>Lặp lại gửi sau (ngày)</label>
+            <input class="text-input" type="number" min="1"
+                   [ngModel]="get('CHUA_PSGD_LAP_LAI_SO_NGAY')"
+                   (ngModelChange)="set('CHUA_PSGD_LAP_LAI_SO_NGAY', $event)">
+          </div>
+        </div>
+        <button class="btn-primary" [disabled]="saving()" (click)="saveSettings()">
+          @if (saving()) { <mat-spinner diameter="16"></mat-spinner> } @else { Lưu cấu hình }
+        </button>
+      </div>
+
+      <!-- ── Mốc doanh số theo thời gian ─────────────────────────────── -->
+      <div class="panel">
+        <div class="panel-title">
+          <span class="material-icons panel-title-icon">timeline</span>
+          Mốc doanh số theo thời gian (kể từ ngày phát hành)
+        </div>
+
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>SỐ NGÀY</th>
+                <th>NGƯỠNG DOANH SỐ</th>
+                <th>MÔ TẢ</th>
+                <th>KÍCH HOẠT</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (m of milestones(); track m.id) {
+                <tr>
+                  <td><input class="text-input mini" type="number" [(ngModel)]="m.soNgayTuPhatHanh"></td>
+                  <td>
+                    <input class="text-input money-input" type="text" inputmode="numeric"
+                           [value]="formatMoney(m.nguongDoanhSo)"
+                           (focus)="onMoneyFocus($event, m.nguongDoanhSo)"
+                           (blur)="onMilestoneMoneyBlur(m, $event)">
+                  </td>
+                  <td><input class="text-input mini-wide" [(ngModel)]="m.moTa"></td>
+                  <td><input type="checkbox" [(ngModel)]="m.active"></td>
+                  <td class="row-actions">
+                    <button class="btn-outline btn-sm" (click)="saveMilestone(m)">Lưu</button>
+                    <button class="icon-btn" (click)="deleteMilestone(m.id)"><span class="material-icons">delete_outline</span></button>
+                  </td>
+                </tr>
+              }
+              <tr>
+                <td><input class="text-input mini" type="number" [(ngModel)]="newMilestone.soNgayTuPhatHanh"></td>
+                <td>
+                  <input class="text-input money-input" type="text" inputmode="numeric"
+                         [value]="formatMoney(newMilestone.nguongDoanhSo)"
+                         (focus)="onMoneyFocus($event, newMilestone.nguongDoanhSo)"
+                         (blur)="onNewMilestoneMoneyBlur($event)">
+                </td>
+                <td><input class="text-input mini-wide" placeholder="Mô tả" [(ngModel)]="newMilestone.moTa"></td>
+                <td class="text-gray">—</td>
+                <td class="row-actions">
+                  <button class="btn-outline btn-sm" [disabled]="savingMilestone()" (click)="addMilestone()">+ Thêm mốc</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Chạy thử job ─────────────────────────────────────────────── -->
+      <div class="panel">
+        <div class="panel-title">
+          <span class="material-icons panel-title-icon">play_circle</span>
+          Chạy thử job (không cần chờ lịch tự động)
+        </div>
+        <div class="job-row">
+          <button class="btn-outline" [disabled]="runningJob() === 'chua-kich-hoat'" (click)="runJob('chua-kich-hoat')">
+            @if (runningJob() === 'chua-kich-hoat') { <mat-spinner diameter="16"></mat-spinner> } @else { Chạy job "Chưa kích hoạt" }
+          </button>
+          <button class="btn-outline" [disabled]="runningJob() === 'chua-psgd'" (click)="runJob('chua-psgd')">
+            @if (runningJob() === 'chua-psgd') { <mat-spinner diameter="16"></mat-spinner> } @else { Chạy job "Chưa PSGD" }
+          </button>
+          <button class="btn-outline" [disabled]="runningJob() === 'moc-doanh-so'" (click)="runJob('moc-doanh-so')">
+            @if (runningJob() === 'moc-doanh-so') { <mat-spinner diameter="16"></mat-spinner> } @else { Chạy job "Mốc doanh số" }
+          </button>
+          <button class="btn-outline" [disabled]="snapshotRunning()" (click)="runSnapshotJob()">
+            @if (snapshotRunning()) { <mat-spinner diameter="16"></mat-spinner> } @else { Chạy snapshot doanh số ngay }
+          </button>
+          @if (!emailEnabled) {
+            <span class="hint-off">Chế độ thử nghiệm (email đang TẮT — job chỉ tính toán và ghi log, không gửi thật)</span>
+          }
+        </div>
+        @if (lastJobResult(); as r) {
+          <div class="job-result">
+            Job <strong>{{ r.job }}</strong>: {{ r.result.eligible }} thẻ đủ điều kiện —
+            {{ r.result.sent }} đã gửi, {{ r.result.skippedDedup }} bỏ qua (đã gửi gần đây),
+            {{ r.result.skippedDisabled }} bỏ qua (tắt gửi email), {{ r.result.failed }} lỗi.
+          </div>
+        }
+      </div>
+
+      <!-- ── Mẫu email ────────────────────────────────────────────────── -->
+      <div class="panel">
+        <div class="panel-title">
+          <span class="material-icons panel-title-icon">mail</span>
+          Mẫu email
+        </div>
+        @for (t of templates(); track t.id) {
+          <div class="template-block">
+            <div class="template-header">{{ t.loaiThongBao }}</div>
+            <div class="field-row">
+              <label>Tiêu đề</label>
+              <input class="text-input" [(ngModel)]="t.tieuDe">
+            </div>
+            <div class="field-row">
+              <label>Nội dung (placeholder: {{ '{{tenKhachHang}} {{soThe}} {{soNgay}} {{nguongDoanhSo}} {{doanhSoHienTai}}' }})</label>
+              <textarea class="textarea-input" rows="4" [(ngModel)]="t.noiDung"></textarea>
+            </div>
+            <div class="template-actions">
+              <button class="btn-outline" [disabled]="savingTemplateId() === t.id" (click)="saveTemplate(t)">
+                @if (savingTemplateId() === t.id) { <mat-spinner diameter="16"></mat-spinner> } @else { Lưu mẫu này }
+              </button>
+              <button class="btn-outline" (click)="previewTemplate(t)">
+                <span class="material-icons">visibility</span>
+                Xem trước email
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- ── Nhật ký email ────────────────────────────────────────────── -->
+      <div class="panel">
+        <div class="panel-title">
+          <span class="material-icons panel-title-icon">history</span>
+          Nhật ký gửi email
+        </div>
+        @if (logsLoading()) {
+          <div class="loading-wrap"><mat-spinner diameter="28"></mat-spinner></div>
+        } @else {
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>NGÀY GỬI</th>
+                  <th>LOẠI</th>
+                  <th>THẺ</th>
+                  <th>EMAIL</th>
+                  <th>TRẠNG THÁI</th>
+                  <th>CHI TIẾT LỖI</th>
+                </tr>
+              </thead>
+              <tbody>
+                @if (logs().length === 0) {
+                  <tr><td colspan="6" class="empty-cell">Chưa có nhật ký nào</td></tr>
+                }
+                @for (log of logs(); track log.id) {
+                  <tr>
+                    <td>{{ log.ngayGui | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td>{{ log.loaiThongBao }}</td>
+                    <td>{{ log.cardId }}</td>
+                    <td>{{ log.emailTo || '—' }}</td>
+                    <td><span class="status-badge" [ngClass]="trangThaiClass(log.trangThai)">{{ log.trangThai }}</span></td>
+                    <td class="text-gray">{{ log.loiChiTiet || '—' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          @if (logTotalPages > 1) {
+            <div class="pagination">
+              <button class="page-btn" [disabled]="logPage === 0" (click)="loadLogs(logPage - 1)">
+                <span class="material-icons">chevron_left</span>
+              </button>
+              <span class="page-info">Trang {{ logPage + 1 }} / {{ logTotalPages }}</span>
+              <button class="page-btn" [disabled]="logPage >= logTotalPages - 1" (click)="loadLogs(logPage + 1)">
+                <span class="material-icons">chevron_right</span>
+              </button>
+            </div>
+          }
+        }
+      </div>
+
+    }
+  }
+
+  <!-- ── Modal xem trước email ────────────────────────────────────────── -->
+  @if (previewingTemplate(); as p) {
+    <div class="preview-backdrop" (click)="closePreview()">
+      <div class="preview-modal" (click)="$event.stopPropagation()">
+        <div class="preview-modal-header">
+          <span class="material-icons">visibility</span>
+          Xem trước email (dữ liệu mẫu minh họa)
+          <button class="preview-close-btn" (click)="closePreview()">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="preview-email-card">
+          <div class="preview-email-meta">
+            <div><span class="preview-meta-label">Tới:</span> khachhang&#64;example.com</div>
+            <div><span class="preview-meta-label">Tiêu đề:</span> {{ p.tieuDe }}</div>
+          </div>
+          <div class="preview-email-body" [innerHTML]="p.noiDung"></div>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

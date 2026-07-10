@@ -50,6 +50,25 @@ export const routes: Routes = [
         loadComponent: () => import('./features/quan-ly-the/quan-ly-the.component').then(m => m.QuanLyTheComponent)
       },
       {
+        // Lưu ý: các route tĩnh của quan-ly-the (cai-dat, chien-dich...) PHẢI khai báo
+        // TRƯỚC route động 'quan-ly-the/:id' bên dưới, nếu không router sẽ khớp
+        // nhầm chuỗi tĩnh vào tham số :id.
+        path: 'quan-ly-the/cai-dat',
+        loadComponent: () => import('./features/quan-ly-the/cai-dat-canh-bao/cai-dat-canh-bao.component').then(m => m.CaiDatCanhBaoComponent)
+      },
+      {
+        path: 'quan-ly-the/chien-dich',
+        loadComponent: () => import('./features/quan-ly-the/chien-dich/chien-dich-list.component').then(m => m.ChienDichListComponent)
+      },
+      {
+        path: 'quan-ly-the/chien-dich/moi',
+        loadComponent: () => import('./features/quan-ly-the/chien-dich/chien-dich-form/chien-dich-form.component').then(m => m.ChienDichFormComponent)
+      },
+      {
+        path: 'quan-ly-the/chien-dich/:id',
+        loadComponent: () => import('./features/quan-ly-the/chien-dich/chien-dich-form/chien-dich-form.component').then(m => m.ChienDichFormComponent)
+      },
+      {
         path: 'quan-ly-the/:id',
         loadComponent: () => import('./features/quan-ly-the/the-detail/the-detail.component').then(m => m.TheDetailComponent)
       }

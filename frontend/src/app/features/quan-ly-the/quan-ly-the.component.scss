@@ -224,6 +224,8 @@ $text:         #1A1A2E;
   &.filter-field-wide { min-width: 180px; }
 }
 
+.hint-system { font-weight: 400; color: $primary; font-style: italic; }
+
 .filter-checks {
   display: flex; flex-direction: column; gap: 6px; padding-bottom: 2px;
 }

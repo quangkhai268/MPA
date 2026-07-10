@@ -9,7 +9,8 @@ import {
   BscSoSanhResult, ChiTieuBscRequest, ChiTieuQuanLyRow, UnitOption,
   ThongTinAmItem, ThongTinAmSaveRequest,
   ThongTinKhachHangItem, ThongTinKhachHangSaveRequest, KhachHangChiTiet,
-  ThePhatHanhItem, TheSummary, ThePhatHanhDetail
+  ThePhatHanhItem, TheSummary, ThePhatHanhDetail,
+  EmailLogItem, JobRunResult, CardRevenueMilestone, RevenueSeriesResponse
 } from '../models/mpa.model';
 
 @Injectable({ providedIn: 'root' })
@@ -275,6 +276,62 @@ export class MpaService {
 
   getTheProductOptions(): Observable<ApiResponse<string[]>> {
     return this.http.get<ApiResponse<string[]>>(`${this.api}/the-phat-hanh/product-options`);
+  }
+
+  // --- Cảnh báo / nhật ký email ---
+  getEmailLogs(
+    cardId: string | null, loaiThongBao: string | null, campaignId: number | null,
+    page: number, size: number
+  ): Observable<ApiResponse<PageResponse<EmailLogItem>>> {
+    let params = new HttpParams()
+      .set('page', String(page))
+      .set('size', String(size));
+    if (cardId) params = params.set('cardId', cardId);
+    if (loaiThongBao) params = params.set('loaiThongBao', loaiThongBao);
+    if (campaignId != null) params = params.set('campaignId', String(campaignId));
+    return this.http.get<ApiResponse<PageResponse<EmailLogItem>>>(`${this.api}/email-logs`, { params });
+  }
+
+  runChuaKichHoatJob(testMode: boolean): Observable<ApiResponse<JobRunResult>> {
+    return this.http.post<ApiResponse<JobRunResult>>(`${this.api}/card-notifications/chua-kich-hoat/run`, {}, { params: { testMode: String(testMode) } });
+  }
+
+  runChuaPsgdJob(testMode: boolean): Observable<ApiResponse<JobRunResult>> {
+    return this.http.post<ApiResponse<JobRunResult>>(`${this.api}/card-notifications/chua-psgd/run`, {}, { params: { testMode: String(testMode) } });
+  }
+
+  // --- Mốc doanh số theo thời gian ---
+  getRevenueMilestones(): Observable<ApiResponse<CardRevenueMilestone[]>> {
+    return this.http.get<ApiResponse<CardRevenueMilestone[]>>(`${this.api}/card-revenue-milestones`);
+  }
+
+  createRevenueMilestone(m: { soNgayTuPhatHanh: number; nguongDoanhSo: number; moTa: string; active: boolean }): Observable<ApiResponse<CardRevenueMilestone>> {
+    return this.http.post<ApiResponse<CardRevenueMilestone>>(`${this.api}/card-revenue-milestones`, m);
+  }
+
+  updateRevenueMilestone(id: number, m: { soNgayTuPhatHanh: number; nguongDoanhSo: number; moTa: string; active: boolean }): Observable<ApiResponse<CardRevenueMilestone>> {
+    return this.http.put<ApiResponse<CardRevenueMilestone>>(`${this.api}/card-revenue-milestones/${id}`, m);
+  }
+
+  deleteRevenueMilestone(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.api}/card-revenue-milestones/${id}`);
+  }
+
+  runMilestoneJob(testMode: boolean): Observable<ApiResponse<JobRunResult>> {
+    return this.http.post<ApiResponse<JobRunResult>>(`${this.api}/card-revenue-milestones/run`, {}, { params: { testMode: String(testMode) } });
+  }
+
+  // --- Doanh số theo thời gian (snapshot) ---
+  getRevenueSeries(cardId: string, granularity: 'ngay' | 'thang' | 'quy' | 'nam'): Observable<ApiResponse<RevenueSeriesResponse>> {
+    return this.http.get<ApiResponse<RevenueSeriesResponse>>(`${this.api}/the-doanh-so/card/${cardId}/series`, { params: { granularity } });
+  }
+
+  getBaoCaoDoanhSoTongHop(granularity: 'ngay' | 'thang' | 'quy' | 'nam'): Observable<ApiResponse<RevenueSeriesResponse>> {
+    return this.http.get<ApiResponse<RevenueSeriesResponse>>(`${this.api}/the-doanh-so/bao-cao`, { params: { granularity } });
+  }
+
+  runSnapshotJob(): Observable<ApiResponse<number>> {
+    return this.http.post<ApiResponse<number>>(`${this.api}/the-doanh-so/snapshot/run-now`, {});
   }
 
   downloadBlob(blob: Blob, filename: string): void {

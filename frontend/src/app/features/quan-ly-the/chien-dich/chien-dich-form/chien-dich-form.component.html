@@ -1,0 +1,169 @@
+<div class="page-wrapper">
+
+  @if (!auth.isAdmin()) {
+    <div class="empty-cell">Bạn không có quyền truy cập trang này.</div>
+  } @else {
+
+    <div class="page-header">
+      <div class="header-left">
+        <button class="back-btn" (click)="goBack()">
+          <span class="material-icons">arrow_back</span>
+        </button>
+        <div>
+          <h1 class="page-title">{{ campaignId ? 'Sửa chiến dịch' : 'Tạo chiến dịch mới' }}</h1>
+          <p class="page-subtitle">Cấu hình tiêu chí đối tượng và nội dung email khuyến mại</p>
+        </div>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-wrap"><mat-spinner diameter="36"></mat-spinner></div>
+    } @else {
+
+      <div class="form-grid">
+        <!-- ── Cột trái: thông tin + tiêu chí ─────────────────────────── -->
+        <div class="col-left">
+
+          <div class="panel">
+            <div class="panel-title">Thông tin chiến dịch</div>
+            <div class="field-row">
+              <label>Tên chiến dịch</label>
+              <input class="text-input" [(ngModel)]="tenChienDich">
+            </div>
+            <div class="field-row">
+              <label>Mô tả</label>
+              <textarea class="textarea-input" rows="2" [(ngModel)]="moTa"></textarea>
+            </div>
+            <div class="field-row-2">
+              <div class="field-row">
+                <label>Ngày bắt đầu</label>
+                <input class="text-input" type="date" [(ngModel)]="ngayBatDau">
+              </div>
+              <div class="field-row">
+                <label>Ngày kết thúc</label>
+                <input class="text-input" type="date" [(ngModel)]="ngayKetThuc">
+              </div>
+            </div>
+            <div class="field-row">
+              <label>Trạng thái</label>
+              <select class="text-input" [(ngModel)]="trangThai">
+                <option value="DRAFT">Nháp</option>
+                <option value="ACTIVE">Đang chạy</option>
+                <option value="PAUSED">Tạm dừng</option>
+                <option value="ENDED">Đã kết thúc</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Tiêu chí lựa chọn thẻ</div>
+            @for (f of fieldDefs; track f.key) {
+              @if (criteriaOptions()[f.key] && criteriaOptions()[f.key].length > 0) {
+                <div class="criteria-group">
+                  <div class="criteria-label">{{ f.label }}</div>
+                  <div class="criteria-chips">
+                    @for (v of criteriaOptions()[f.key]; track v) {
+                      <button type="button" class="chip" [class.chip-active]="isSelected(f.key, v)" (click)="toggleValue(f.key, v)">
+                        {{ v }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            }
+            <p class="hint">Không chọn tiêu chí nào ở 1 nhóm = không lọc theo nhóm đó. Chọn nhiều giá trị trong cùng nhóm = khớp bất kỳ giá trị nào (OR).</p>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Nội dung email</div>
+            <div class="field-row">
+              <label>Tiêu đề</label>
+              <input class="text-input" [(ngModel)]="tieuDeEmail">
+            </div>
+            <div class="field-row">
+              <label>Nội dung (placeholder: {{ '{{tenKhachHang}} {{soThe}}' }})</label>
+              <textarea class="textarea-input" rows="6" [(ngModel)]="noiDungEmail"></textarea>
+            </div>
+          </div>
+
+          <button class="btn-primary" [disabled]="saving()" (click)="save()">
+            @if (saving()) { <mat-spinner diameter="16"></mat-spinner> } @else { {{ campaignId ? 'Lưu thay đổi' : 'Tạo chiến dịch' }} }
+          </button>
+        </div>
+
+        <!-- ── Cột phải: xem trước + gửi ───────────────────────────────── -->
+        <div class="col-right">
+          <div class="panel">
+            <div class="panel-title">Xem trước đối tượng</div>
+            @if (previewLoading()) {
+              <div class="loading-wrap"><mat-spinner diameter="24"></mat-spinner></div>
+            } @else {
+              @if (preview(); as p) {
+                <div class="preview-count">{{ p.soLuong }} thẻ thỏa tiêu chí</div>
+                <div class="preview-sample">
+                  @for (item of p.mauKhachHang.slice(0, 8); track item.id) {
+                    <div class="preview-row">
+                      <span class="preview-name">{{ item.tenChuTheChinh || '—' }}</span>
+                      <span class="preview-card">{{ item.soTheDaPhatHanh }}</span>
+                    </div>
+                  }
+                  @if (p.mauKhachHang.length === 0) {
+                    <div class="empty-cell">Không có thẻ nào khớp tiêu chí</div>
+                  }
+                </div>
+              }
+            }
+          </div>
+
+          @if (campaignId) {
+            <div class="panel">
+              <div class="panel-title">Gửi chiến dịch</div>
+              @if (!emailEnabled) {
+                <p class="hint-off">Email đang TẮT (cấu hình trong Cài đặt cảnh báo) — nút dưới đây chỉ chạy thử, không gửi thật.</p>
+              }
+              <button class="btn-outline" [disabled]="sending()" (click)="sendCampaign()">
+                @if (sending()) { <mat-spinner diameter="16"></mat-spinner> } @else { {{ emailEnabled ? 'Gửi chiến dịch' : 'Chạy thử' }} }
+              </button>
+              @if (lastSendResult(); as r) {
+                <div class="job-result">
+                  {{ r.eligible }} thẻ đủ điều kiện — {{ r.sent }} đã gửi, {{ r.skippedDedup }} bỏ qua (đã gửi rồi),
+                  {{ r.skippedDisabled }} bỏ qua (tắt gửi email), {{ r.failed }} lỗi.
+                </div>
+              }
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Lịch sử gửi</div>
+              @if (logsLoading()) {
+                <div class="loading-wrap"><mat-spinner diameter="24"></mat-spinner></div>
+              } @else {
+                <div class="table-scroll">
+                  <table class="data-table">
+                    <thead>
+                      <tr><th>NGÀY GỬI</th><th>THẺ</th><th>EMAIL</th><th>TRẠNG THÁI</th></tr>
+                    </thead>
+                    <tbody>
+                      @if (logs().length === 0) {
+                        <tr><td colspan="4" class="empty-cell">Chưa gửi lần nào</td></tr>
+                      }
+                      @for (log of logs(); track log.id) {
+                        <tr>
+                          <td>{{ log.ngayGui | date:'dd/MM/yyyy HH:mm' }}</td>
+                          <td>{{ log.cardId }}</td>
+                          <td>{{ log.emailTo || '—' }}</td>
+                          <td><span class="status-badge" [ngClass]="trangThaiClass(log.trangThai)">{{ log.trangThai }}</span></td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+    }
+  }
+
+</div>

@@ -145,13 +145,21 @@
                 <button class="chart-tab-btn" [class.active]="doanhSoTab === 'ngay'" (click)="setDoanhSoTab('ngay')">Theo ngày</button>
                 <button class="chart-tab-btn" [class.active]="doanhSoTab === 'thang'" (click)="setDoanhSoTab('thang')">Theo tháng</button>
               </div>
-              <span class="chart-total">Tổng: —</span>
+              <span class="chart-total">Tổng: {{ chartTong() | number:'1.0-0' }}</span>
             </div>
 
-            <div class="chart-empty">
-              <span class="material-icons chart-empty-icon">bar_chart</span>
-              <p>Chưa có dữ liệu lịch sử giao dịch theo thời gian cho thẻ này.</p>
-            </div>
+            @if (chartLoading()) {
+              <div class="loading-wrap"><mat-spinner diameter="28"></mat-spinner></div>
+            } @else if (chartChuaDuLieu()) {
+              <div class="chart-empty">
+                <span class="material-icons chart-empty-icon">bar_chart</span>
+                <p>Dữ liệu lịch sử bắt đầu ghi nhận từ ngày triển khai tính năng — vui lòng quay lại sau.</p>
+              </div>
+            } @else {
+              <div class="chart-container" style="height:220px">
+                <canvas baseChart [data]="chartData()" [options]="chartOptions" type="bar"></canvas>
+              </div>
+            }
           </div>
 
           <!-- Doanh số miễn phí thường niên -->
@@ -425,6 +433,39 @@
             <div>
               <div class="field-label">NHÓM KH</div>
               <div class="field-value">{{ d.nhomKhThe || '—' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ Giao thẻ & cán bộ phụ trách ═══════════════════════════════ -->
+      <div class="info-panel">
+        <div class="panel-title">
+          <span class="material-icons panel-title-icon">location_on</span>
+          Giao thẻ & cán bộ phụ trách
+        </div>
+
+        <div class="giao-the-address">
+          <div class="field-label">ĐỊA CHỈ GIAO THẺ</div>
+          <div class="giao-the-address-value">—</div>
+          <div class="giao-the-address-sub">
+            CN phát hành: {{ d.cnQlt || '—' }} · CN giao: {{ d.cnQlt || '—' }}
+          </div>
+        </div>
+
+        <div class="field-grid giao-the-staff-grid">
+          <div class="field-item">
+            <span class="material-icons field-icon">person</span>
+            <div>
+              <div class="field-label">AM THẺ</div>
+              <div class="field-value">{{ d.amIssuingContract || '—' }}</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="material-icons field-icon">person</span>
+            <div>
+              <div class="field-label">CB GIỚI THIỆU</div>
+              <div class="field-value">{{ d.maCanBoGioiThieu || '—' }}</div>
             </div>
           </div>
         </div>

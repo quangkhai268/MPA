@@ -7,6 +7,16 @@
       <p class="page-subtitle">Theo dõi danh sách thẻ, dư nợ, hạn mức và các thẻ chưa kích hoạt</p>
     </div>
     <div class="header-actions">
+      @if (auth.isAdmin()) {
+        <button class="btn-outline" (click)="goToChienDich()">
+          <span class="material-icons">campaign</span>
+          Chiến dịch
+        </button>
+        <button class="btn-outline" (click)="goToCaiDat()">
+          <span class="material-icons">settings</span>
+          Cài đặt cảnh báo
+        </button>
+      }
       <button class="btn-outline" (click)="exportExcel()">
         <span class="material-icons">download</span>
         Xuất Excel
@@ -125,8 +135,11 @@
     <div class="filter-card">
       <div class="filter-row-1">
         <div class="filter-field">
-          <label>Chưa kích hoạt trên (ngày)</label>
-          <select [(ngModel)]="soNgayMin" (ngModelChange)="search()">
+          <label>
+            Chưa kích hoạt trên (ngày)
+            @if (soNgayMinLaMacDinhHeThong) { <span class="hint-system">(mặc định hệ thống)</span> }
+          </label>
+          <select [(ngModel)]="soNgayMin" (ngModelChange)="onSoNgayMinChange()">
             @for (opt of soNgayMinOptions; track opt.value) {
               <option [ngValue]="opt.value">{{ opt.label }}</option>
             }

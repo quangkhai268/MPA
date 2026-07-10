@@ -1,0 +1,78 @@
+// ── Variables ─────────────────────────────────────────────────────────
+$primary:      #005BAA;
+$primary-dark: #1C3557;
+$green:        #009640;
+$red:          #EF4444;
+$yellow:       #F59E0B;
+$gray:         #6b7280;
+$gray-bg:      #f9fafb;
+$gray-border:  #e5e7eb;
+$text:         #1A1A2E;
+
+.page-wrapper { padding: 24px; background: #F4F6F9; min-height: 100%; }
+.loading-wrap { display: flex; justify-content: center; padding: 48px 0; }
+.empty-cell   { padding: 60px 0; text-align: center; color: $gray; }
+
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.header-left { display: flex; align-items: flex-start; gap: 12px; }
+.back-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid $gray-border; background: #fff; color: $text;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0; margin-top: 2px;
+  &:hover { background: $gray-bg; }
+}
+.page-title { font-size: 22px; font-weight: 700; color: $text; margin: 0; }
+.page-subtitle { font-size: 13px; color: $gray; margin: 4px 0 0; }
+
+.btn-primary {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px;
+  border: none; background: $primary-dark; color: #fff;
+  border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background 0.15s;
+  &:hover { background: darken($primary-dark, 6%); }
+}
+
+.table-card { background: #fff; border-radius: 10px; border: 1px solid $gray-border; overflow: hidden; }
+.table-scroll { overflow-x: auto; }
+.data-table {
+  width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 700px;
+  thead tr { background: $gray-bg; border-bottom: 1.5px solid $gray-border; }
+  th {
+    padding: 10px 12px; text-align: left;
+    font-size: 11px; font-weight: 700; color: $gray;
+    text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+  }
+  td { padding: 11px 12px; border-bottom: 1px solid $gray-border; color: $text; vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr.row-clickable { cursor: pointer; }
+  tbody tr:hover td { background: #f8fafc; }
+}
+
+.campaign-name { font-weight: 600; }
+.campaign-desc { font-size: 11px; color: $gray; margin-top: 2px; }
+
+.status-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+}
+.badge-green  { background: #ECFDF5; color: $green; }
+.badge-yellow { background: #FFFBEB; color: $yellow; }
+.badge-gray   { background: $gray-bg; color: $gray; }
+.badge-blue   { background: #e8f0f9; color: $primary; }
+
+.text-gray { color: $gray; }
+.col-actions { text-align: center; }
+
+.icon-btn {
+  width: 32px; height: 32px; border-radius: 6px;
+  border: 1px solid $gray-border; background: #fff; color: $red;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  .material-icons { font-size: 18px; }
+  &:hover { background: #FEF2F2; }
+}
