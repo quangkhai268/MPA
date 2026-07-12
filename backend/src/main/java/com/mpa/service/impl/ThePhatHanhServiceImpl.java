@@ -55,6 +55,8 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
 
         BigDecimal hanMuc  = repo.sumHanMuc();
         BigDecimal doanhSo = repo.sumDoanhSo();
+        long tongTdqt      = repo.countTdqt();
+        long tdqtDatPtn    = repo.countTdqtDatPtn();
 
         long biKhoaCount = repo.findAll().stream()
                 .filter(e -> {
@@ -82,10 +84,12 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
                 .soTheChuaKichHoat(chuaKh)
                 .soTheChuaPsgd(chuaPsgd)
                 .hanMucCap(hanMuc != null ? hanMuc : BigDecimal.ZERO)
-                .duNo(doanhSo != null ? doanhSo : BigDecimal.ZERO)
+                .doanhSoGiaoDichMienPtn(doanhSo != null ? doanhSo : BigDecimal.ZERO)
                 .tyLeDungHanMuc(tyLeDung)
                 .soTheDatPtn(Math.max(datPtn, 0))
                 .soTheChuaDatPtn(chuaPtn)
+                .tongSoTdqt(tongTdqt)
+                .soTdqtDatPtn(tdqtDatPtn)
                 .build();
     }
 

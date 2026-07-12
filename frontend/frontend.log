@@ -11,128 +11,7 @@ chunk-KULJQ72C.js   | -                           |   1.10 kB |
 
 Lazy chunk files    | Names                       |  Raw size
 chunk-GAKD5TZW.js   | dashboard-component         | 137.50 kB | 
-chunk-CLJYKSNT.js   | quan-ly-the-component       |  84.36 kB | 
-chunk-NPFHTN34.js   | giao-chi-tieu-component     |  75.59 kB | 
-chunk-AUAMYL4A.js   | cai-dat-canh-bao-component  |  61.46 kB | 
-chunk-BMWBYFOY.js   | du-lieu-mpa-component       |  57.37 kB | 
-chunk-K3YLO5JL.js   | khach-hang-component        |  54.11 kB | 
-chunk-WS4PCNKV.js   | quan-tri-component          |  53.62 kB | 
-chunk-HVT7XDTQ.js   | quan-ly-am-component        |  53.43 kB | 
-chunk-OXIIC36V.js   | the-detail-component        |  52.98 kB | 
-chunk-O2ZVKAV3.js   | khach-hang-detail-component |  52.84 kB | 
-chunk-M6YU2DQW.js   | chien-dich-form-component   |  38.97 kB | 
-chunk-DZ22BWFU.js   | bao-cao-component           |  33.63 kB | 
-chunk-WAKLRBUB.js   | main-layout-component       |  27.80 kB | 
-chunk-ISS7LVWF.js   | login-component             |  18.08 kB | 
-chunk-KUOYAKLB.js   | chien-dich-list-component   |  16.27 kB | 
-...and 3 more lazy chunks files. Use "--verbose" to show all the files.
-
-Application bundle generation complete. [27.035 seconds]
-
-Watch mode enabled. Watching for file changes...
-  ➜  Local:   http://localhost:4200/
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                | Raw size
-main.js             | main                 |  5.30 kB | 
-
-Lazy chunk files    | Names                | Raw size
-chunk-G2JSFGLX.js   | the-detail-component | 53.14 kB | 
-
-Application bundle generation complete. [3.733 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                 | Raw size
-main.js             | main                  |  5.30 kB | 
-
-Lazy chunk files    | Names                 | Raw size
-chunk-QDC47QSM.js   | quan-ly-the-component | 84.36 kB | 
-
-Application bundle generation complete. [1.731 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                 | Raw size
-main.js             | main                  |  5.30 kB | 
-
-Lazy chunk files    | Names                 | Raw size
-chunk-MDXPDWZW.js   | quan-ly-the-component | 84.42 kB | 
-
-Application bundle generation complete. [1.136 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                 | Raw size
-main.js             | main                  |  5.30 kB | 
-
-Lazy chunk files    | Names                 | Raw size
-chunk-2QNENPGL.js   | quan-ly-the-component | 85.97 kB | 
-
-Application bundle generation complete. [0.983 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                 | Raw size
-main.js             | main                  |  5.30 kB | 
-
-Lazy chunk files    | Names                 | Raw size
-chunk-ATUMCMVO.js   | quan-ly-the-component | 85.99 kB | 
-
-Application bundle generation complete. [0.576 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                 | Raw size
-main.js             | main                  |  5.30 kB | 
-
-Lazy chunk files    | Names                 | Raw size
-chunk-GFV7DYHJ.js   | quan-ly-the-component | 86.04 kB | 
-
-Application bundle generation complete. [0.725 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Application bundle generation failed. [2.001 seconds]
-
-X [ERROR] TS2339: Property 'restoreScroll' does not exist on type 'QuanLyTheComponent'. [plugin angular-compiler]
-
-    src/app/features/quan-ly-the/quan-ly-the.component.ts:177:41:
-      177 │ ...  if (restoreScrollY != null) this.restoreScroll(restoreScrollY);
-          ╵                                       ~~~~~~~~~~~~~
-
-
-- Changes detected. Rebuilding...
-
-Application bundle generation failed. [0.653 seconds]
-
-X [ERROR] TS2339: Property 'restoreScroll' does not exist on type 'QuanLyTheComponent'. [plugin angular-compiler]
-
-    src/app/features/quan-ly-the/quan-ly-the.component.ts:180:41:
-      180 │ ...  if (restoreScrollY != null) this.restoreScroll(restoreScrollY);
-          ╵                                       ~~~~~~~~~~~~~
-
-
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                       |  Raw size
-styles.css          | styles                      |  93.55 kB | 
-polyfills.js        | polyfills                   |  88.09 kB | 
-main.js             | main                        |   5.30 kB | 
-chunk-PT37UZKT.js   | -                           |   3.75 kB | 
-chunk-KULJQ72C.js   | -                           |   1.10 kB | 
-
-                    | Initial total               | 191.78 kB
-
-Lazy chunk files    | Names                       |  Raw size
-chunk-GAKD5TZW.js   | dashboard-component         | 137.50 kB | 
-chunk-UTLATTQV.js   | quan-ly-the-component       |  86.53 kB | 
+chunk-LP53YM3A.js   | quan-ly-the-component       |  87.12 kB | 
 chunk-NPFHTN34.js   | giao-chi-tieu-component     |  75.59 kB | 
 chunk-AUAMYL4A.js   | cai-dat-canh-bao-component  |  61.46 kB | 
 chunk-BMWBYFOY.js   | du-lieu-mpa-component       |  57.37 kB | 
@@ -148,39 +27,18 @@ chunk-ISS7LVWF.js   | login-component             |  18.08 kB |
 chunk-KUOYAKLB.js   | chien-dich-list-component   |  16.27 kB | 
 ...and 3 more lazy chunks files. Use "--verbose" to show all the files.
 
-Application bundle generation complete. [0.722 seconds]
+Application bundle generation complete. [15.175 seconds]
 
-Page reload sent to client(s).
+Watch mode enabled. Watching for file changes...
+  ➜  Local:   http://localhost:4200/
 - Changes detected. Rebuilding...
 
 Initial chunk files | Names                 | Raw size
 main.js             | main                  |  5.30 kB | 
 
 Lazy chunk files    | Names                 | Raw size
-chunk-3VXFBFLI.js   | quan-ly-the-component | 86.59 kB | 
+chunk-Q3GOXEBE.js   | quan-ly-the-component | 87.12 kB | 
 
-Application bundle generation complete. [0.623 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                 | Raw size
-main.js             | main                  |  5.30 kB | 
-
-Lazy chunk files    | Names                 | Raw size
-chunk-ICMIJ3DR.js   | quan-ly-the-component | 86.86 kB | 
-
-Application bundle generation complete. [1.105 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names                 | Raw size
-main.js             | main                  |  5.30 kB | 
-
-Lazy chunk files    | Names                 | Raw size
-chunk-YLTW2N5H.js   | quan-ly-the-component | 86.92 kB | 
-
-Application bundle generation complete. [0.677 seconds]
+Application bundle generation complete. [3.489 seconds]
 
 Page reload sent to client(s).

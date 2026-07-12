@@ -238,7 +238,7 @@ export class QuanLyTheComponent implements OnInit {
 
   formatTy(value: number | null | undefined): string {
     if (value == null) return '0';
-    const ty = value / 1000;
+    const ty = value / 1_000_000_000;
     return ty.toLocaleString('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 

@@ -73,6 +73,18 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
     @Query("SELECT COALESCE(SUM(t.doanhSoGiaoDichMienPtn), 0) FROM ThePhatHanh t")
     java.math.BigDecimal sumDoanhSo();
 
+    @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE t.loaiTheTinDung = 'TDQT'")
+    long countTdqt();
+
+    @Query("""
+        SELECT COUNT(t) FROM ThePhatHanh t
+        WHERE t.loaiTheTinDung = 'TDQT'
+          AND t.doanhSoGiaoDichMienPtn IS NOT NULL
+          AND t.doanhSoMienPtn IS NOT NULL
+          AND t.doanhSoGiaoDichMienPtn >= t.doanhSoMienPtn
+        """)
+    long countTdqtDatPtn();
+
     // ── Dùng cho job cảnh báo gửi email (không đụng tới search() ở trên) ──
 
     @Query("""

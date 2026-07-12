@@ -66,27 +66,27 @@
         </div>
       </div>
 
-      <!-- 4. Dư nợ -->
+      <!-- 4. Doanh số giao dịch miễn PTN -->
       <div class="kpi-card">
         <div class="kpi-icon kpi-green">
           <span class="material-icons">account_balance_wallet</span>
         </div>
         <div class="kpi-body">
-          <div class="kpi-label">Dư nợ</div>
-          <div class="kpi-value">{{ formatTy(summary()!.duNo) }} tỷ</div>
-          <div class="kpi-sub">Không có quá hạn</div>
+          <div class="kpi-label">Doanh số giao dịch miễn PTN</div>
+          <div class="kpi-value">{{ formatTy(summary()!.doanhSoGiaoDichMienPtn) }} tỷ</div>
+          <div class="kpi-sub">Lũy kế toàn bộ {{ summary()!.tongSoThe }} thẻ</div>
         </div>
       </div>
 
-      <!-- 5. Doanh số miền PTN -->
+      <!-- 5. Số khách hàng đạt miễn PTN (thẻ tín dụng QT) -->
       <div class="kpi-card">
         <div class="kpi-icon kpi-purple">
           <span class="material-icons">emoji_events</span>
         </div>
         <div class="kpi-body">
-          <div class="kpi-label">Doanh số miền PTN</div>
-          <div class="kpi-value">{{ summary()!.soTheDatPtn }}/{{ summary()!.tongSoThe }}</div>
-          <div class="kpi-sub">{{ summary()!.soTheChuaDatPtn }} thẻ chưa đạt</div>
+          <div class="kpi-label">KH đạt miễn PTN (TDQT)</div>
+          <div class="kpi-value">{{ summary()!.soTdqtDatPtn }}/{{ summary()!.tongSoTdqt }}</div>
+          <div class="kpi-sub">{{ summary()!.tongSoTdqt - summary()!.soTdqtDatPtn }} thẻ TDQT chưa đạt</div>
         </div>
       </div>
 

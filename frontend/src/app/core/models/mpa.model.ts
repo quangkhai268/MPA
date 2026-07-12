@@ -396,10 +396,12 @@ export interface TheSummary {
   soTheChuaKichHoat: number;
   soTheChuaPsgd: number;
   hanMucCap: number;
-  duNo: number;
+  doanhSoGiaoDichMienPtn: number;
   tyLeDungHanMuc: number;
   soTheDatPtn: number;
   soTheChuaDatPtn: number;
+  tongSoTdqt: number;
+  soTdqtDatPtn: number;
 }
 
 export interface KhachHangChiTiet {
