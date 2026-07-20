@@ -5,10 +5,10 @@ import com.mpa.dto.JobRunResult;
 public interface CardNotificationService {
 
     /** Báo cáo & gửi email nhắc khách hàng chưa kích hoạt thẻ. */
-    JobRunResult processChuaKichHoat(boolean testMode);
+    JobRunResult processChuaKichHoat();
 
     /** Báo cáo & gửi email nhắc khách hàng đã kích hoạt nhưng chưa phát sinh giao dịch. */
-    JobRunResult processChuaPsgd(boolean testMode);
+    JobRunResult processChuaPsgd();
 
     /**
      * Gửi THỬ đúng 1 email "chưa kích hoạt" (dùng thẻ đầu tiên đủ điều kiện) để kiểm tra mẫu

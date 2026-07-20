@@ -87,9 +87,9 @@ public class CampaignController {
     }
 
     @PostMapping("/{id}/send")
-    public ApiResponse<JobRunResult> send(@PathVariable Integer id, @RequestParam(defaultValue = "true") boolean testMode) {
+    public ApiResponse<JobRunResult> send(@PathVariable Integer id) {
         try {
-            return ApiResponse.ok(service.send(id, testMode));
+            return ApiResponse.ok(service.send(id));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi khi gửi chiến dịch: " + e.getMessage());
         }

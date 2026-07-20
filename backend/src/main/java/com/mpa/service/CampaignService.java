@@ -25,7 +25,7 @@ public interface CampaignService {
     /** Xem trước theo tiêu chí chưa lưu (dùng khi đang soạn chiến dịch, chưa bấm Lưu). */
     CampaignPreviewResponse previewByCriteria(CampaignRequest request);
 
-    JobRunResult send(Integer id, boolean testMode);
+    JobRunResult send(Integer id);
 
     Map<String, List<String>> getCriteriaOptions();
 }

@@ -58,9 +58,9 @@ public class CardRevenueMilestoneController {
     }
 
     @PostMapping("/run")
-    public ApiResponse<JobRunResult> run(@RequestParam(defaultValue = "true") boolean testMode) {
+    public ApiResponse<JobRunResult> run() {
         try {
-            return ApiResponse.ok(evaluationService.evaluateAndNotify(testMode));
+            return ApiResponse.ok(evaluationService.evaluateAndNotify());
         } catch (Exception e) {
             return ApiResponse.error("Lỗi khi chạy đánh giá mốc doanh số: " + e.getMessage());
         }

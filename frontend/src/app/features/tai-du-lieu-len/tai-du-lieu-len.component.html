@@ -1,0 +1,133 @@
+<div class="page-wrapper">
+
+  @if (toast(); as t) {
+    <div class="toast" [class.toast-success]="t.success" [class.toast-error]="!t.success">
+      <span class="material-icons toast-icon">{{ t.success ? 'check_circle' : 'error' }}</span>
+      <span class="toast-text">{{ t.text }}</span>
+      <button class="toast-close" (click)="closeToast()"><span class="material-icons">close</span></button>
+    </div>
+  }
+
+  <!-- ── Header ─────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Tải lên dữ liệu</h1>
+      <p class="page-subtitle">Hỗ trợ file MPA, ISS_02, ISS_06, ISS_15. Kéo thả nhiều file Excel hoặc file ZIP để upload theo 1 phiên (1 lịch sử).</p>
+    </div>
+  </div>
+
+  <!-- ── Upload panel ───────────────────────────────────────────────── -->
+  <div class="panel">
+    <div class="upload-grid">
+
+      <div class="upload-col">
+        <label class="field-label">Chọn file</label>
+        <div class="drop-zone"
+             [class.drag-over]="dragOver()"
+             (dragover)="onDragOver($event)"
+             (dragleave)="onDragLeave($event)"
+             (drop)="onDrop($event)"
+             (click)="fileInput.click()">
+          <input #fileInput type="file" multiple hidden
+                 accept=".xlsx,.xls,.zip"
+                 (change)="onFileInputChange($event)">
+          <div class="drop-icons">
+            <span class="material-icons drop-icon">upload</span>
+            <span class="material-icons drop-icon-sm">description</span>
+          </div>
+          <div class="drop-text">
+            <strong>Kéo thả file vào đây</strong> hoặc bấm để chọn
+          </div>
+          <div class="drop-badges">
+            <span class="ext-badge">.xlsx</span>
+            <span class="ext-badge">.xls</span>
+            <span class="ext-badge">.zip (tự trích)</span>
+            <span class="drop-hint">· tối đa 50 MB/file</span>
+          </div>
+        </div>
+
+        @if (selectedFiles().length > 0) {
+          <div class="file-list">
+            @for (f of selectedFiles(); track f.name + f.size; let i = $index) {
+              <div class="file-item">
+                <span class="material-icons file-icon">description</span>
+                <span class="file-name">{{ f.name }}</span>
+                <span class="file-size">{{ formatSize(f.size) }}</span>
+                <button class="file-remove" (click)="removeFile(i)"><span class="material-icons">close</span></button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="upload-col upload-col-side">
+        <label class="field-label">Ngày dữ liệu (T-1)</label>
+        <input class="date-input" type="date" [(ngModel)]="ngayDuLieu">
+        <div class="field-hint">Mặc định = hôm qua</div>
+      </div>
+    </div>
+
+    <div class="upload-actions">
+      <button class="btn-primary" [disabled]="selectedFiles().length === 0 || uploading()" (click)="taiLen()">
+        @if (uploading()) {
+          <mat-spinner diameter="16"></mat-spinner>
+        } @else {
+          <span class="material-icons">upload</span>
+        }
+        Tải lên
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Lịch sử upload ─────────────────────────────────────────────── -->
+  <div class="panel">
+    <div class="panel-title">Lịch sử upload</div>
+
+    @if (historyLoading()) {
+      <div class="loading-wrap"><mat-spinner diameter="32"></mat-spinner></div>
+    } @else {
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>THỜI GIAN</th>
+              <th>NGƯỜI UPLOAD</th>
+              <th>NGÀY DATA</th>
+              <th>SỐ FILE</th>
+              <th>TỔNG DÒNG</th>
+              <th>TRẠNG THÁI</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (history().length === 0) {
+              <tr><td colspan="6" class="empty-cell">Chưa có lịch sử upload</td></tr>
+            }
+            @for (h of history(); track h.id) {
+              <tr>
+                <td>{{ h.thoiGian | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ h.nguoiUpload || '—' }}</td>
+                <td>{{ h.ngayDuLieu | date:'yyyy-MM-dd' }}</td>
+                <td>{{ h.soFile }} file</td>
+                <td>{{ h.tongDong | number:'1.0-0' }}</td>
+                <td><span class="status-badge" [ngClass]="trangThaiClass(h.trangThai)">{{ trangThaiLabel(h.trangThai) }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (historyTotalPages > 1) {
+        <div class="pagination">
+          <button class="page-btn" [disabled]="historyPage === 0" (click)="loadHistory(historyPage - 1)">
+            <span class="material-icons">chevron_left</span>
+          </button>
+          <span class="page-info">Trang {{ historyPage + 1 }} / {{ historyTotalPages }}</span>
+          <button class="page-btn" [disabled]="historyPage >= historyTotalPages - 1" (click)="loadHistory(historyPage + 1)">
+            <span class="material-icons">chevron_right</span>
+          </button>
+        </div>
+      }
+    }
+  </div>
+
+</div>

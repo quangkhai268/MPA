@@ -1,5 +1,6 @@
 package com.mpa.service.impl;
 
+import com.mpa.dto.KhachHangTheSummaryResponse;
 import com.mpa.dto.ThePhatHanhDetailResponse;
 import com.mpa.dto.ThePhatHanhResponse;
 import com.mpa.dto.TheSummaryResponse;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
     public Page<ThePhatHanhResponse> getList(
             String search, String trangThai, String hinhThuc, String productCode,
             String loaiTheTinDung,
-            boolean chuaKichHoat, int soNgayMin, boolean chuaPsgd, boolean chuaDatPtn,
+            boolean chuaKichHoat, int soNgayMin, boolean chuaPsgd, boolean chuaDatPtn, boolean datPtn,
             int page, int size) {
 
         String s   = (search == null) ? "" : search.trim();
@@ -34,7 +36,7 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
         String pc  = (productCode == null || productCode.isBlank()) ? null : productCode;
         String ltd = (loaiTheTinDung == null || loaiTheTinDung.isBlank()) ? null : loaiTheTinDung;
 
-        return repo.search(s, tt, ht, pc, ltd, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, PageRequest.of(page, size))
+        return repo.search(s, tt, ht, pc, ltd, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, PageRequest.of(page, size))
                    .map(ThePhatHanhResponse::from);
     }
 
@@ -59,13 +61,7 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
         long tdqtDatPtn    = repo.countTdqtDatPtn();
 
         long biKhoaCount = repo.findAll().stream()
-                .filter(e -> {
-                    String tt = e.getTrangThaiIssuingContract();
-                    if (tt == null) return false;
-                    String upper = tt.toUpperCase();
-                    return upper.contains("KHÓA") || upper.contains("KHOA")
-                            || upper.contains("BLOCK") || upper.contains("BLK");
-                })
+                .filter(e -> isKhoa(e.getTrangThaiIssuingContract()))
                 .count();
         long hoatDong = Math.max(total - biKhoaCount - chuaKh, 0);
 
@@ -91,6 +87,61 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
                 .tongSoTdqt(tongTdqt)
                 .soTdqtDatPtn(tdqtDatPtn)
                 .build();
+    }
+
+    @Override
+    public KhachHangTheSummaryResponse getSummaryByCif(String cif) {
+        List<ThePhatHanh> cards = repo.findBySoCifKhachHangPhtOrderByIdDesc(cif);
+
+        int soHopDong = cards.size();
+        int soChuaActive = (int) cards.stream()
+                .filter(c -> c.getSoNgayChuaKichHoat() != null && c.getSoNgayChuaKichHoat() > 0)
+                .count();
+        int soKhoa = (int) cards.stream()
+                .filter(c -> isKhoa(c.getTrangThaiIssuingContract()))
+                .count();
+        int soChuaDatPtn = (int) cards.stream()
+                .filter(c -> {
+                    BigDecimal ds = c.getDoanhSoGiaoDichMienPtn();
+                    BigDecimal muc = c.getDoanhSoMienPtn();
+                    return ds == null || muc == null || ds.compareTo(muc) < 0;
+                })
+                .count();
+
+        BigDecimal tongHanMuc = cards.stream()
+                .map(c -> c.getHmtdIssuingContract() != null ? c.getHmtdIssuingContract() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal tongDoanhSo = cards.stream()
+                .map(c -> c.getDoanhSoGiaoDichMienPtn() != null ? c.getDoanhSoGiaoDichMienPtn() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        double tyLe = 0;
+        if (tongHanMuc.compareTo(BigDecimal.ZERO) > 0) {
+            tyLe = tongDoanhSo.divide(tongHanMuc, 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100)).doubleValue();
+        }
+
+        List<ThePhatHanhResponse> theList = cards.stream()
+                .map(ThePhatHanhResponse::from)
+                .collect(Collectors.toList());
+
+        return KhachHangTheSummaryResponse.builder()
+                .soHopDong(soHopDong)
+                .soKhoa(soKhoa)
+                .soChuaActive(soChuaActive)
+                .tongHanMuc(tongHanMuc)
+                .tongDoanhSo(tongDoanhSo)
+                .tyLeDoanhSoTrenHanMuc(tyLe)
+                .soTheChuaDatPtn(soChuaDatPtn)
+                .theList(theList)
+                .build();
+    }
+
+    private boolean isKhoa(String trangThaiIssuingContract) {
+        if (trangThaiIssuingContract == null) return false;
+        String upper = trangThaiIssuingContract.toUpperCase();
+        return upper.contains("KHÓA") || upper.contains("KHOA")
+                || upper.contains("BLOCK") || upper.contains("BLK");
     }
 
     @Override

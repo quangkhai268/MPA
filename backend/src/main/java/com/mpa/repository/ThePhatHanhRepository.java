@@ -28,7 +28,11 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
         AND (:loaiTheTinDung IS NULL OR t.loaiTheTinDung = :loaiTheTinDung)
         AND (:chuaKichHoat = false OR t.soNgayChuaKichHoat > :soNgayMin)
         AND (:chuaPsgd = false OR (t.soNgayChuaKichHoat = 0 AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn = 0)))
-        AND (:chuaDatPtn = false OR (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn < t.doanhSoMienPtn))
+        AND (
+            :chuaDatPtn = :datPtn
+            OR (:chuaDatPtn = true AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn < t.doanhSoMienPtn))
+            OR (:datPtn = true AND t.doanhSoGiaoDichMienPtn IS NOT NULL AND t.doanhSoMienPtn IS NOT NULL AND t.doanhSoGiaoDichMienPtn >= t.doanhSoMienPtn)
+        )
         ORDER BY t.id DESC
         """)
     Page<ThePhatHanh> search(
@@ -41,6 +45,7 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
             @Param("soNgayMin") int soNgayMin,
             @Param("chuaPsgd") boolean chuaPsgd,
             @Param("chuaDatPtn") boolean chuaDatPtn,
+            @Param("datPtn") boolean datPtn,
             Pageable pageable);
 
     @Query("SELECT DISTINCT t.trangThaiThe FROM ThePhatHanh t WHERE t.trangThaiThe IS NOT NULL ORDER BY t.trangThaiThe")
@@ -57,6 +62,8 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
 
     @Query("SELECT DISTINCT t.nhomKhThe FROM ThePhatHanh t WHERE t.nhomKhThe IS NOT NULL ORDER BY t.nhomKhThe")
     List<String> findDistinctNhomKhThe();
+
+    List<ThePhatHanh> findBySoCifKhachHangPhtOrderByIdDesc(String soCifKhachHangPht);
 
     @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE t.soNgayChuaKichHoat > 0")
     long countChuaKichHoat();

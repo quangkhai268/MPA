@@ -3,42 +3,993 @@
 Initial chunk files | Names                       |  Raw size
 styles.css          | styles                      |  93.55 kB | 
 polyfills.js        | polyfills                   |  88.09 kB | 
-main.js             | main                        |   5.30 kB | 
+main.js             | main                        |   5.44 kB | 
 chunk-PT37UZKT.js   | -                           |   3.75 kB | 
 chunk-KULJQ72C.js   | -                           |   1.10 kB | 
 
-                    | Initial total               | 191.78 kB
+                    | Initial total               | 191.92 kB
 
 Lazy chunk files    | Names                       |  Raw size
-chunk-GAKD5TZW.js   | dashboard-component         | 137.50 kB | 
-chunk-LP53YM3A.js   | quan-ly-the-component       |  87.12 kB | 
-chunk-NPFHTN34.js   | giao-chi-tieu-component     |  75.59 kB | 
-chunk-AUAMYL4A.js   | cai-dat-canh-bao-component  |  61.46 kB | 
-chunk-BMWBYFOY.js   | du-lieu-mpa-component       |  57.37 kB | 
-chunk-K3YLO5JL.js   | khach-hang-component        |  54.11 kB | 
+chunk-JXDK4WZN.js   | dashboard-component         | 137.50 kB | 
+chunk-KRG2DKKL.js   | quan-ly-the-component       |  87.93 kB | 
+chunk-PW3YGAZF.js   | giao-chi-tieu-component     |  75.59 kB | 
+chunk-5D4CUXBP.js   | cai-dat-canh-bao-component  |  61.46 kB | 
+chunk-CQUBMG3E.js   | du-lieu-mpa-component       |  57.37 kB | 
+chunk-YYTL4V6V.js   | khach-hang-component        |  54.11 kB | 
 chunk-WS4PCNKV.js   | quan-tri-component          |  53.62 kB | 
-chunk-HVT7XDTQ.js   | quan-ly-am-component        |  53.43 kB | 
-chunk-G2JSFGLX.js   | the-detail-component        |  53.14 kB | 
-chunk-O2ZVKAV3.js   | khach-hang-detail-component |  52.84 kB | 
+chunk-MZASBFTV.js   | quan-ly-am-component        |  53.43 kB | 
+chunk-MK6XCDRX.js   | the-detail-component        |  53.14 kB | 
+chunk-BWDTJMTZ.js   | khach-hang-detail-component |  52.84 kB | 
 chunk-M6YU2DQW.js   | chien-dich-form-component   |  38.97 kB | 
-chunk-DZ22BWFU.js   | bao-cao-component           |  33.63 kB | 
-chunk-WAKLRBUB.js   | main-layout-component       |  27.80 kB | 
+chunk-OCW6QBGK.js   | bao-cao-component           |  33.63 kB | 
+chunk-ZJ4IFLP2.js   | tai-du-lieu-len-component   |  32.15 kB | 
+chunk-HDSFRKX4.js   | main-layout-component       |  28.05 kB | 
 chunk-ISS7LVWF.js   | login-component             |  18.08 kB | 
-chunk-KUOYAKLB.js   | chien-dich-list-component   |  16.27 kB | 
-...and 3 more lazy chunks files. Use "--verbose" to show all the files.
+...and 4 more lazy chunks files. Use "--verbose" to show all the files.
 
-Application bundle generation complete. [15.175 seconds]
+Application bundle generation complete. [20.127 seconds]
 
 Watch mode enabled. Watching for file changes...
   ➜  Local:   http://localhost:4200/
 - Changes detected. Rebuilding...
 
+Initial chunk files | Names                | Raw size
+main.js             | main                 |  5.44 kB | 
+
+Lazy chunk files    | Names                | Raw size
+chunk-UOQKG6RT.js   | the-detail-component | 53.18 kB | 
+
+Application bundle generation complete. [3.972 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                | Raw size
+main.js             | main                 |  5.44 kB | 
+
+Lazy chunk files    | Names                | Raw size
+chunk-ZKZG7ZHO.js   | the-detail-component | 53.37 kB | 
+
+Application bundle generation complete. [1.143 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                | Raw size
+main.js             | main                 |  5.44 kB | 
+
+Lazy chunk files    | Names                | Raw size
+chunk-DQTRX4W3.js   | the-detail-component | 53.37 kB | 
+
+Application bundle generation complete. [1.491 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                | Raw size
+main.js             | main                 |  5.44 kB | 
+
+Lazy chunk files    | Names                | Raw size
+chunk-6KHISB24.js   | the-detail-component | 53.37 kB | 
+
+Application bundle generation complete. [2.186 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                | Raw size
+main.js             | main                 |  5.44 kB | 
+
+Lazy chunk files    | Names                | Raw size
+chunk-QMRG2LDD.js   | the-detail-component | 53.37 kB | 
+
+Application bundle generation complete. [2.294 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
 Initial chunk files | Names                 | Raw size
-main.js             | main                  |  5.30 kB | 
+main.js             | main                  |  5.44 kB | 
 
 Lazy chunk files    | Names                 | Raw size
-chunk-Q3GOXEBE.js   | quan-ly-the-component | 87.12 kB | 
+chunk-YTA6AGIO.js   | quan-ly-the-component | 87.93 kB | 
 
-Application bundle generation complete. [3.489 seconds]
+Application bundle generation complete. [2.635 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                 | Raw size
+main.js             | main                  |  5.44 kB | 
+
+Lazy chunk files    | Names                 | Raw size
+chunk-ICRKEQCN.js   | quan-ly-the-component | 87.92 kB | 
+
+Application bundle generation complete. [1.254 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Application bundle generation failed. [4.085 seconds]
+
+X [ERROR] TS2554: Expected 0 arguments, but got 1. [plugin angular-compiler]
+
+    src/app/features/quan-ly-the/cai-dat-canh-bao/cai-dat-canh-bao.component.ts:255:43:
+      255 │       ? this.mpaService.runChuaKichHoatJob(testMode)
+          ╵                                            ~~~~~~~~
+
+
+X [ERROR] TS2554: Expected 0 arguments, but got 1. [plugin angular-compiler]
+
+    src/app/features/quan-ly-the/cai-dat-canh-bao/cai-dat-canh-bao.component.ts:257:41:
+      257 │         ? this.mpaService.runChuaPsgdJob(testMode)
+          ╵                                          ~~~~~~~~
+
+
+- Changes detected. Rebuilding...
+
+Application bundle generation failed. [2.917 seconds]
+
+X [ERROR] TS2554: Expected 0 arguments, but got 1. [plugin angular-compiler]
+
+    src/app/features/quan-ly-the/cai-dat-canh-bao/cai-dat-canh-bao.component.ts:255:43:
+      255 │       ? this.mpaService.runChuaKichHoatJob(testMode)
+          ╵                                            ~~~~~~~~
+
+
+X [ERROR] TS2554: Expected 0 arguments, but got 1. [plugin angular-compiler]
+
+    src/app/features/quan-ly-the/cai-dat-canh-bao/cai-dat-canh-bao.component.ts:257:41:
+      257 │         ? this.mpaService.runChuaPsgdJob(testMode)
+          ╵                                          ~~~~~~~~
+
+
+X [ERROR] TS2554: Expected 0 arguments, but got 1. [plugin angular-compiler]
+
+    src/app/features/quan-ly-the/cai-dat-canh-bao/cai-dat-canh-bao.component.ts:258:42:
+      258 │         : this.mpaService.runMilestoneJob(testMode);
+          ╵                                           ~~~~~~~~
+
+
+- Changes detected. Rebuilding...
+
+Application bundle generation failed. [0.522 seconds]
+
+X [ERROR] TS2554: Expected 0 arguments, but got 1. [plugin angular-compiler]
+
+    src/app/features/quan-ly-the/cai-dat-canh-bao/cai-dat-canh-bao.component.ts:255:43:
+      255 │       ? this.mpaService.runChuaKichHoatJob(testMode)
+          ╵                                            ~~~~~~~~
+
+
+X [ERROR] TS2554: Expected 0 arguments, but got 1. [plugin angular-compiler]
+
+    src/app/features/quan-ly-the/cai-dat-canh-bao/cai-dat-canh-bao.component.ts:257:41:
+      257 │         ? this.mpaService.runChuaPsgdJob(testMode)
+          ╵                                          ~~~~~~~~
+
+
+X [ERROR] TS2554: Expected 0 arguments, but got 1. [plugin angular-compiler]
+
+    src/app/features/quan-ly-the/cai-dat-canh-bao/cai-dat-canh-bao.component.ts:258:42:
+      258 │         : this.mpaService.runMilestoneJob(testMode);
+          ╵                                           ~~~~~~~~
+
+
+X [ERROR] TS2554: Expected 1 arguments, but got 2. [plugin angular-compiler]
+
+    src/app/features/quan-ly-the/chien-dich/chien-dich-form/chien-dich-form.component.ts:197:47:
+      197 │     this.campaignService.send(this.campaignId, testMode).subscribe({
+          ╵                                                ~~~~~~~~
+
+
+- Changes detected. Rebuilding...
+
+Application bundle generation failed. [0.658 seconds]
+
+X [ERROR] TS2554: Expected 1 arguments, but got 2. [plugin angular-compiler]
+
+    src/app/features/quan-ly-the/chien-dich/chien-dich-form/chien-dich-form.component.ts:197:47:
+      197 │     this.campaignService.send(this.campaignId, testMode).subscribe({
+          ╵                                                ~~~~~~~~
+
+
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                       |  Raw size
+styles.css          | styles                      |  93.55 kB | 
+polyfills.js        | polyfills                   |  88.09 kB | 
+main.js             | main                        |   5.44 kB | 
+chunk-PT37UZKT.js   | -                           |   3.75 kB | 
+chunk-KULJQ72C.js   | -                           |   1.10 kB | 
+
+                    | Initial total               | 191.92 kB
+
+Lazy chunk files    | Names                       |  Raw size
+chunk-TMVZODNM.js   | dashboard-component         | 137.50 kB | 
+chunk-VNVPWRA2.js   | quan-ly-the-component       |  87.92 kB | 
+chunk-CEXFOVTL.js   | giao-chi-tieu-component     |  75.59 kB | 
+chunk-UROQIIWL.js   | cai-dat-canh-bao-component  |  61.39 kB | 
+chunk-TKVX4GEK.js   | du-lieu-mpa-component       |  57.37 kB | 
+chunk-IHNI3VXA.js   | khach-hang-component        |  54.11 kB | 
+chunk-WS4PCNKV.js   | quan-tri-component          |  53.62 kB | 
+chunk-NOAPGEAA.js   | quan-ly-am-component        |  53.43 kB | 
+chunk-HJXJQ3E6.js   | the-detail-component        |  53.37 kB | 
+chunk-ABFQPOV3.js   | khach-hang-detail-component |  52.84 kB | 
+chunk-DOIDXE4R.js   | chien-dich-form-component   |  38.96 kB | 
+chunk-ZV2GK6QI.js   | bao-cao-component           |  33.63 kB | 
+chunk-ZJ4IFLP2.js   | tai-du-lieu-len-component   |  32.15 kB | 
+chunk-HDSFRKX4.js   | main-layout-component       |  28.05 kB | 
+chunk-ISS7LVWF.js   | login-component             |  18.08 kB | 
+...and 4 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [0.481 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+
+No output file changes.
+
+Application bundle generation complete. [4.660 seconds]
+
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                       |  Raw size
+main.js             | main                        |   5.44 kB | 
+
+Lazy chunk files    | Names                       |  Raw size
+chunk-4TOGOGF6.js   | dashboard-component         | 137.50 kB | 
+chunk-7PNLN7YK.js   | quan-ly-the-component       |  87.92 kB | 
+chunk-GNTAOI5T.js   | giao-chi-tieu-component     |  75.59 kB | 
+chunk-FRCJYJRK.js   | cai-dat-canh-bao-component  |  61.39 kB | 
+chunk-7PDWLFVD.js   | du-lieu-mpa-component       |  57.37 kB | 
+chunk-LJER6YSO.js   | khach-hang-component        |  54.11 kB | 
+chunk-TQO72NYR.js   | quan-ly-am-component        |  53.43 kB | 
+chunk-76RPMQI2.js   | the-detail-component        |  53.37 kB | 
+chunk-ORMTEMWS.js   | khach-hang-detail-component |  52.84 kB | 
+chunk-IMZYD527.js   | bao-cao-component           |  33.63 kB | 
+chunk-3WHQKM4X.js   | -                           |   9.37 kB | 
+
+Application bundle generation complete. [0.382 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                       |  Raw size
+main.js             | main                        |   5.44 kB | 
+
+Lazy chunk files    | Names                       |  Raw size
+chunk-MJIGHEMF.js   | dashboard-component         | 137.50 kB | 
+chunk-RBFWCTRJ.js   | quan-ly-the-component       |  87.92 kB | 
+chunk-MPM4R773.js   | giao-chi-tieu-component     |  75.59 kB | 
+chunk-CQ5GWHXZ.js   | cai-dat-canh-bao-component  |  61.39 kB | 
+chunk-LAAP5TW2.js   | du-lieu-mpa-component       |  57.37 kB | 
+chunk-CR5TNPAJ.js   | khach-hang-component        |  54.11 kB | 
+chunk-NGU2KUJY.js   | quan-ly-am-component        |  53.43 kB | 
+chunk-GJP7YJ6L.js   | the-detail-component        |  53.37 kB | 
+chunk-XCO3YQ6C.js   | khach-hang-detail-component |  52.84 kB | 
+chunk-RAA3JHIZ.js   | bao-cao-component           |  33.63 kB | 
+chunk-AKID4RLM.js   | -                           |   9.48 kB | 
+
+Application bundle generation complete. [3.649 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                       | Raw size
+main.js             | main                        |  5.44 kB | 
+
+Lazy chunk files    | Names                       | Raw size
+chunk-EICFNUK3.js   | khach-hang-detail-component | 52.84 kB | 
+
+Application bundle generation complete. [0.699 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                       | Raw size
+main.js             | main                        |  5.44 kB | 
+
+Lazy chunk files    | Names                       | Raw size
+chunk-NZ4WJJ3K.js   | khach-hang-detail-component | 52.91 kB | 
+
+Application bundle generation complete. [1.061 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                       | Raw size
+main.js             | main                        |  5.44 kB | 
+
+Lazy chunk files    | Names                       | Raw size
+chunk-52TU2WCV.js   | khach-hang-detail-component | 54.51 kB | 
+
+Application bundle generation complete. [0.550 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Application bundle generation failed. [0.581 seconds]
+
+X [ERROR] NG5002: "as" expression is only allowed on the primary @if block [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:329:32:
+      329 │       } @else if (theSummary(); as ts) {
+          ╵                                 ~~~~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:335:47:
+      335 │ ...    <span class="the-count-badge">{{ ts.soHopDong }} thẻ</span>
+          ╵                                         ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:337:17:
+      337 │             @if (ts.soHopDong > 0) {
+          ╵                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:344:15:
+      344 │           @if (ts.soHopDong === 0) {
+          ╵                ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:351:46:
+      351 │ ...            <span class="stat-green">{{ ts.soHopDong }}</span> ·
+          ╵                                            ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:352:44:
+      352 │                   <span class="stat-red">{{ ts.soKhoa }}</span> ·
+          ╵                                             ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:353:47:
+      353 │ ...           <span class="stat-yellow">{{ ts.soChuaActive }}</span>
+          ╵                                            ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:358:51:
+      358 │ ...       <div class="the-stat-value">{{ fmt(ts.tongHanMuc) }}</div>
+          ╵                                              ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:362:51:
+      362 │ ...      <div class="the-stat-value">{{ fmt(ts.tongDoanhSo) }}</div>
+          ╵                                             ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:366:47:
+      366 │ ...div class="the-stat-value">{{ ts.tyLeDoanhSoTrenHanMuc | numbe...
+          ╵                                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:367:99:
+      367 │ ...rogress-bar" [style.width.%]="ts.tyLeDoanhSoTrenHanMuc"></div>...
+          ╵                                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:371:17:
+      371 │             @if (ts.soChuaActive > 0) {
+          ╵                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:375:51:
+      375 │ ...v class="the-banner-title">{{ ts.soChuaActive }} thẻ chưa �...
+          ╵                                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:381:17:
+      381 │             @if (ts.soTheChuaDatPtn > 0) {
+          ╵                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:385:51:
+      385 │ ...v class="the-banner-title">{{ ts.soTheChuaDatPtn }} thẻ chư...
+          ╵                                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:392:28:
+      392 │               @for (card of ts.theList; track card.id) {
+          ╵                             ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+- Changes detected. Rebuilding...
+
+Application bundle generation failed. [1.040 seconds]
+
+X [ERROR] NG5002: "as" expression is only allowed on the primary @if block [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:329:32:
+      329 │       } @else if (theSummary(); as ts) {
+          ╵                                 ~~~~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:335:47:
+      335 │ ...    <span class="the-count-badge">{{ ts.soHopDong }} thẻ</span>
+          ╵                                         ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:337:17:
+      337 │             @if (ts.soHopDong > 0) {
+          ╵                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:344:15:
+      344 │           @if (ts.soHopDong === 0) {
+          ╵                ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:351:46:
+      351 │ ...            <span class="stat-green">{{ ts.soHopDong }}</span> ·
+          ╵                                            ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:352:44:
+      352 │                   <span class="stat-red">{{ ts.soKhoa }}</span> ·
+          ╵                                             ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:353:47:
+      353 │ ...           <span class="stat-yellow">{{ ts.soChuaActive }}</span>
+          ╵                                            ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:358:51:
+      358 │ ...       <div class="the-stat-value">{{ fmt(ts.tongHanMuc) }}</div>
+          ╵                                              ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:362:51:
+      362 │ ...      <div class="the-stat-value">{{ fmt(ts.tongDoanhSo) }}</div>
+          ╵                                             ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:366:47:
+      366 │ ...div class="the-stat-value">{{ ts.tyLeDoanhSoTrenHanMuc | numbe...
+          ╵                                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:367:99:
+      367 │ ...rogress-bar" [style.width.%]="ts.tyLeDoanhSoTrenHanMuc"></div>...
+          ╵                                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:371:17:
+      371 │             @if (ts.soChuaActive > 0) {
+          ╵                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:375:51:
+      375 │ ...v class="the-banner-title">{{ ts.soChuaActive }} thẻ chưa �...
+          ╵                                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:381:17:
+      381 │             @if (ts.soTheChuaDatPtn > 0) {
+          ╵                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:385:51:
+      385 │ ...v class="the-banner-title">{{ ts.soTheChuaDatPtn }} thẻ chư...
+          ╵                                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:392:28:
+      392 │               @for (card of ts.theList; track card.id) {
+          ╵                             ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+- Changes detected. Rebuilding...
+
+Application bundle generation failed. [0.657 seconds]
+
+X [ERROR] NG5002: "as" expression is only allowed on the primary @if block [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:329:32:
+      329 │       } @else if (theSummary(); as ts) {
+          ╵                                 ~~~~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:335:47:
+      335 │ ...    <span class="the-count-badge">{{ ts.soHopDong }} thẻ</span>
+          ╵                                         ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:337:17:
+      337 │             @if (ts.soHopDong > 0) {
+          ╵                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:344:15:
+      344 │           @if (ts.soHopDong === 0) {
+          ╵                ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:351:46:
+      351 │ ...            <span class="stat-green">{{ ts.soHopDong }}</span> ·
+          ╵                                            ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:352:44:
+      352 │                   <span class="stat-red">{{ ts.soKhoa }}</span> ·
+          ╵                                             ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:353:47:
+      353 │ ...           <span class="stat-yellow">{{ ts.soChuaActive }}</span>
+          ╵                                            ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:358:51:
+      358 │ ...       <div class="the-stat-value">{{ fmt(ts.tongHanMuc) }}</div>
+          ╵                                              ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:362:51:
+      362 │ ...      <div class="the-stat-value">{{ fmt(ts.tongDoanhSo) }}</div>
+          ╵                                             ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:366:47:
+      366 │ ...div class="the-stat-value">{{ ts.tyLeDoanhSoTrenHanMuc | numbe...
+          ╵                                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:367:99:
+      367 │ ...rogress-bar" [style.width.%]="ts.tyLeDoanhSoTrenHanMuc"></div>...
+          ╵                                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:371:17:
+      371 │             @if (ts.soChuaActive > 0) {
+          ╵                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:375:51:
+      375 │ ...v class="the-banner-title">{{ ts.soChuaActive }} thẻ chưa �...
+          ╵                                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:381:17:
+      381 │             @if (ts.soTheChuaDatPtn > 0) {
+          ╵                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:385:51:
+      385 │ ...v class="the-banner-title">{{ ts.soTheChuaDatPtn }} thẻ chư...
+          ╵                                  ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG9: Property 'ts' does not exist on type 'KhachHangDetailComponent'. [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:392:28:
+      392 │               @for (card of ts.theList; track card.id) {
+          ╵                             ~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+- Changes detected. Rebuilding...
+
+Application bundle generation failed. [0.537 seconds]
+
+X [ERROR] NG5002: Unexpected closing tag "div". It may happen when the tag has already been closed by another tag. For more info see https://www.w3.org/TR/html5/syntax.html#closing-elements-that-have-implied-end-tags [plugin angular-compiler]
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.html:448:0:
+      448 │ </div>
+          ╵ ~~~~~~
+
+  Error occurs in the template of component KhachHangDetailComponent.
+
+    src/app/features/khach-hang/khach-hang-detail/khach-hang-detail.component.ts:15:15:
+      15 │   templateUrl: './khach-hang-detail.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                       |  Raw size
+styles.css          | styles                      |  93.55 kB | 
+polyfills.js        | polyfills                   |  88.09 kB | 
+main.js             | main                        |   5.44 kB | 
+chunk-PT37UZKT.js   | -                           |   3.75 kB | 
+chunk-KULJQ72C.js   | -                           |   1.10 kB | 
+
+                    | Initial total               | 191.92 kB
+
+Lazy chunk files    | Names                       |  Raw size
+chunk-MJIGHEMF.js   | dashboard-component         | 137.50 kB | 
+chunk-RBFWCTRJ.js   | quan-ly-the-component       |  87.92 kB | 
+chunk-E54S5CJ6.js   | khach-hang-detail-component |  75.85 kB | 
+chunk-MPM4R773.js   | giao-chi-tieu-component     |  75.59 kB | 
+chunk-CQ5GWHXZ.js   | cai-dat-canh-bao-component  |  61.39 kB | 
+chunk-LAAP5TW2.js   | du-lieu-mpa-component       |  57.37 kB | 
+chunk-CR5TNPAJ.js   | khach-hang-component        |  54.11 kB | 
+chunk-WS4PCNKV.js   | quan-tri-component          |  53.62 kB | 
+chunk-NGU2KUJY.js   | quan-ly-am-component        |  53.43 kB | 
+chunk-GJP7YJ6L.js   | the-detail-component        |  53.37 kB | 
+chunk-DOIDXE4R.js   | chien-dich-form-component   |  38.96 kB | 
+chunk-RAA3JHIZ.js   | bao-cao-component           |  33.63 kB | 
+chunk-ZJ4IFLP2.js   | tai-du-lieu-len-component   |  32.15 kB | 
+chunk-HDSFRKX4.js   | main-layout-component       |  28.05 kB | 
+chunk-ISS7LVWF.js   | login-component             |  18.08 kB | 
+...and 4 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [0.618 seconds]
 
 Page reload sent to client(s).

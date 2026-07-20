@@ -9,7 +9,7 @@ import {
   BscSoSanhResult, ChiTieuBscRequest, ChiTieuQuanLyRow, UnitOption,
   ThongTinAmItem, ThongTinAmSaveRequest,
   ThongTinKhachHangItem, ThongTinKhachHangSaveRequest, KhachHangChiTiet,
-  ThePhatHanhItem, TheSummary, ThePhatHanhDetail,
+  ThePhatHanhItem, TheSummary, ThePhatHanhDetail, KhachHangTheSummary,
   EmailLogItem, JobRunResult, CardRevenueMilestone, RevenueSeriesResponse
 } from '../models/mpa.model';
 
@@ -240,7 +240,7 @@ export class MpaService {
   getTheList(
     search: string, trangThai: string, hinhThuc: string, productCode: string,
     loaiTheTinDung: string,
-    chuaKichHoat: boolean, soNgayMin: number, chuaPsgd: boolean, chuaDatPtn: boolean,
+    chuaKichHoat: boolean, soNgayMin: number, chuaPsgd: boolean, chuaDatPtn: boolean, datPtn: boolean,
     page: number, size: number
   ): Observable<ApiResponse<PageResponse<ThePhatHanhItem>>> {
     let params = new HttpParams()
@@ -253,6 +253,7 @@ export class MpaService {
       .set('soNgayMin', String(soNgayMin))
       .set('chuaPsgd', String(chuaPsgd))
       .set('chuaDatPtn', String(chuaDatPtn))
+      .set('datPtn', String(datPtn))
       .set('page', String(page))
       .set('size', String(size));
     return this.http.get<ApiResponse<PageResponse<ThePhatHanhItem>>>(`${this.api}/the-phat-hanh`, { params });
@@ -264,6 +265,10 @@ export class MpaService {
 
   getTheSummary(): Observable<ApiResponse<TheSummary>> {
     return this.http.get<ApiResponse<TheSummary>>(`${this.api}/the-phat-hanh/summary`);
+  }
+
+  getKhachHangTheSummary(cif: string): Observable<ApiResponse<KhachHangTheSummary>> {
+    return this.http.get<ApiResponse<KhachHangTheSummary>>(`${this.api}/the-phat-hanh/theo-khach-hang/${cif}`);
   }
 
   getTheTrangThaiOptions(): Observable<ApiResponse<string[]>> {
@@ -292,12 +297,12 @@ export class MpaService {
     return this.http.get<ApiResponse<PageResponse<EmailLogItem>>>(`${this.api}/email-logs`, { params });
   }
 
-  runChuaKichHoatJob(testMode: boolean): Observable<ApiResponse<JobRunResult>> {
-    return this.http.post<ApiResponse<JobRunResult>>(`${this.api}/card-notifications/chua-kich-hoat/run`, {}, { params: { testMode: String(testMode) } });
+  runChuaKichHoatJob(): Observable<ApiResponse<JobRunResult>> {
+    return this.http.post<ApiResponse<JobRunResult>>(`${this.api}/card-notifications/chua-kich-hoat/run`, {});
   }
 
-  runChuaPsgdJob(testMode: boolean): Observable<ApiResponse<JobRunResult>> {
-    return this.http.post<ApiResponse<JobRunResult>>(`${this.api}/card-notifications/chua-psgd/run`, {}, { params: { testMode: String(testMode) } });
+  runChuaPsgdJob(): Observable<ApiResponse<JobRunResult>> {
+    return this.http.post<ApiResponse<JobRunResult>>(`${this.api}/card-notifications/chua-psgd/run`, {});
   }
 
   // --- Mốc doanh số theo thời gian ---
@@ -317,8 +322,8 @@ export class MpaService {
     return this.http.delete<ApiResponse<void>>(`${this.api}/card-revenue-milestones/${id}`);
   }
 
-  runMilestoneJob(testMode: boolean): Observable<ApiResponse<JobRunResult>> {
-    return this.http.post<ApiResponse<JobRunResult>>(`${this.api}/card-revenue-milestones/run`, {}, { params: { testMode: String(testMode) } });
+  runMilestoneJob(): Observable<ApiResponse<JobRunResult>> {
+    return this.http.post<ApiResponse<JobRunResult>>(`${this.api}/card-revenue-milestones/run`, {});
   }
 
   // --- Doanh số theo thời gian (snapshot) ---

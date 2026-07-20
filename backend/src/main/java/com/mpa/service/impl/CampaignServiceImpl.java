@@ -99,7 +99,7 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     @Transactional
-    public JobRunResult send(Integer id, boolean testMode) {
+    public JobRunResult send(Integer id) {
         Campaign campaign = findCampaign(id);
         List<CampaignCriteria> criteria = criteriaRepo.findByCampaignId(id);
         Specification<ThePhatHanh> spec = CampaignCriteriaSpecificationBuilder.build(criteria);
@@ -120,11 +120,6 @@ public class CampaignServiceImpl implements CampaignService {
             boolean daGuiRoi = daGuiTrongChienDich.contains(card.getCardId());
             if (daGuiRoi) {
                 skippedDedup++;
-                continue;
-            }
-
-            if (testMode) {
-                sent++;
                 continue;
             }
 

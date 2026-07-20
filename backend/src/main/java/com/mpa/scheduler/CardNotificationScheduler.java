@@ -18,21 +18,21 @@ public class CardNotificationScheduler {
 
     @Scheduled(cron = "0 0 7 * * *")
     public void runChuaKichHoat() {
-        JobRunResult result = service.processChuaKichHoat(false);
+        JobRunResult result = service.processChuaKichHoat();
         log.info("Job chưa kích hoạt: {}/{} đã gửi, {} bỏ qua trùng, {} tắt gửi, {} lỗi",
                 result.getSent(), result.getEligible(), result.getSkippedDedup(), result.getSkippedDisabled(), result.getFailed());
     }
 
     @Scheduled(cron = "0 15 7 * * *")
     public void runChuaPsgd() {
-        JobRunResult result = service.processChuaPsgd(false);
+        JobRunResult result = service.processChuaPsgd();
         log.info("Job chưa PSGD: {}/{} đã gửi, {} bỏ qua trùng, {} tắt gửi, {} lỗi",
                 result.getSent(), result.getEligible(), result.getSkippedDedup(), result.getSkippedDisabled(), result.getFailed());
     }
 
     @Scheduled(cron = "0 30 7 * * *")
     public void runDoanhSoMoc() {
-        JobRunResult result = milestoneEvaluationService.evaluateAndNotify(false);
+        JobRunResult result = milestoneEvaluationService.evaluateAndNotify();
         log.info("Job mốc doanh số: {}/{} đã gửi, {} bỏ qua trùng, {} tắt gửi, {} lỗi",
                 result.getSent(), result.getEligible(), result.getSkippedDedup(), result.getSkippedDisabled(), result.getFailed());
     }

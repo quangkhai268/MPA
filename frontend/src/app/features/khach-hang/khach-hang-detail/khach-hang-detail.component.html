@@ -318,6 +318,125 @@
         </div>
 
       </div>
+
+      <!-- ── Section header ─────────────────────────────────────────── -->
+      <div class="section-header">
+        <h2>B. Thẻ tín dụng</h2>
+      </div>
+
+      @if (theLoading()) {
+        <div class="loading-wrap"><mat-spinner diameter="32"></mat-spinner></div>
+      } @else {
+      @if (theSummary(); as ts) {
+        <div class="the-panel">
+          <div class="the-panel-header">
+            <div class="the-panel-title">
+              <span class="material-icons">credit_card</span>
+              Thẻ tín dụng
+              <span class="the-count-badge">{{ ts.soHopDong }} thẻ</span>
+            </div>
+            @if (ts.soHopDong > 0) {
+              <a class="the-view-all" (click)="goToTheList()">
+                Xem tất cả <span class="material-icons">chevron_right</span>
+              </a>
+            }
+          </div>
+
+          @if (ts.soHopDong === 0) {
+            <div class="the-empty">Khách hàng chưa có thẻ tín dụng nào.</div>
+          } @else {
+            <div class="the-stat-grid">
+              <div class="the-stat-box">
+                <div class="the-stat-label">HĐ / Khóa / Chưa active</div>
+                <div class="the-stat-value">
+                  <span class="stat-green">{{ ts.soHopDong }}</span> ·
+                  <span class="stat-red">{{ ts.soKhoa }}</span> ·
+                  <span class="stat-yellow">{{ ts.soChuaActive }}</span>
+                </div>
+              </div>
+              <div class="the-stat-box">
+                <div class="the-stat-label">Tổng hạn mức</div>
+                <div class="the-stat-value">{{ fmt(ts.tongHanMuc) }}</div>
+              </div>
+              <div class="the-stat-box">
+                <div class="the-stat-label">Doanh số giao dịch</div>
+                <div class="the-stat-value">{{ fmt(ts.tongDoanhSo) }}</div>
+              </div>
+              <div class="the-stat-box">
+                <div class="the-stat-label">Tỷ lệ doanh số / hạn mức</div>
+                <div class="the-stat-value">{{ ts.tyLeDoanhSoTrenHanMuc | number:'1.1-1' }}%</div>
+                <div class="the-mini-progress"><div class="the-mini-progress-bar" [style.width.%]="ts.tyLeDoanhSoTrenHanMuc"></div></div>
+              </div>
+            </div>
+
+            @if (ts.soChuaActive > 0) {
+              <div class="the-banner the-banner-warning">
+                <span class="material-icons">warning</span>
+                <div>
+                  <div class="the-banner-title">{{ ts.soChuaActive }} thẻ chưa được kích hoạt</div>
+                  <div class="the-banner-sub">Cần hỗ trợ KH kích hoạt để tránh phí thường niên không sinh lợi.</div>
+                </div>
+              </div>
+            }
+
+            @if (ts.soTheChuaDatPtn > 0) {
+              <div class="the-banner the-banner-info">
+                <span class="material-icons">track_changes</span>
+                <div>
+                  <div class="the-banner-title">{{ ts.soTheChuaDatPtn }} thẻ chưa đạt doanh số miễn phí thường niên</div>
+                  <div class="the-banner-sub">Push KH chi tiêu thêm để được miễn PTN — xem chi tiết từng thẻ ở dưới.</div>
+                </div>
+              </div>
+            }
+
+            <div class="the-list">
+              @for (card of ts.theList; track card.id) {
+                <div class="the-row" (click)="goToThe(card.id)">
+                  <div class="the-row-left">
+                    <div class="the-icon-box">
+                      <span class="material-icons">credit_card</span>
+                    </div>
+                    <div>
+                      <div class="the-row-top">
+                        <span class="the-so-the">{{ card.soTheDaPhatHanh || '—' }}</span>
+                        <span class="the-status-badge" [ngClass]="theTrangThaiClass(card.trangThaiHienThi)">{{ card.trangThaiHienThi || '—' }}</span>
+                      </div>
+                      <div class="the-row-sub">
+                        {{ card.productCode || '—' }}
+                        @if (card.thoiHanHieuLucThe) { · HSD: {{ card.thoiHanHieuLucThe }} }
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="the-row-mid">
+                    <div class="the-mid-label">DOANH SỐ GIAO DỊCH</div>
+                    <div class="the-mid-value">{{ fmt(card.doanhSoGiaoDichMienPtn) }}</div>
+                    <div class="the-mini-progress"><div class="the-mini-progress-bar" [style.width.%]="pctHmtd(card)"></div></div>
+                    <div class="the-mid-sub">HMTD: {{ fmt(card.hmtdIssuingContract) }} · {{ pctHmtd(card) | number:'1.0-0' }}%</div>
+                  </div>
+
+                  <div class="the-row-right">
+                    <div class="the-mid-label">DOANH SỐ PTN</div>
+                    <div class="the-pct" [class.pct-green]="daDatMucPtn(card)" [class.pct-red]="!daDatMucPtn(card)">{{ card.pctPtn | number:'1.0-0' }}%</div>
+                    <div class="the-mid-sub">{{ fmt(card.doanhSoGiaoDichMienPtn) }} / {{ fmt(card.doanhSoMienPtn) }}</div>
+                    @if (!daDatMucPtn(card)) {
+                      <div class="the-thieu">Thiếu {{ fmt(soTienConThieuPtn(card)) }}</div>
+                    }
+                  </div>
+
+                  <span class="material-icons the-chevron">chevron_right</span>
+                </div>
+              }
+            </div>
+
+            <div class="the-footnote">
+              <span class="material-icons">info</span>
+              Dữ liệu từ v_the_phat_hanh (nạp qua ISS_02). Click vào thẻ để xem chi tiết.
+            </div>
+          }
+        </div>
+      }
+      }
     } @else {
       <!-- Empty state -->
       <div class="empty-state">

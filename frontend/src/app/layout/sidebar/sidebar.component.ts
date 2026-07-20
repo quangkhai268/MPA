@@ -34,6 +34,7 @@ export class SidebarComponent {
     { label: 'Giao chỉ tiêu BSC', icon: 'assignment_turned_in', route: '/giao-chi-tieu'},
     { label: 'Quản lý cán bộ AM', icon: 'badge',                route: '/quan-ly-am'   },
     { label: 'Quản lý thẻ',       icon: 'credit_card',          route: '/quan-ly-the'  },
+    { label: 'Tải dữ liệu lên',   icon: 'upload_file',          route: '/tai-du-lieu-len', roles: ['ROLE_ADMIN'] },
     { label: 'Quản trị hệ thống', icon: 'manage_accounts',      route: '/quan-tri', roles: ['ROLE_ADMIN'] },
   ];
 
@@ -53,6 +54,7 @@ export class SidebarComponent {
       items: [
         { label: 'Quản lý cán bộ AM',  icon: 'badge',           route: '/quan-ly-am'                      },
         { label: 'Quản lý thẻ',        icon: 'credit_card',     route: '/quan-ly-the'                     },
+        { label: 'Tải dữ liệu lên',    icon: 'upload_file',     route: '/tai-du-lieu-len', roles: ['ROLE_ADMIN'] },
         { label: 'Quản trị hệ thống',  icon: 'manage_accounts', route: '/quan-tri', roles: ['ROLE_ADMIN'] },
       ]
     }

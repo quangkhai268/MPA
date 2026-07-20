@@ -60,7 +60,7 @@ $text:         #1A1A2E;
   @media (max-width: 900px) { grid-template-columns: 1fr; }
 }
 
-.col-left, .col-right { display: flex; flex-direction: column; gap: 16px; }
+.col-left, .col-right { display: flex; flex-direction: column; gap: 8px; }
 
 // ── Card visual ───────────────────────────────────────────────────────
 .card-visual {
@@ -113,7 +113,7 @@ $text:         #1A1A2E;
   border: 1px solid $gray-border;
   border-radius: 10px;
   padding: 18px 20px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 
   &:last-child { margin-bottom: 0; }
 }
@@ -219,6 +219,11 @@ $text:         #1A1A2E;
   gap: 20px 24px;
 
   @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 560px) { grid-template-columns: 1fr; }
+}
+// Panel "Thông tin thẻ" nằm trong col-right (hẹp hơn full-width) — dùng 2 cột thay vì 3.
+.field-grid-2col {
+  grid-template-columns: repeat(2, 1fr);
   @media (max-width: 560px) { grid-template-columns: 1fr; }
 }
 .field-item { display: flex; align-items: flex-start; gap: 10px; }

@@ -39,8 +39,8 @@ export class CampaignService {
     return this.http.post<ApiResponse<CampaignPreview>>(`${this.api}/campaigns/preview-by-criteria`, req);
   }
 
-  send(id: number, testMode: boolean): Observable<ApiResponse<JobRunResult>> {
-    return this.http.post<ApiResponse<JobRunResult>>(`${this.api}/campaigns/${id}/send`, {}, { params: { testMode: String(testMode) } });
+  send(id: number): Observable<ApiResponse<JobRunResult>> {
+    return this.http.post<ApiResponse<JobRunResult>>(`${this.api}/campaigns/${id}/send`, {});
   }
 
   getLogs(id: number, page: number, size: number): Observable<ApiResponse<PageResponse<EmailLogItem>>> {

@@ -194,7 +194,7 @@ export class ChienDichFormComponent implements OnInit {
       : `Gửi email thật tới ${this.preview()?.soLuong ?? 0} khách hàng thỏa tiêu chí?`)) return;
 
     this.sending.set(true);
-    this.campaignService.send(this.campaignId, testMode).subscribe({
+    this.campaignService.send(this.campaignId).subscribe({
       next: res => {
         this.sending.set(false);
         if (res.success) {

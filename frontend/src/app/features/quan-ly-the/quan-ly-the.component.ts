@@ -34,10 +34,11 @@ export class QuanLyTheComponent implements OnInit {
   trangThai      = '';
   hinhThuc       = '';
   productCode    = '';
-  loaiTheTinDung = '';
+  loaiTheTinDung = 'TDQT';
   chuaKichHoat   = false;
   chuaPsgd       = false;
-  chuaDatPtn     = false;
+  chuaDatPtn     = true;
+  datPtn         = false;
   soNgayMin      = 7;
   soNgayMinLaMacDinhHeThong = false;
 
@@ -81,6 +82,7 @@ export class QuanLyTheComponent implements OnInit {
       this.chuaKichHoat    = qp.get('chuaKichHoat') === '1';
       this.chuaPsgd        = qp.get('chuaPsgd') === '1';
       this.chuaDatPtn      = qp.get('chuaDatPtn') === '1';
+      this.datPtn          = qp.get('datPtn') === '1';
       this.currentPage     = Number(qp.get('page') ?? 0);
       const soNgay = qp.get('soNgayMin');
       if (soNgay != null) {
@@ -138,6 +140,7 @@ export class QuanLyTheComponent implements OnInit {
       chuaKichHoat:   this.chuaKichHoat ? '1' : null,
       chuaPsgd:       this.chuaPsgd ? '1' : null,
       chuaDatPtn:     this.chuaDatPtn ? '1' : null,
+      datPtn:         this.datPtn ? '1' : null,
       soNgayMin:      this.soNgayMinLaMacDinhHeThong ? null : String(this.soNgayMin),
       page:           this.currentPage ? String(this.currentPage) : null,
     };
@@ -151,6 +154,7 @@ export class QuanLyTheComponent implements OnInit {
     this.chuaKichHoat = tab === 1;
     this.chuaPsgd     = tab === 2;
     this.chuaDatPtn   = tab === 3;
+    this.datPtn       = false;
     this.loadPage(0);
   }
 
@@ -187,7 +191,7 @@ export class QuanLyTheComponent implements OnInit {
       this.searchText.trim(),
       this.trangThai, this.hinhThuc, this.productCode,
       this.loaiTheTinDung,
-      this.chuaKichHoat, this.soNgayMin, this.chuaPsgd, this.chuaDatPtn,
+      this.chuaKichHoat, this.soNgayMin, this.chuaPsgd, this.chuaDatPtn, this.datPtn,
       page, this.pageSize
     ).subscribe({
       next: res => {

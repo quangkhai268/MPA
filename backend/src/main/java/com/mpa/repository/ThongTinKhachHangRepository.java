@@ -40,7 +40,8 @@ public interface ThongTinKhachHangRepository extends JpaRepository<ThongTinKhach
     @Query("SELECT DISTINCT t.typeKhachHang FROM ThongTinKhachHang t WHERE t.typeKhachHang IS NOT NULL ORDER BY t.typeKhachHang")
     List<Integer> findDistinctTypes();
 
-    Optional<ThongTinKhachHang> findByMaKhCif(String maKhCif);
+    // 1 CIF có thể có nhiều dòng (gắn nhiều AM/phòng khác nhau theo thời gian) — lấy dòng mới nhất làm đại diện.
+    Optional<ThongTinKhachHang> findFirstByMaKhCifOrderByIdDesc(String maKhCif);
 
     @Query("SELECT t.maKhCif FROM ThongTinKhachHang t WHERE t.typeKhachHang = :type AND t.trangThai = 1")
     List<String> findCifsByType(@Param("type") Integer type);

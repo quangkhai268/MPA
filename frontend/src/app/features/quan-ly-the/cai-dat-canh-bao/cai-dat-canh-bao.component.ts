@@ -250,12 +250,11 @@ export class CaiDatCanhBaoComponent implements OnInit {
 
   runJob(job: 'chua-kich-hoat' | 'chua-psgd' | 'moc-doanh-so'): void {
     this.runningJob.set(job);
-    const testMode = !this.emailEnabled;
     const obs = job === 'chua-kich-hoat'
-      ? this.mpaService.runChuaKichHoatJob(testMode)
+      ? this.mpaService.runChuaKichHoatJob()
       : job === 'chua-psgd'
-        ? this.mpaService.runChuaPsgdJob(testMode)
-        : this.mpaService.runMilestoneJob(testMode);
+        ? this.mpaService.runChuaPsgdJob()
+        : this.mpaService.runMilestoneJob();
     obs.subscribe({
       next: res => {
         this.runningJob.set(null);

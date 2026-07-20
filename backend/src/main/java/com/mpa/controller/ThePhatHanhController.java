@@ -1,5 +1,6 @@
 package com.mpa.controller;
 
+import com.mpa.dto.KhachHangTheSummaryResponse;
 import com.mpa.dto.ThePhatHanhDetailResponse;
 import com.mpa.dto.ThePhatHanhResponse;
 import com.mpa.dto.TheSummaryResponse;
@@ -29,11 +30,12 @@ public class ThePhatHanhController {
             @RequestParam(defaultValue = "0")   int soNgayMin,
             @RequestParam(defaultValue = "false") boolean chuaPsgd,
             @RequestParam(defaultValue = "false") boolean chuaDatPtn,
+            @RequestParam(defaultValue = "false") boolean datPtn,
             @RequestParam(defaultValue = "0")   int page,
             @RequestParam(defaultValue = "20")  int size) {
         try {
             return ApiResponse.ok(service.getList(search, trangThai, hinhThuc, productCode,
-                    loaiTheTinDung, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, page, size));
+                    loaiTheTinDung, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, page, size));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi tải danh sách thẻ: " + e.getMessage());
         }
@@ -54,6 +56,16 @@ public class ThePhatHanhController {
             return ApiResponse.ok(service.getSummary());
         } catch (Exception e) {
             return ApiResponse.error("Lỗi tải tổng quan thẻ: " + e.getMessage());
+        }
+    }
+
+    /** Tổng hợp thẻ tín dụng của 1 khách hàng — dùng ở trang khach-hang-detail. */
+    @GetMapping("/theo-khach-hang/{cif}")
+    public ApiResponse<KhachHangTheSummaryResponse> getSummaryByCif(@PathVariable String cif) {
+        try {
+            return ApiResponse.ok(service.getSummaryByCif(cif));
+        } catch (Exception e) {
+            return ApiResponse.error("Lỗi tải danh sách thẻ của khách hàng: " + e.getMessage());
         }
     }
 

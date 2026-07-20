@@ -404,6 +404,18 @@ export interface TheSummary {
   soTdqtDatPtn: number;
 }
 
+// ── Thẻ tín dụng của khách hàng (khach-hang-detail) ───────────────────
+export interface KhachHangTheSummary {
+  soHopDong: number;
+  soKhoa: number;
+  soChuaActive: number;
+  tongHanMuc: number;
+  tongDoanhSo: number;          // KHÔNG PHẢI dư nợ thật — SUM(doanh_so_giao_dich_mien_ptn)
+  tyLeDoanhSoTrenHanMuc: number;
+  soTheChuaDatPtn: number;
+  theList: ThePhatHanhItem[];
+}
+
 export interface KhachHangChiTiet {
   // Thông tin khách hàng
   maKhCif: string;

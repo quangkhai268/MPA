@@ -116,8 +116,8 @@
     <button class="tab-btn" [class.active]="activeTab === 3" (click)="switchTab(3)">
       <span class="material-icons tab-icon">table_chart</span>
       Báo cáo doanh số miền PTN
-      @if (summary()?.soTheChuaDatPtn) {
-        <span class="tab-badge">{{ summary()!.soTheChuaDatPtn }}</span>
+      @if (summary()?.tongSoTdqt) {
+        <span class="tab-badge">{{ summary()!.tongSoTdqt }}</span>
       }
     </button>
   </div>
@@ -207,6 +207,9 @@
       <div class="filter-row-2">
         <label class="check-label">
           <input type="checkbox" [(ngModel)]="chuaDatPtn"> Chưa đạt doanh số miền PTN
+        </label>
+        <label class="check-label">
+          <input type="checkbox" [(ngModel)]="datPtn"> Đạt doanh số miễn PTN
         </label>
         <button class="btn-search" (click)="search()">Tìm kiếm</button>
       </div>

@@ -139,7 +139,7 @@ public class ThongTinKhachHangServiceImpl implements ThongTinKhachHangService {
 
     @Override
     public KhachHangChiTietResponse getChiTiet(String cif, int nam, Integer thang, String quy, String soVoi) {
-        ThongTinKhachHang kh = repo.findByMaKhCif(cif).orElse(null);
+        ThongTinKhachHang kh = repo.findFirstByMaKhCifOrderByIdDesc(cif).orElse(null);
 
         String tenAm = null, tenPhong = null;
         if (kh != null) {

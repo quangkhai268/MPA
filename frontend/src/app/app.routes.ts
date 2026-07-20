@@ -34,6 +34,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/quan-tri/quan-tri.component').then(m => m.QuanTriComponent)
       },
       {
+        path: 'tai-du-lieu-len',
+        loadComponent: () => import('./features/tai-du-lieu-len/tai-du-lieu-len.component').then(m => m.TaiDuLieuLenComponent)
+      },
+      {
         path: 'quan-ly-am',
         loadComponent: () => import('./features/quan-ly-am/quan-ly-am.component').then(m => m.QuanLyAmComponent)
       },

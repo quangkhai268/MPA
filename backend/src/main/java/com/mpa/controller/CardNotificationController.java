@@ -14,18 +14,18 @@ public class CardNotificationController {
     private final CardNotificationService service;
 
     @PostMapping("/chua-kich-hoat/run")
-    public ApiResponse<JobRunResult> runChuaKichHoat(@RequestParam(defaultValue = "true") boolean testMode) {
+    public ApiResponse<JobRunResult> runChuaKichHoat() {
         try {
-            return ApiResponse.ok(service.processChuaKichHoat(testMode));
+            return ApiResponse.ok(service.processChuaKichHoat());
         } catch (Exception e) {
             return ApiResponse.error("Lỗi khi chạy job chưa kích hoạt: " + e.getMessage());
         }
     }
 
     @PostMapping("/chua-psgd/run")
-    public ApiResponse<JobRunResult> runChuaPsgd(@RequestParam(defaultValue = "true") boolean testMode) {
+    public ApiResponse<JobRunResult> runChuaPsgd() {
         try {
-            return ApiResponse.ok(service.processChuaPsgd(testMode));
+            return ApiResponse.ok(service.processChuaPsgd());
         } catch (Exception e) {
             return ApiResponse.error("Lỗi khi chạy job chưa PSGD: " + e.getMessage());
         }

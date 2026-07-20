@@ -39,14 +39,14 @@ public class CardNotificationServiceImpl implements CardNotificationService {
 
     @Override
     @Transactional
-    public JobRunResult processChuaKichHoat(boolean testMode) {
+    public JobRunResult processChuaKichHoat() {
         int soNgayMin = settingService.getInt("CHUA_KICH_HOAT_SO_NGAY", 7);
         int lapLaiSoNgay = settingService.getInt("CHUA_KICH_HOAT_LAP_LAI_SO_NGAY", 7);
         List<ThePhatHanh> eligible = thePhatHanhRepo.findChuaKichHoatForNotify(soNgayMin);
 
         EmailTemplate template = templateService.getByLoaiThongBao(LOAI_CHUA_KICH_HOAT);
 
-        return process(eligible, LOAI_CHUA_KICH_HOAT, template, lapLaiSoNgay, testMode, card -> {
+        return process(eligible, LOAI_CHUA_KICH_HOAT, template, lapLaiSoNgay, card -> {
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("tenKhachHang", nvl(card.getTenChuTheChinh(), card.getHoTenKhachHangPht()));
             placeholders.put("soThe", nvl(card.getSoTheDaPhatHanh(), ""));
@@ -57,7 +57,7 @@ public class CardNotificationServiceImpl implements CardNotificationService {
 
     @Override
     @Transactional
-    public JobRunResult processChuaPsgd(boolean testMode) {
+    public JobRunResult processChuaPsgd() {
         int soNgay = settingService.getInt("CHUA_PSGD_SO_NGAY", 30);
         int lapLaiSoNgay = settingService.getInt("CHUA_PSGD_LAP_LAI_SO_NGAY", 15);
         LocalDateTime nguong = LocalDateTime.now().minusDays(soNgay);
@@ -65,7 +65,7 @@ public class CardNotificationServiceImpl implements CardNotificationService {
 
         EmailTemplate template = templateService.getByLoaiThongBao(LOAI_CHUA_PSGD);
 
-        return process(eligible, LOAI_CHUA_PSGD, template, lapLaiSoNgay, testMode, card -> {
+        return process(eligible, LOAI_CHUA_PSGD, template, lapLaiSoNgay, card -> {
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("tenKhachHang", nvl(card.getTenChuTheChinh(), card.getHoTenKhachHangPht()));
             placeholders.put("soThe", nvl(card.getSoTheDaPhatHanh(), ""));
@@ -115,7 +115,7 @@ public class CardNotificationServiceImpl implements CardNotificationService {
     }
 
     private JobRunResult process(List<ThePhatHanh> eligible, String loaiThongBao, EmailTemplate template,
-                                  int lapLaiSoNgay, boolean testMode,
+                                  int lapLaiSoNgay,
                                   java.util.function.Function<ThePhatHanh, Map<String, String>> placeholderBuilder) {
         int sent = 0, skippedDedup = 0, skippedDisabled = 0, failed = 0;
 
@@ -130,12 +130,6 @@ public class CardNotificationServiceImpl implements CardNotificationService {
             boolean dedup = daGuiTrongChuKy.contains(card.getCardId());
             if (dedup) {
                 skippedDedup++;
-                continue;
-            }
-
-            if (testMode) {
-                // Chỉ xem trước số lượng sẽ gửi, không gọi EmailService, không ghi log.
-                sent++;
                 continue;
             }
 

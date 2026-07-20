@@ -226,248 +226,248 @@
             </div>
           </div>
 
-        </div>
-      </div>
-
-      <!-- ══ Thông tin thẻ ═══════════════════════════════════════════ -->
-      <div class="info-panel">
-        <div class="panel-title">
-          <span class="material-icons panel-title-icon">credit_card</span>
-          Thông tin thẻ
-        </div>
-        <div class="field-grid">
-          <div class="field-item">
-            <span class="material-icons field-icon">credit_card</span>
-            <div>
-              <div class="field-label">SỐ THẺ</div>
-              <div class="field-value">{{ d.soTheDaPhatHanh || '—' }}</div>
+          <!-- ══ Thông tin thẻ (chuyển vào cột phải) ═══════════════════ -->
+          <div class="info-panel">
+            <div class="panel-title">
+              <span class="material-icons panel-title-icon">credit_card</span>
+              Thông tin thẻ
             </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">credit_card</span>
-            <div>
-              <div class="field-label">LOẠI THẺ</div>
-              <div class="field-value">{{ d.loaiThe || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">credit_card</span>
-            <div>
-              <div class="field-label">HÌNH THỨC</div>
-              <div class="field-value">{{ d.hinhThucThe || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">military_tech</span>
-            <div>
-              <div class="field-label">HẠNG THẺ</div>
-              <div class="field-value">—</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">verified</span>
-            <div>
-              <div class="field-label">TÌNH TRẠNG PHÔI</div>
-              <div class="field-value">{{ d.plasticStatus || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">info</span>
-            <div>
-              <div class="field-label">LÝ DO PHÁT HÀNH</div>
-              <div class="field-value">{{ d.lyDoPhatHanh || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">apartment</span>
-            <div>
-              <div class="field-label">KÊNH PHÁT HÀNH</div>
-              <div class="field-value">{{ d.kenhPhatHanh || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">event</span>
-            <div>
-              <div class="field-label">HIỆU LỰC</div>
-              <div class="field-value">{{ d.thoiHanHieuLucThe || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">military_tech</span>
-            <div>
-              <div class="field-label">HẠNG PHÍ THƯỜNG NIÊN</div>
-              <div class="field-value">{{ d.mucPhiThuongNienThe || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">military_tech</span>
-            <div>
-              <div class="field-label">ƯU ĐÃI</div>
-              <div class="field-value">{{ d.dacQuyenThe || '—' }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══ Hợp đồng phát hành (IC) ═════════════════════════════════ -->
-      <div class="info-panel">
-        <div class="panel-title">
-          <span class="material-icons panel-title-icon">workspace_premium</span>
-          Hợp đồng phát hành (IC)
-        </div>
-        <div class="field-grid">
-          <div class="field-item">
-            <span class="material-icons field-icon">badge</span>
-            <div>
-              <div class="field-label">SỐ HĐ</div>
-              <div class="field-value">{{ d.issuingContractNbr || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">credit_card</span>
-            <div>
-              <div class="field-label">HẠN MỨC TD</div>
-              <div class="field-value">{{ formatTrieu(d.hmtdIssuingContract) }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">event</span>
-            <div>
-              <div class="field-label">KỲ HẠN HMTD</div>
-              <div class="field-value">{{ d.thoiHanHmtd ? (d.thoiHanHmtd | date:'dd/MM/yyyy') : '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">verified</span>
-            <div>
-              <div class="field-label">TRẠNG THÁI HĐ</div>
-              <div class="field-value">{{ d.trangThaiIssuingContract || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">percent</span>
-            <div>
-              <div class="field-label">MÃ LÃI SUẤT</div>
-              <div class="field-value">—</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">person</span>
-            <div>
-              <div class="field-label">AM</div>
-              <div class="field-value">{{ d.amIssuingContract || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">apartment</span>
-            <div>
-              <div class="field-label">CHI NHÁNH QUẢN LÝ</div>
-              <div class="field-value">{{ d.cnQlt || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">badge</span>
-            <div>
-              <div class="field-label">HĐ LIAB GỐC</div>
-              <div class="field-value">{{ d.liabTopContract || '—' }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══ Thông tin chủ thẻ ═══════════════════════════════════════ -->
-      <div class="info-panel">
-        <div class="panel-title">
-          <span class="material-icons panel-title-icon">person</span>
-          Thông tin chủ thẻ
-        </div>
-        <div class="field-grid">
-          <div class="field-item">
-            <span class="material-icons field-icon">badge</span>
-            <div>
-              <div class="field-label">CIF</div>
-              <div class="field-value">{{ d.soCifKhachHangPht || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">person</span>
-            <div>
-              <div class="field-label">HỌ TÊN</div>
-              <div class="field-value">{{ d.hoTenKhachHangPht || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">call</span>
-            <div>
-              <div class="field-label">SĐT</div>
-              <div class="field-value">{{ formatSdt(d.sdt) }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">mail</span>
-            <div>
-              <div class="field-label">EMAIL</div>
-              <div class="field-value">{{ d.email || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">badge</span>
-            <div>
-              <div class="field-label">CMND/CCCD</div>
-              <div class="field-value">{{ d.soGttt || '—' }}</div>
-            </div>
-          </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">verified_user</span>
-            <div>
-              <div class="field-label">SINH TRẮC HỌC</div>
-              <div class="field-value">
-                @if (d.sinhTracHocKhachHang) {
-                  <span class="verified-badge">{{ d.sinhTracHocKhachHang }}</span>
-                } @else { — }
+            <div class="field-grid field-grid-2col">
+              <div class="field-item">
+                <span class="material-icons field-icon">credit_card</span>
+                <div>
+                  <div class="field-label">SỐ THẺ</div>
+                  <div class="field-value">{{ d.soTheDaPhatHanh || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">credit_card</span>
+                <div>
+                  <div class="field-label">LOẠI THẺ</div>
+                  <div class="field-value">{{ d.loaiThe || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">credit_card</span>
+                <div>
+                  <div class="field-label">HÌNH THỨC</div>
+                  <div class="field-value">{{ d.hinhThucThe || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">military_tech</span>
+                <div>
+                  <div class="field-label">HẠNG THẺ</div>
+                  <div class="field-value">—</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">verified</span>
+                <div>
+                  <div class="field-label">TÌNH TRẠNG PHÔI</div>
+                  <div class="field-value">{{ d.plasticStatus || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">info</span>
+                <div>
+                  <div class="field-label">LÝ DO PHÁT HÀNH</div>
+                  <div class="field-value">{{ d.lyDoPhatHanh || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">apartment</span>
+                <div>
+                  <div class="field-label">KÊNH PHÁT HÀNH</div>
+                  <div class="field-value">{{ d.kenhPhatHanh || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">event</span>
+                <div>
+                  <div class="field-label">HIỆU LỰC</div>
+                  <div class="field-value">{{ d.thoiHanHieuLucThe || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">military_tech</span>
+                <div>
+                  <div class="field-label">HẠNG PHÍ THƯỜNG NIÊN</div>
+                  <div class="field-value">{{ d.mucPhiThuongNienThe || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">military_tech</span>
+                <div>
+                  <div class="field-label">ƯU ĐÃI</div>
+                  <div class="field-value">{{ d.dacQuyenThe || '—' }}</div>
+                </div>
               </div>
             </div>
           </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">groups</span>
-            <div>
-              <div class="field-label">NHÓM KH</div>
-              <div class="field-value">{{ d.nhomKhThe || '—' }}</div>
+
+          <!-- ══ Hợp đồng phát hành (IC) ═══════════════════════════════ -->
+          <div class="info-panel">
+            <div class="panel-title">
+              <span class="material-icons panel-title-icon">workspace_premium</span>
+              Hợp đồng phát hành (IC)
+            </div>
+            <div class="field-grid field-grid-2col">
+              <div class="field-item">
+                <span class="material-icons field-icon">badge</span>
+                <div>
+                  <div class="field-label">SỐ HĐ</div>
+                  <div class="field-value">{{ d.issuingContractNbr || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">credit_card</span>
+                <div>
+                  <div class="field-label">HẠN MỨC TD</div>
+                  <div class="field-value">{{ formatTrieu(d.hmtdIssuingContract) }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">event</span>
+                <div>
+                  <div class="field-label">KỲ HẠN HMTD</div>
+                  <div class="field-value">{{ d.thoiHanHmtd ? (d.thoiHanHmtd | date:'dd/MM/yyyy') : '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">verified</span>
+                <div>
+                  <div class="field-label">TRẠNG THÁI HĐ</div>
+                  <div class="field-value">{{ d.trangThaiIssuingContract || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">percent</span>
+                <div>
+                  <div class="field-label">MÃ LÃI SUẤT</div>
+                  <div class="field-value">—</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">person</span>
+                <div>
+                  <div class="field-label">AM</div>
+                  <div class="field-value">{{ d.amIssuingContract || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">apartment</span>
+                <div>
+                  <div class="field-label">CHI NHÁNH QUẢN LÝ</div>
+                  <div class="field-value">{{ d.cnQlt || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">badge</span>
+                <div>
+                  <div class="field-label">HĐ LIAB GỐC</div>
+                  <div class="field-value">{{ d.liabTopContract || '—' }}</div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- ══ Giao thẻ & cán bộ phụ trách ═══════════════════════════════ -->
-      <div class="info-panel">
-        <div class="panel-title">
-          <span class="material-icons panel-title-icon">location_on</span>
-          Giao thẻ & cán bộ phụ trách
-        </div>
-
-        <div class="giao-the-address">
-          <div class="field-label">ĐỊA CHỈ GIAO THẺ</div>
-          <div class="giao-the-address-value">—</div>
-          <div class="giao-the-address-sub">
-            CN phát hành: {{ d.cnQlt || '—' }} · CN giao: {{ d.cnQlt || '—' }}
-          </div>
-        </div>
-
-        <div class="field-grid giao-the-staff-grid">
-          <div class="field-item">
-            <span class="material-icons field-icon">person</span>
-            <div>
-              <div class="field-label">AM THẺ</div>
-              <div class="field-value">{{ d.amIssuingContract || '—' }}</div>
+          <!-- ══ Thông tin chủ thẻ ═══════════════════════════════════════ -->
+          <div class="info-panel">
+            <div class="panel-title">
+              <span class="material-icons panel-title-icon">person</span>
+              Thông tin chủ thẻ
+            </div>
+            <div class="field-grid field-grid-2col">
+              <div class="field-item">
+                <span class="material-icons field-icon">badge</span>
+                <div>
+                  <div class="field-label">CIF</div>
+                  <div class="field-value">{{ d.soCifKhachHangPht || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">person</span>
+                <div>
+                  <div class="field-label">HỌ TÊN</div>
+                  <div class="field-value">{{ d.hoTenKhachHangPht || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">call</span>
+                <div>
+                  <div class="field-label">SĐT</div>
+                  <div class="field-value">{{ formatSdt(d.sdt) }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">mail</span>
+                <div>
+                  <div class="field-label">EMAIL</div>
+                  <div class="field-value">{{ d.email || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">badge</span>
+                <div>
+                  <div class="field-label">CMND/CCCD</div>
+                  <div class="field-value">{{ d.soGttt || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">verified_user</span>
+                <div>
+                  <div class="field-label">SINH TRẮC HỌC</div>
+                  <div class="field-value">
+                    @if (d.sinhTracHocKhachHang) {
+                      <span class="verified-badge">{{ d.sinhTracHocKhachHang }}</span>
+                    } @else { — }
+                  </div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">groups</span>
+                <div>
+                  <div class="field-label">NHÓM KH</div>
+                  <div class="field-value">{{ d.nhomKhThe || '—' }}</div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="field-item">
-            <span class="material-icons field-icon">person</span>
-            <div>
-              <div class="field-label">CB GIỚI THIỆU</div>
-              <div class="field-value">{{ d.maCanBoGioiThieu || '—' }}</div>
+
+          <!-- ══ Giao thẻ & cán bộ phụ trách ═══════════════════════════ -->
+          <div class="info-panel">
+            <div class="panel-title">
+              <span class="material-icons panel-title-icon">location_on</span>
+              Giao thẻ & cán bộ phụ trách
+            </div>
+
+            <div class="giao-the-address">
+              <div class="field-label">ĐỊA CHỈ GIAO THẺ</div>
+              <div class="giao-the-address-value">—</div>
+              <div class="giao-the-address-sub">
+                CN phát hành: {{ d.cnQlt || '—' }} · CN giao: {{ d.cnQlt || '—' }}
+              </div>
+            </div>
+
+            <div class="field-grid field-grid-2col giao-the-staff-grid">
+              <div class="field-item">
+                <span class="material-icons field-icon">person</span>
+                <div>
+                  <div class="field-label">AM THẺ</div>
+                  <div class="field-value">{{ d.amIssuingContract || '—' }}</div>
+                </div>
+              </div>
+              <div class="field-item">
+                <span class="material-icons field-icon">person</span>
+                <div>
+                  <div class="field-label">CB GIỚI THIỆU</div>
+                  <div class="field-value">{{ d.maCanBoGioiThieu || '—' }}</div>
+                </div>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
 

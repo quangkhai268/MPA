@@ -41,7 +41,7 @@ public class CardMilestoneEvaluationServiceImpl implements CardMilestoneEvaluati
 
     @Override
     @Transactional
-    public JobRunResult evaluateAndNotify(boolean testMode) {
+    public JobRunResult evaluateAndNotify() {
         List<CardRevenueMilestone> milestones = milestoneRepo.findByActiveTrue();
         EmailTemplate template = templateService.getByLoaiThongBao(LOAI_DOANH_SO_MOC);
 
@@ -66,11 +66,6 @@ public class CardMilestoneEvaluationServiceImpl implements CardMilestoneEvaluati
                 boolean daGuiRoi = daGuiTheoMoc.contains(card.getCardId());
                 if (daGuiRoi) {
                     skippedDedup++;
-                    continue;
-                }
-
-                if (testMode) {
-                    sent++;
                     continue;
                 }
 

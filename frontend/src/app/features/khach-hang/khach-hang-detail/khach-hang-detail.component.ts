@@ -6,7 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 
 import { MpaService } from '../../../core/services/mpa.service';
-import { KhachHangChiTiet } from '../../../core/models/mpa.model';
+import { KhachHangChiTiet, KhachHangTheSummary, ThePhatHanhItem } from '../../../core/models/mpa.model';
 
 @Component({
   selector: 'app-khach-hang-detail',
@@ -24,6 +24,10 @@ export class KhachHangDetailComponent implements OnInit {
   loading  = signal(false);
   data     = signal<KhachHangChiTiet | null>(null);
   cif      = '';
+
+  // ── Thẻ tín dụng ─────────────────────────────────────────────────────
+  theLoading = signal(false);
+  theSummary = signal<KhachHangTheSummary | null>(null);
 
   // ── Filter ─────────────────────────────────────────────────────────────
   selectedNam:   number = new Date().getFullYear();
@@ -44,6 +48,54 @@ export class KhachHangDetailComponent implements OnInit {
   ngOnInit(): void {
     this.cif = this.route.snapshot.paramMap.get('cif') ?? '';
     this.load();
+    this.loadTheSummary();
+  }
+
+  loadTheSummary(): void {
+    if (!this.cif) return;
+    this.theLoading.set(true);
+    this.mpaService.getKhachHangTheSummary(this.cif).subscribe({
+      next: res => {
+        if (res.success) this.theSummary.set(res.data);
+        this.theLoading.set(false);
+      },
+      error: () => this.theLoading.set(false)
+    });
+  }
+
+  goToThe(id: number): void {
+    this.router.navigate(['/quan-ly-the', id]);
+  }
+
+  goToTheList(): void {
+    this.router.navigate(['/quan-ly-the'], { queryParams: { q: this.cif } });
+  }
+
+  // ── Thẻ tín dụng: format helpers ─────────────────────────────────────
+  pctHmtd(card: ThePhatHanhItem): number {
+    const hmtd = card.hmtdIssuingContract ?? 0;
+    const doanhSo = card.doanhSoGiaoDichMienPtn ?? 0;
+    if (hmtd <= 0) return 0;
+    return Math.min((doanhSo / hmtd) * 100, 100);
+  }
+
+  soTienConThieuPtn(card: ThePhatHanhItem): number {
+    const muc = card.doanhSoMienPtn ?? 0;
+    const ds  = card.doanhSoGiaoDichMienPtn ?? 0;
+    return Math.max(muc - ds, 0);
+  }
+
+  daDatMucPtn(card: ThePhatHanhItem): boolean {
+    return (card.doanhSoGiaoDichMienPtn ?? 0) >= (card.doanhSoMienPtn ?? 0) && (card.doanhSoMienPtn ?? 0) > 0;
+  }
+
+  theTrangThaiClass(tt: string | null): string {
+    if (!tt) return 'the-badge-gray';
+    const norm = tt.trim().toLowerCase();
+    if (norm === 'card ok') return 'the-badge-green';
+    if (norm.includes('fraud') || norm.includes('lost') || norm.includes('suspend') || norm.includes('inactive')) return 'the-badge-red';
+    if (norm.includes('closed') || norm.includes('not used')) return 'the-badge-gray';
+    return 'the-badge-gray';
   }
 
   load(): void {
