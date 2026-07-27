@@ -4,16 +4,14 @@
   <div class="page-top">
     <div>
       <h1 class="page-title">Báo cáo & Thống kê</h1>
-      <p class="page-sub">Phân tích và xuất báo cáo theo nhiều chiều dữ liệu</p>
+      <p class="page-sub">Phân tích theo nhiều chiều dữ liệu — nguồn từ thực hiện BSC chi nhánh/khách hàng</p>
     </div>
     <div class="page-actions">
-      <button mat-stroked-button [disabled]="exporting()" (click)="exportExcel()">
-        <span class="material-icons">table_chart</span>
-        {{ exporting() ? 'Đang xuất...' : 'Xuất Excel' }}
+      <button mat-stroked-button disabled matTooltip="Tính năng đang phát triển">
+        <span class="material-icons">table_chart</span> Xuất Excel
       </button>
-      <button mat-flat-button color="primary" [disabled]="exporting()" (click)="exportPdf()">
-        <span class="material-icons">picture_as_pdf</span>
-        {{ exporting() ? 'Đang xuất...' : 'Xuất PDF' }}
+      <button mat-flat-button color="primary" disabled matTooltip="Tính năng đang phát triển">
+        <span class="material-icons">picture_as_pdf</span> Xuất PDF
       </button>
     </div>
   </div>
@@ -39,33 +37,57 @@
 
   <!-- ===== FILTER BAR ===== -->
   <div class="card filter-bar">
-    <mat-form-field appearance="outline" class="date-field">
-      <mat-label>Từ ngày</mat-label>
-      <input matInput [matDatepicker]="pFrom" [(ngModel)]="fromDate">
-      <mat-datepicker-toggle matSuffix [for]="pFrom"></mat-datepicker-toggle>
-      <mat-datepicker #pFrom></mat-datepicker>
-    </mat-form-field>
+    <div class="filter-groups">
 
-    <mat-form-field appearance="outline" class="date-field">
-      <mat-label>Đến ngày</mat-label>
-      <input matInput [matDatepicker]="pTo" [(ngModel)]="toDate">
-      <mat-datepicker-toggle matSuffix [for]="pTo"></mat-datepicker-toggle>
-      <mat-datepicker #pTo></mat-datepicker>
-    </mat-form-field>
+      <div class="flt-group">
+        <span class="flt-label">Loại kỳ</span>
+        <select class="flt-select" [(ngModel)]="loaiKy" (change)="onLoaiKyChange()">
+          <option value="thang">Tháng</option>
+          <option value="quy">Quý</option>
+          <option value="nam">Năm</option>
+          <option value="ngay">Ngày</option>
+        </select>
+      </div>
 
-    <mat-form-field appearance="outline" class="select-field">
-      <mat-label>Đơn vị</mat-label>
-      <mat-select [(ngModel)]="selectedPhong">
-        <mat-option value="">-- Tất cả --</mat-option>
-        @for (p of phongList; track p.ma) {
-          <mat-option [value]="p.ma">{{ p.ten }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+      <div class="flt-group">
+        <span class="flt-label">Kỳ</span>
+        <select class="flt-select flt-select--ky" [(ngModel)]="selectedKy" (change)="onFilterChange()">
+          @for (opt of kyOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
 
-    <button mat-flat-button color="primary" (click)="loadReport()">
-      <span class="material-icons">refresh</span> Cập nhật
-    </button>
+      @if (loaiKy === 'nam') {
+        <div class="flt-group">
+          <span class="flt-label">Lũy kế đến tháng</span>
+          @if (namLuyKeOptions.length) {
+            <select class="flt-select" [(ngModel)]="selectedDenThang" (change)="loadReport()">
+              @for (t of namLuyKeOptions; track t) {
+                <option [ngValue]="t">Tháng {{ t }}</option>
+              }
+            </select>
+          } @else {
+            <select class="flt-select" disabled>
+              <option>Chưa có dữ liệu</option>
+            </select>
+          }
+        </div>
+      }
+
+      @if (activeReport() !== 'xu-huong') {
+        <div class="flt-group">
+          <span class="flt-label">So với</span>
+          <select class="flt-select flt-select--sovoi" [(ngModel)]="soVoi" (change)="onFilterChange()">
+            <option value="ky-truoc">Kỳ trước liền kề</option>
+            <option value="dau-nam">So với đầu năm</option>
+            <option value="ngay-truoc">Ngày liền trước</option>
+            <option value="quy-truoc">Quý trước liền kề</option>
+          </select>
+        </div>
+      }
+
+    </div>
   </div>
 
   <!-- ===== REPORT CONTENT ===== -->
@@ -82,7 +104,7 @@
         <div class="card-header">
           <div>
             <h3>{{ getActiveReportLabel() }}</h3>
-            <p class="card-sub">Từ {{ formatDate(fromDate) }} đến {{ formatDate(toDate) }}</p>
+            <p class="card-sub">Kỳ {{ currentKyLabel }}</p>
           </div>
         </div>
 
@@ -103,54 +125,61 @@
       </div>
 
       <!-- Detail Table -->
-      <div class="card">
-        <div class="card-header">
-          <h3>Chi tiết dữ liệu</h3>
-          <span class="badge badge-flat">{{ tableRows().length }} dòng</span>
-        </div>
-        <div class="table-wrapper">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Tên đơn vị / AM / KH</th>
-                <th class="num">Kỳ này</th>
-                <th class="num">Kỳ trước</th>
-                <th class="num">Thay đổi</th>
-                <th class="num">% Thay đổi</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of tableRows(); track row.name; let i = $index) {
-                <tr class="animate-fade-in" [style.animation-delay]="(i * 0.03) + 's'">
-                  <td class="idx">{{ i + 1 }}</td>
-                  <td>
-                    <div class="cell-primary">{{ row.name }}</div>
-                    <div class="cell-sub">{{ row.unit }}</div>
-                  </td>
-                  <td class="num primary-val">{{ row.value | number:'1.3-3' }}</td>
-                  <td class="num text-muted">{{ row.prev | number:'1.3-3' }}</td>
-                  <td class="num" [class]="changeClass(row.change)">
-                    {{ row.change > 0 ? '+' : '' }}{{ row.change | number:'1.3-3' }}
-                  </td>
-                  <td class="num">
-                    <span class="pct-chip" [class]="changeClass(row.changePct)">
-                      <span class="material-icons">{{ changeIcon(row.changePct) }}</span>
-                      {{ row.changePct > 0 ? '+' : '' }}{{ row.changePct | number:'1.1-1' }}%
-                    </span>
-                  </td>
+      @if (activeReport() !== 'xu-huong') {
+        <div class="card">
+          <div class="card-header">
+            <h3>Chi tiết dữ liệu</h3>
+            <span class="badge badge-flat">{{ tableRows().length }} dòng</span>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Tên đơn vị / AM / KH</th>
+                  <th class="num">Kỳ này</th>
+                  <th class="num">Kỳ trước</th>
+                  <th class="num">Thay đổi</th>
+                  <th class="num">% Thay đổi</th>
                 </tr>
-              }
-              <tr class="total-row">
-                <td colspan="2"><strong>Tổng cộng</strong></td>
-                <td class="num primary-val"><strong>{{ totalValue() | number:'1.3-3' }}</strong></td>
-                <td class="num text-muted"><strong>{{ totalPrev() | number:'1.3-3' }}</strong></td>
-                <td colspan="2"></td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @if (tableRows().length === 0) {
+                  <tr><td colspan="6" class="empty-row">Không có dữ liệu trong kỳ này</td></tr>
+                }
+                @for (row of tableRows(); track row.name; let i = $index) {
+                  <tr class="animate-fade-in" [style.animation-delay]="(i * 0.03) + 's'">
+                    <td class="idx">{{ i + 1 }}</td>
+                    <td>
+                      <div class="cell-primary">{{ row.name }}</div>
+                      <div class="cell-sub">{{ row.unit }}</div>
+                    </td>
+                    <td class="num primary-val">{{ row.value | number:'1.3-3' }}</td>
+                    <td class="num text-muted">{{ row.prev | number:'1.3-3' }}</td>
+                    <td class="num" [class]="changeClass(row.change)">
+                      {{ row.change > 0 ? '+' : '' }}{{ row.change | number:'1.3-3' }}
+                    </td>
+                    <td class="num">
+                      <span class="pct-chip" [class]="changeClass(row.changePct)">
+                        <span class="material-icons">{{ changeIcon(row.changePct) }}</span>
+                        {{ row.changePct > 0 ? '+' : '' }}{{ row.changePct | number:'1.1-1' }}%
+                      </span>
+                    </td>
+                  </tr>
+                }
+                @if (tableRows().length > 0) {
+                  <tr class="total-row">
+                    <td colspan="2"><strong>Tổng cộng</strong></td>
+                    <td class="num primary-val"><strong>{{ totalValue() | number:'1.3-3' }}</strong></td>
+                    <td class="num text-muted"><strong>{{ totalPrev() | number:'1.3-3' }}</strong></td>
+                    <td colspan="2"></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      }
 
     </div>
   }

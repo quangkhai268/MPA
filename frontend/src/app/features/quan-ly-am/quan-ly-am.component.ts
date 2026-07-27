@@ -25,6 +25,7 @@ export class QuanLyAmComponent implements OnInit {
   // ── View state ────────────────────────────────────────────────────────
   viewMode: ViewMode = 'ma-am';
   searchText = '';
+  selectedPhong: string | null = null;
   loading = signal(false);
 
   // ── Theo mã AM (paginated) ────────────────────────────────────────────
@@ -65,7 +66,7 @@ export class QuanLyAmComponent implements OnInit {
   loadPage(page: number): void {
     this.currentPage = page;
     this.loading.set(true);
-    this.mpaService.getQuanLyAmList(this.searchText.trim(), page, this.pageSize).subscribe({
+    this.mpaService.getQuanLyAmList(this.searchText.trim(), this.selectedPhong, page, this.pageSize).subscribe({
       next: res => {
         if (res.success) this.pageData.set(res.data);
         this.loading.set(false);
@@ -76,7 +77,7 @@ export class QuanLyAmComponent implements OnInit {
 
   loadAll(): void {
     this.loading.set(true);
-    this.mpaService.getQuanLyAmAll(this.searchText.trim()).subscribe({
+    this.mpaService.getQuanLyAmAll(this.searchText.trim(), this.selectedPhong).subscribe({
       next: res => {
         if (res.success) {
           this.allItems.set(res.data);
@@ -107,6 +108,10 @@ export class QuanLyAmComponent implements OnInit {
   }
 
   onSearch(): void {
+    this.load();
+  }
+
+  onPhongFilterChange(): void {
     this.load();
   }
 

@@ -77,7 +77,9 @@ export interface PhongData {
   thuNhapThuan: number;
   thuNhapThuanPrevious: number;
   duNo: number;
+  duNoPrevious: number;
   hdvCuoiKy: number;
+  hdvCuoiKyPrevious: number;
   hdvBinhQuan: number;
   thuNhapThuanDichVu: number;
   thuNhapThuanHdvFtp: number;
@@ -106,6 +108,11 @@ export interface AmData {
   duNo: number;
   hdvCuoiKy: number;
   soKhachHang: number;
+  /** Giá trị của chỉ tiêu đang được chọn để xếp hạng (VD Dư nợ, CASA...) */
+  value?: number;
+  thuNhapThuanPrevious?: number | null;
+  change?: number | null;
+  changePercent?: number | null;
 }
 
 export interface AmDetailData {
@@ -138,6 +145,8 @@ export interface KhachHangData {
   thuNhapThuanPrevious: number;
   change: number;
   changePercent: number;
+  /** Giá trị của chỉ tiêu đang được chọn để xếp hạng (VD Dư nợ, CASA...) */
+  value?: number;
 }
 
 export interface ImportResult {
@@ -217,9 +226,22 @@ export interface UnitOption {
   ten: string;
 }
 
+export interface XuHuongMetricSeries {
+  metricKey: string;
+  metricLabel: string;
+  keHoachValues: number[];
+  thucHienValues: number[];
+}
+
+export interface XuHuongResponse {
+  periods: string[];
+  metrics: XuHuongMetricSeries[];
+}
+
 export interface FilterParams {
   fromDate?: string;
   toDate?: string;
+  ngay?: string;
   nam?: number;
   thang?: number;
   quy?: string;
@@ -233,6 +255,7 @@ export interface FilterParams {
   selectedKy?: string;
   soVoi?: string;
   phanKhuc?: string;
+  denThangLuyKe?: number;
 }
 
 export interface ThongTinAmItem {
@@ -465,6 +488,16 @@ export interface KhachHangChiTiet {
   // Mô tả kỳ
   kyHienTai: string;
   kyTruoc: string;
+  // Dịch vụ / sản phẩm đang dùng (theo kỳ đang chọn)
+  danhSachDichVu: KhachHangDichVuItem[];
+}
+
+export interface KhachHangDichVuItem {
+  tenSpCap5: string;
+  kyHanCap2: string;
+  thuNhapThuan: number;
+  huyDongVonCuoiKy: number;
+  duNoTinDungCuoiKy: number;
 }
 
 // ── Cài đặt cảnh báo / gửi email thẻ ──────────────────────────────────

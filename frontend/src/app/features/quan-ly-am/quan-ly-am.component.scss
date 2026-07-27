@@ -100,15 +100,48 @@ $text:         #1A1A2E;
 // ── Search + Toggle ───────────────────────────────────────────────────
 .search-bar {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 12px;
   margin-bottom: 12px;
   flex-wrap: wrap;
+  background: #fff;
+  border: 1px solid $gray-border;
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    color: $gray;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+
+  select {
+    height: 36px;
+    padding: 0 10px;
+    border: 1.5px solid $gray-border;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 13px;
+    color: $text;
+    cursor: pointer;
+    min-width: 160px;
+    &:focus { outline: none; border-color: $primary; }
+  }
+}
+
+.filter-group--search { width: 300px; flex-shrink: 0; }
+
 .search-input-wrap {
-  flex: 1;
-  min-width: 280px;
   position: relative;
 
   .search-icon {
@@ -123,7 +156,8 @@ $text:         #1A1A2E;
 
 .search-input {
   width: 100%;
-  padding: 9px 12px 9px 38px;
+  height: 36px;
+  padding: 0 12px 0 38px;
   border: 1.5px solid $gray-border;
   border-radius: 8px;
   font-size: 13px;
@@ -140,15 +174,18 @@ $text:         #1A1A2E;
 
 .toggle-group {
   display: flex;
+  height: 36px;
   border: 1.5px solid $gray-border;
   border-radius: 8px;
   overflow: hidden;
   background: #fff;
   flex-shrink: 0;
+
+  &--push { margin-left: auto; }
 }
 
 .toggle-btn {
-  padding: 8px 16px;
+  padding: 0 16px;
   border: none;
   background: transparent;
   font-size: 13px;
@@ -317,12 +354,24 @@ $text:         #1A1A2E;
 
   &:hover td { background: #f1f5f9 !important; }
 
-  .expand-icon {
-    font-size: 16px;
-    vertical-align: middle;
-    color: $gray;
-    margin-right: 4px;
-  }
+}
+
+.ten-cb-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.expand-icon {
+  font-size: 16px;
+  color: $gray;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ten-cb-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .am-count-badge {

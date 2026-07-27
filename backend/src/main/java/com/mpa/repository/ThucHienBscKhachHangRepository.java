@@ -77,6 +77,51 @@ public interface ThucHienBscKhachHangRepository extends JpaRepository<ThucHienBs
            "AND c.typeData=6 AND c.nam=:nam")
     List<Object[]> benchmarkByTypeNam(@Param("type") int type, @Param("nam") int nam);
 
+    // ── Top khách hàng (type_data=1/5/6) ─────────────────────────────
+    // Object[]: [maKhCif, tenKhachHang, tenDonViCap6, tenAm, hdvCuoiKy, casaBinhQuan, duNo, tntDichVu, tntHdvFtp, tntTinDung, tnt]
+    // (đủ 7 chỉ tiêu để chọn xếp hạng theo bất kỳ chỉ tiêu nào — sắp xếp thực hiện ở tầng Java theo metricKey)
+
+    @Query("SELECT c.maKhCif, MAX(c.tenKhachHang), MAX(c.tenDonViCap6), MAX(c.tenAm), " +
+           "COALESCE(SUM(c.huyDongVonCuoiKy),0), COALESCE(SUM(c.casaBinhQuan),0), COALESCE(SUM(c.duNoTinDungCuoiKy),0), " +
+           "COALESCE(SUM(c.thuNhapThuanDichVu),0), COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
+           "COALESCE(SUM(c.thuNhapThuan),0) " +
+           "FROM ThucHienBscKhachHang c WHERE c.typeData = 1 AND c.thang = :thang AND c.nam = :nam " +
+           "GROUP BY c.maKhCif")
+    List<Object[]> topKhByThangNam(@Param("thang") int thang, @Param("nam") int nam);
+
+    @Query("SELECT c.maKhCif, MAX(c.tenKhachHang), MAX(c.tenDonViCap6), MAX(c.tenAm), " +
+           "COALESCE(SUM(c.huyDongVonCuoiKy),0), COALESCE(SUM(c.casaBinhQuan),0), COALESCE(SUM(c.duNoTinDungCuoiKy),0), " +
+           "COALESCE(SUM(c.thuNhapThuanDichVu),0), COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
+           "COALESCE(SUM(c.thuNhapThuan),0) " +
+           "FROM ThucHienBscKhachHang c WHERE c.typeData = 5 AND c.quy = :quy AND c.nam = :nam " +
+           "GROUP BY c.maKhCif")
+    List<Object[]> topKhByQuyNam(@Param("quy") String quy, @Param("nam") int nam);
+
+    @Query("SELECT c.maKhCif, MAX(c.tenKhachHang), MAX(c.tenDonViCap6), MAX(c.tenAm), " +
+           "COALESCE(SUM(c.huyDongVonCuoiKy),0), COALESCE(SUM(c.casaBinhQuan),0), COALESCE(SUM(c.duNoTinDungCuoiKy),0), " +
+           "COALESCE(SUM(c.thuNhapThuanDichVu),0), COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
+           "COALESCE(SUM(c.thuNhapThuan),0) " +
+           "FROM ThucHienBscKhachHang c WHERE c.typeData = 6 AND c.nam = :nam " +
+           "GROUP BY c.maKhCif")
+    List<Object[]> topKhByNam(@Param("nam") int nam);
+
+    // ── Số KH theo AM (type_data=1/5/6) – Object[]: [maAm, soKhachHang] ────
+
+    @Query("SELECT c.maAm, COUNT(DISTINCT c.maKhCif) " +
+           "FROM ThucHienBscKhachHang c WHERE c.typeData = 1 AND c.thang = :thang AND c.nam = :nam " +
+           "GROUP BY c.maAm")
+    List<Object[]> countKhByAmThangNam(@Param("thang") int thang, @Param("nam") int nam);
+
+    @Query("SELECT c.maAm, COUNT(DISTINCT c.maKhCif) " +
+           "FROM ThucHienBscKhachHang c WHERE c.typeData = 5 AND c.quy = :quy AND c.nam = :nam " +
+           "GROUP BY c.maAm")
+    List<Object[]> countKhByAmQuyNam(@Param("quy") String quy, @Param("nam") int nam);
+
+    @Query("SELECT c.maAm, COUNT(DISTINCT c.maKhCif) " +
+           "FROM ThucHienBscKhachHang c WHERE c.typeData = 6 AND c.nam = :nam " +
+           "GROUP BY c.maAm")
+    List<Object[]> countKhByAmNam(@Param("nam") int nam);
+
     // ── Monthly trend (sparkline) ─────────────────────────────────────────
     // Object[]: [thang, hdvCuoiKy, casaBinhQuan, duNo, tntDv, tntHdv, tntTd, tnt]
     @Query("SELECT c.thang, " +

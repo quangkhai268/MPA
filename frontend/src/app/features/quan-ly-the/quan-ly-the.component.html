@@ -194,6 +194,27 @@
           </select>
         </div>
 
+        <div class="filter-field">
+          <label>Phòng ban</label>
+          <select [(ngModel)]="maDonViCap6">
+            <option value="">Tất cả phòng</option>
+            @for (p of phongOptions(); track p.ma) {
+              <option [value]="p.ma">{{ p.ten }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="search-field">
+          <label>AM (tên hoặc mã)</label>
+          <div class="search-input-wrap">
+            <span class="material-icons search-icon">person_search</span>
+            <input class="search-input"
+                   [(ngModel)]="amSearch"
+                   (keyup.enter)="search()"
+                   placeholder="VD: Nguyễn Văn A hoặc AM001">
+          </div>
+        </div>
+
         <div class="filter-checks">
           <label class="check-label">
             <input type="checkbox" [(ngModel)]="chuaKichHoat"> Chưa kích hoạt

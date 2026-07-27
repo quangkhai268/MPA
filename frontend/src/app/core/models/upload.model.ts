@@ -24,4 +24,5 @@ export interface UploadHistoryItem {
   soFile: number;
   tongDong: number;
   trangThai: string;
+  kyLabel: string | null;
 }

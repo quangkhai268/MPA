@@ -26,17 +26,19 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
     @Override
     public Page<ThePhatHanhResponse> getList(
             String search, String trangThai, String hinhThuc, String productCode,
-            String loaiTheTinDung,
+            String loaiTheTinDung, String maDonViCap6, String amSearch,
             boolean chuaKichHoat, int soNgayMin, boolean chuaPsgd, boolean chuaDatPtn, boolean datPtn,
             int page, int size) {
 
-        String s   = (search == null) ? "" : search.trim();
-        String tt  = (trangThai == null || trangThai.isBlank()) ? null : trangThai;
-        String ht  = (hinhThuc == null || hinhThuc.isBlank()) ? null : hinhThuc;
-        String pc  = (productCode == null || productCode.isBlank()) ? null : productCode;
-        String ltd = (loaiTheTinDung == null || loaiTheTinDung.isBlank()) ? null : loaiTheTinDung;
+        String s    = (search == null) ? "" : search.trim();
+        String tt   = (trangThai == null || trangThai.isBlank()) ? null : trangThai;
+        String ht   = (hinhThuc == null || hinhThuc.isBlank()) ? null : hinhThuc;
+        String pc   = (productCode == null || productCode.isBlank()) ? null : productCode;
+        String ltd  = (loaiTheTinDung == null || loaiTheTinDung.isBlank()) ? null : loaiTheTinDung;
+        String don  = (maDonViCap6 == null || maDonViCap6.isBlank()) ? null : maDonViCap6;
+        String amS  = (amSearch == null) ? "" : amSearch.trim();
 
-        return repo.search(s, tt, ht, pc, ltd, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, PageRequest.of(page, size))
+        return repo.search(s, tt, ht, pc, ltd, don, amS, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, PageRequest.of(page, size))
                    .map(ThePhatHanhResponse::from);
     }
 

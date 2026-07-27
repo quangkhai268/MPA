@@ -13,4 +13,5 @@ public class FileImportResult {
     private int soDong;
     private String trangThai;  // SUCCESS | FAILED | UNSUPPORTED
     private String ghiChu;
+    private String kyLabel;    // Nhãn kỳ thân thiện, VD "Tháng 5/2026", "Quý 1/2026" — null nếu không xác định được (VD ISS_02)
 }

@@ -22,10 +22,11 @@ public class ThongTinAmController {
     public ApiResponse<Page<ThongTinAmResponse>> getList(
             @RequestParam(defaultValue = "") String search,
             @RequestParam(required = false) Short trangThai,
+            @RequestParam(required = false) String maDonViCap6,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         try {
-            return ApiResponse.ok(service.getList(search, trangThai, page, size));
+            return ApiResponse.ok(service.getList(search, trangThai, maDonViCap6, page, size));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi khi tải danh sách: " + e.getMessage());
         }
@@ -34,9 +35,10 @@ public class ThongTinAmController {
     @GetMapping("/all")
     public ApiResponse<List<ThongTinAmResponse>> getAll(
             @RequestParam(defaultValue = "") String search,
-            @RequestParam(required = false) Short trangThai) {
+            @RequestParam(required = false) Short trangThai,
+            @RequestParam(required = false) String maDonViCap6) {
         try {
-            return ApiResponse.ok(service.getAll(search, trangThai));
+            return ApiResponse.ok(service.getAll(search, trangThai, maDonViCap6));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi khi tải danh sách: " + e.getMessage());
         }

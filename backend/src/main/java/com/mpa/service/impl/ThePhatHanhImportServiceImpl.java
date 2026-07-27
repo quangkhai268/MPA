@@ -120,7 +120,7 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
             Sheet sheet = wb.getSheetAt(0);
             Row headerRow = sheet.getRow(sheet.getFirstRowNum());
             if (headerRow == null) {
-                return new FileImportResult(fileName, "ISS_02", 0, "FAILED", "File rỗng, không tìm thấy dòng tiêu đề");
+                return new FileImportResult(fileName, "ISS_02", 0, "FAILED", "File rỗng, không tìm thấy dòng tiêu đề", null);
             }
 
             Map<String, Integer> headerIndex = new LinkedHashMap<>();
@@ -135,7 +135,7 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
             }
             if (!missing.isEmpty()) {
                 return new FileImportResult(fileName, "ISS_02", 0, "FAILED",
-                        "Thiếu cột: " + String.join(", ", missing));
+                        "Thiếu cột: " + String.join(", ", missing), null);
             }
 
             List<Object[]> batch = new ArrayList<>(BATCH_SIZE);
@@ -166,13 +166,13 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
             }
 
             if (totalStaged == 0) {
-                return new FileImportResult(fileName, "ISS_02", 0, "FAILED", "Không có dòng dữ liệu hợp lệ");
+                return new FileImportResult(fileName, "ISS_02", 0, "FAILED", "Không có dòng dữ liệu hợp lệ", null);
             }
             String ghiChu = totalSkipped > 0 ? ("Bỏ qua " + totalSkipped + " dòng lỗi/trống") : null;
-            return new FileImportResult(fileName, "ISS_02", totalStaged, "SUCCESS", ghiChu);
+            return new FileImportResult(fileName, "ISS_02", totalStaged, "SUCCESS", ghiChu, null);
 
         } catch (Exception e) {
-            return new FileImportResult(fileName, "ISS_02", 0, "FAILED", "Lỗi đọc file: " + e.getMessage());
+            return new FileImportResult(fileName, "ISS_02", 0, "FAILED", "Lỗi đọc file: " + e.getMessage(), null);
         }
     }
 

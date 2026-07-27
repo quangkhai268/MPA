@@ -13,42 +13,28 @@ public interface ThongTinAmRepository extends JpaRepository<ThongTinAm, Integer>
 
     @Query("""
         SELECT t FROM ThongTinAm t
-        WHERE ('' = :search
-            OR LOWER(t.maAm) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(t.tenAm) LIKE LOWER(CONCAT('%', :search, '%')))
+        WHERE (:trangThai IS NULL OR t.trangThai = :trangThai)
+          AND (:maDonViCap6 IS NULL OR t.maDonViCap6 = :maDonViCap6)
+          AND ('' = :search
+              OR LOWER(t.maAm) LIKE LOWER(CONCAT('%', :search, '%'))
+              OR LOWER(t.tenAm) LIKE LOWER(CONCAT('%', :search, '%')))
         ORDER BY t.tenAm, t.maAm
         """)
-    Page<ThongTinAm> searchAll(@Param("search") String search, Pageable pageable);
+    Page<ThongTinAm> search(@Param("search") String search,
+                             @Param("trangThai") Short trangThai,
+                             @Param("maDonViCap6") String maDonViCap6,
+                             Pageable pageable);
 
     @Query("""
         SELECT t FROM ThongTinAm t
-        WHERE t.trangThai = :trangThai
-        AND ('' = :search
-            OR LOWER(t.maAm) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(t.tenAm) LIKE LOWER(CONCAT('%', :search, '%')))
+        WHERE (:trangThai IS NULL OR t.trangThai = :trangThai)
+          AND (:maDonViCap6 IS NULL OR t.maDonViCap6 = :maDonViCap6)
+          AND ('' = :search
+              OR LOWER(t.maAm) LIKE LOWER(CONCAT('%', :search, '%'))
+              OR LOWER(t.tenAm) LIKE LOWER(CONCAT('%', :search, '%')))
         ORDER BY t.tenAm, t.maAm
         """)
-    Page<ThongTinAm> searchByStatus(@Param("search") String search,
-                                     @Param("trangThai") Short trangThai,
-                                     Pageable pageable);
-
-    @Query("""
-        SELECT t FROM ThongTinAm t
-        WHERE ('' = :search
-            OR LOWER(t.maAm) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(t.tenAm) LIKE LOWER(CONCAT('%', :search, '%')))
-        ORDER BY t.tenAm, t.maAm
-        """)
-    List<ThongTinAm> searchAllList(@Param("search") String search);
-
-    @Query("""
-        SELECT t FROM ThongTinAm t
-        WHERE t.trangThai = :trangThai
-        AND ('' = :search
-            OR LOWER(t.maAm) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(t.tenAm) LIKE LOWER(CONCAT('%', :search, '%')))
-        ORDER BY t.tenAm, t.maAm
-        """)
-    List<ThongTinAm> searchByStatusList(@Param("search") String search,
-                                         @Param("trangThai") Short trangThai);
+    List<ThongTinAm> searchList(@Param("search") String search,
+                                 @Param("trangThai") Short trangThai,
+                                 @Param("maDonViCap6") String maDonViCap6);
 }

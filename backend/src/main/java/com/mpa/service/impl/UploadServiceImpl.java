@@ -1,10 +1,13 @@
 package com.mpa.service.impl;
 
+import com.mpa.dto.DuLieuMpaPeriod;
 import com.mpa.dto.FileImportResult;
 import com.mpa.dto.UploadBatchResult;
 import com.mpa.dto.UploadHistoryResponse;
 import com.mpa.entity.UploadHistory;
 import com.mpa.repository.UploadHistoryRepository;
+import com.mpa.service.BscSyncService;
+import com.mpa.service.DuLieuMpaImportService;
 import com.mpa.service.ThePhatHanhImportService;
 import com.mpa.service.UploadService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -29,6 +33,8 @@ import java.util.zip.ZipInputStream;
 public class UploadServiceImpl implements UploadService {
 
     private final ThePhatHanhImportService thePhatHanhImportService;
+    private final DuLieuMpaImportService duLieuMpaImportService;
+    private final BscSyncService bscSyncService;
     private final UploadHistoryRepository uploadHistoryRepository;
 
     private record Entry(String name, byte[] bytes) {}
@@ -36,6 +42,7 @@ public class UploadServiceImpl implements UploadService {
     @Override
     public UploadBatchResult handleUpload(MultipartFile[] files, LocalDate ngayDuLieu, String nguoiUpload) {
         thePhatHanhImportService.clearStaging();
+        duLieuMpaImportService.clearStaging();
 
         List<FileImportResult> results = new ArrayList<>();
         List<Entry> entries = new ArrayList<>();
@@ -49,24 +56,33 @@ public class UploadServiceImpl implements UploadService {
                     entries.add(new Entry(name, f.getBytes()));
                 }
             } catch (IOException e) {
-                results.add(new FileImportResult(name, "UNKNOWN", 0, "FAILED", "Lỗi đọc file: " + e.getMessage()));
+                results.add(new FileImportResult(name, "UNKNOWN", 0, "FAILED", "Lỗi đọc file: " + e.getMessage(), null));
             }
         }
 
         boolean anyStaged = false;
+        boolean anyMpaStaged = false;
         for (Entry e : entries) {
             String type = classify(e.name());
             if ("ISS_02".equals(type)) {
                 FileImportResult r = thePhatHanhImportService.stageFile(new ByteArrayInputStream(e.bytes()), e.name());
                 results.add(r);
                 if ("SUCCESS".equals(r.getTrangThai())) anyStaged = true;
+            } else if ("MPA".equals(type)) {
+                FileImportResult r = duLieuMpaImportService.stageFile(new ByteArrayInputStream(e.bytes()), e.name());
+                results.add(r);
+                if ("SUCCESS".equals(r.getTrangThai())) anyMpaStaged = true;
             } else {
-                results.add(new FileImportResult(e.name(), type, 0, "UNSUPPORTED", "Chưa hỗ trợ loại file này"));
+                results.add(new FileImportResult(e.name(), type, 0, "UNSUPPORTED", "Chưa hỗ trợ loại file này", null));
             }
         }
 
         if (anyStaged) {
             thePhatHanhImportService.commitStagedData();
+        }
+        if (anyMpaStaged) {
+            List<DuLieuMpaPeriod> periods = duLieuMpaImportService.commitStagedData();
+            periods.forEach(bscSyncService::syncPeriod);
         }
 
         int tongDong = 0;
@@ -92,6 +108,7 @@ public class UploadServiceImpl implements UploadService {
         h.setTongDong(tongDong);
         h.setTrangThai(trangThai);
         h.setChiTiet(summarize(results));
+        h.setKyLabel(buildKyLabel(results));
         uploadHistoryRepository.save(h);
 
         return UploadBatchResult.builder()
@@ -136,6 +153,15 @@ public class UploadServiceImpl implements UploadService {
             }
         }
         return entries;
+    }
+
+    /** Nhãn "Tên file" hiển thị ở lịch sử upload — gộp nhãn kỳ (hoặc tên file gốc nếu không có) của các file thành công. */
+    private String buildKyLabel(List<FileImportResult> results) {
+        String joined = results.stream()
+                .filter(r -> "SUCCESS".equals(r.getTrangThai()))
+                .map(r -> r.getKyLabel() != null ? r.getKyLabel() : r.getTenFile())
+                .collect(Collectors.joining(", "));
+        return joined.isEmpty() ? null : joined;
     }
 
     private String summarize(List<FileImportResult> results) {

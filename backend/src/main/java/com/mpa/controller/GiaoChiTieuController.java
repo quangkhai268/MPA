@@ -3,6 +3,7 @@ package com.mpa.controller;
 import com.mpa.dto.BscSoSanhResponse;
 import com.mpa.dto.ChiTieuBscRequest;
 import com.mpa.dto.ChiTieuQuanLyRow;
+import com.mpa.dto.XuHuongResponse;
 import com.mpa.service.GiaoChiTieuService;
 import com.mpa.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,10 @@ public class GiaoChiTieuController {
     public ApiResponse<BscSoSanhResponse> getSoSanh(
             @RequestParam(defaultValue = "thang") String loaiKy,
             @RequestParam(defaultValue = "") String selectedKy,
-            @RequestParam(defaultValue = "phong") String doiTuong) {
+            @RequestParam(defaultValue = "phong") String doiTuong,
+            @RequestParam(required = false) String maDonViCap6) {
         try {
-            return ApiResponse.ok(service.getSoSanh(loaiKy, selectedKy, doiTuong));
+            return ApiResponse.ok(service.getSoSanh(loaiKy, selectedKy, doiTuong, maDonViCap6));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi khi tải dữ liệu so sánh: " + e.getMessage());
         }
@@ -33,9 +35,10 @@ public class GiaoChiTieuController {
     public ApiResponse<List<ChiTieuQuanLyRow>> getQuanLy(
             @RequestParam(defaultValue = "thang") String loaiKy,
             @RequestParam(defaultValue = "") String selectedKy,
-            @RequestParam(defaultValue = "phong") String doiTuong) {
+            @RequestParam(defaultValue = "phong") String doiTuong,
+            @RequestParam(required = false) String maDonViCap6) {
         try {
-            return ApiResponse.ok(service.getQuanLyList(loaiKy, selectedKy, doiTuong));
+            return ApiResponse.ok(service.getQuanLyList(loaiKy, selectedKy, doiTuong, maDonViCap6));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi khi tải danh sách chỉ tiêu: " + e.getMessage());
         }
@@ -80,11 +83,34 @@ public class GiaoChiTieuController {
     }
 
     @GetMapping("/am-list")
-    public ApiResponse<List<Map<String, String>>> getAmList() {
+    public ApiResponse<List<Map<String, String>>> getAmList(@RequestParam(required = false) String maDonViCap6) {
         try {
-            return ApiResponse.ok(service.getAmList());
+            return ApiResponse.ok(service.getAmList(maDonViCap6));
         } catch (Exception e) {
             return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    @GetMapping("/latest-ngay")
+    public ApiResponse<String> getLatestNgay() {
+        try {
+            return ApiResponse.ok(service.getLatestNgay());
+        } catch (Exception e) {
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    @GetMapping("/xu-huong")
+    public ApiResponse<XuHuongResponse> getXuHuong(
+            @RequestParam(defaultValue = "thang") String loaiKy,
+            @RequestParam int nam,
+            @RequestParam(defaultValue = "chi-nhanh") String doiTuong,
+            @RequestParam(required = false) String maDonViCap6,
+            @RequestParam(required = false) String maAm) {
+        try {
+            return ApiResponse.ok(service.getXuHuong(loaiKy, nam, doiTuong, maDonViCap6, maAm));
+        } catch (Exception e) {
+            return ApiResponse.error("Lỗi khi tải dữ liệu xu hướng: " + e.getMessage());
         }
     }
 }

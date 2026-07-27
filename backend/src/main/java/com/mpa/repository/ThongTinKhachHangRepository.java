@@ -12,33 +12,33 @@ import java.util.Optional;
 
 public interface ThongTinKhachHangRepository extends JpaRepository<ThongTinKhachHang, Integer> {
 
+    // search: khớp CIF/tên/SĐT/email · maDonViCap6: lọc theo Phòng · amSearch: khớp mã hoặc tên AM
+    // (subquery sang ThongTinAm vì ThongTinKhachHang chỉ lưu ma_am, không lưu tên) · phanKhuc:
+    // lọc theo ten_phan_khuc_kh_cap_2 thực tế của khách hàng, lấy từ du_lieu_mpa (không phải
+    // type_khach_hang — cột đó vẫn dùng riêng cho badge Phân khúc + benchmark chi tiết KH).
     @Query("""
         SELECT t FROM ThongTinKhachHang t
         WHERE ('' = :search
             OR LOWER(t.maKhCif) LIKE LOWER(CONCAT('%', :search, '%'))
             OR LOWER(t.tenKhachHang) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(t.soDienThoai) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(t.email) LIKE LOWER(CONCAT('%', :search, '%')))
+            OR LOWER(COALESCE(t.soDienThoai,'')) LIKE LOWER(CONCAT('%', :search, '%'))
+            OR LOWER(COALESCE(t.email,'')) LIKE LOWER(CONCAT('%', :search, '%')))
+          AND (:maDonViCap6 IS NULL OR t.maDonViCap6 = :maDonViCap6)
+          AND (:amSearch = ''
+              OR LOWER(COALESCE(t.maAm,'')) LIKE LOWER(CONCAT('%', :amSearch, '%'))
+              OR t.maAm IN (SELECT a.maAm FROM ThongTinAm a WHERE LOWER(a.tenAm) LIKE LOWER(CONCAT('%', :amSearch, '%')))
+          )
+          AND (:phanKhuc = ''
+              OR t.maKhCif IN (SELECT DISTINCT d.maKhCif FROM DuLieuMpa d WHERE d.tenPhanKhucKhCap2 = :phanKhuc)
+          )
         ORDER BY t.tenKhachHang
         """)
-    Page<ThongTinKhachHang> searchAll(@Param("search") String search, Pageable pageable);
-
-    @Query("""
-        SELECT t FROM ThongTinKhachHang t
-        WHERE t.typeKhachHang = :typeKhachHang
-        AND ('' = :search
-            OR LOWER(t.maKhCif) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(t.tenKhachHang) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(t.soDienThoai) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(t.email) LIKE LOWER(CONCAT('%', :search, '%')))
-        ORDER BY t.tenKhachHang
-        """)
-    Page<ThongTinKhachHang> searchByType(@Param("search") String search,
-                                          @Param("typeKhachHang") Integer typeKhachHang,
-                                          Pageable pageable);
-
-    @Query("SELECT DISTINCT t.typeKhachHang FROM ThongTinKhachHang t WHERE t.typeKhachHang IS NOT NULL ORDER BY t.typeKhachHang")
-    List<Integer> findDistinctTypes();
+    Page<ThongTinKhachHang> search(
+            @Param("search") String search,
+            @Param("maDonViCap6") String maDonViCap6,
+            @Param("amSearch") String amSearch,
+            @Param("phanKhuc") String phanKhuc,
+            Pageable pageable);
 
     // 1 CIF có thể có nhiều dòng (gắn nhiều AM/phòng khác nhau theo thời gian) — lấy dòng mới nhất làm đại diện.
     Optional<ThongTinKhachHang> findFirstByMaKhCifOrderByIdDesc(String maKhCif);

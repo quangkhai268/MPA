@@ -6,7 +6,7 @@ import { ApiResponse, PageResponse } from '../models/user.model';
 import {
   DashboardKpi, TrendChartData, PhongData, PhongTrendSeries, AmData, AmDetailData,
   KhachHangData, DuLieuMpa, ImportResult, FilterParams,
-  BscSoSanhResult, ChiTieuBscRequest, ChiTieuQuanLyRow, UnitOption,
+  BscSoSanhResult, ChiTieuBscRequest, ChiTieuQuanLyRow, UnitOption, XuHuongResponse,
   ThongTinAmItem, ThongTinAmSaveRequest,
   ThongTinKhachHangItem, ThongTinKhachHangSaveRequest, KhachHangChiTiet,
   ThePhatHanhItem, TheSummary, ThePhatHanhDetail, KhachHangTheSummary,
@@ -38,27 +38,33 @@ export class MpaService {
     });
   }
 
+  getNamLuyKeOptions(nam: number): Observable<ApiResponse<number[]>> {
+    return this.http.get<ApiResponse<number[]>>(`${this.api}/dashboard/nam-luy-ke-options`, {
+      params: new HttpParams().set('nam', nam)
+    });
+  }
+
   getPhongTrend(filter: FilterParams, metricKey = 'tong-tnt'): Observable<ApiResponse<PhongTrendSeries[]>> {
     return this.http.get<ApiResponse<PhongTrendSeries[]>>(`${this.api}/dashboard/phong-trend`, {
       params: this.toParams({ ...filter, metricKey })
     });
   }
 
-  getTopAm(filter: FilterParams, limit = 10): Observable<ApiResponse<AmData[]>> {
+  getTopAm(filter: FilterParams, metricKey = 'tong-tnt', limit = 5): Observable<ApiResponse<AmData[]>> {
     return this.http.get<ApiResponse<AmData[]>>(`${this.api}/dashboard/top-am`, {
-      params: this.toParams({ ...filter, limit })
+      params: this.toParams({ ...filter, metricKey, limit })
     });
   }
 
-  getTopKh(filter: FilterParams, limit = 8): Observable<ApiResponse<KhachHangData[]>> {
+  getTopKh(filter: FilterParams, metricKey = 'tong-tnt', limit = 5): Observable<ApiResponse<KhachHangData[]>> {
     return this.http.get<ApiResponse<KhachHangData[]>>(`${this.api}/dashboard/top-kh`, {
-      params: this.toParams({ ...filter, limit })
+      params: this.toParams({ ...filter, metricKey, limit })
     });
   }
 
-  getBienDongKh(filter: FilterParams): Observable<ApiResponse<{ tang: KhachHangData[]; giam: KhachHangData[] }>> {
+  getBienDongKh(filter: FilterParams, metricKey = 'tong-tnt', limit = 10): Observable<ApiResponse<{ tang: KhachHangData[]; giam: KhachHangData[] }>> {
     return this.http.get<ApiResponse<{ tang: KhachHangData[]; giam: KhachHangData[] }>>(`${this.api}/dashboard/bien-dong-kh`, {
-      params: this.toParams(filter)
+      params: this.toParams({ ...filter, metricKey, limit })
     });
   }
 
@@ -73,6 +79,12 @@ export class MpaService {
   getDuLieuMpa(filter: FilterParams, page = 0, size = 20): Observable<ApiResponse<PageResponse<DuLieuMpa>>> {
     return this.http.get<ApiResponse<PageResponse<DuLieuMpa>>>(`${this.api}/mpa`, {
       params: this.toParams({ ...filter, page, size })
+    });
+  }
+
+  getDuLieuMpaSummary(filter: FilterParams): Observable<ApiResponse<{ soKhachHang: number; tongTnt: number; tongDuNo: number }>> {
+    return this.http.get<ApiResponse<{ soKhachHang: number; tongTnt: number; tongDuNo: number }>>(`${this.api}/mpa/summary`, {
+      params: this.toParams(filter)
     });
   }
 
@@ -125,22 +137,22 @@ export class MpaService {
   }
 
   // --- Giao chỉ tiêu BSC ---
-  getBscSoSanh(loaiKy: string, selectedKy: string, doiTuong: string): Observable<ApiResponse<BscSoSanhResult>> {
-    return this.http.get<ApiResponse<BscSoSanhResult>>(`${this.api}/giao-chi-tieu/so-sanh`, {
-      params: new HttpParams()
-        .set('loaiKy', loaiKy)
-        .set('selectedKy', selectedKy)
-        .set('doiTuong', doiTuong)
-    });
+  getBscSoSanh(loaiKy: string, selectedKy: string, doiTuong: string, maDonViCap6?: string): Observable<ApiResponse<BscSoSanhResult>> {
+    let params = new HttpParams()
+      .set('loaiKy', loaiKy)
+      .set('selectedKy', selectedKy)
+      .set('doiTuong', doiTuong);
+    if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);
+    return this.http.get<ApiResponse<BscSoSanhResult>>(`${this.api}/giao-chi-tieu/so-sanh`, { params });
   }
 
-  getQuanLyList(loaiKy: string, selectedKy: string, doiTuong: string): Observable<ApiResponse<ChiTieuQuanLyRow[]>> {
-    return this.http.get<ApiResponse<ChiTieuQuanLyRow[]>>(`${this.api}/giao-chi-tieu/quan-ly`, {
-      params: new HttpParams()
-        .set('loaiKy', loaiKy)
-        .set('selectedKy', selectedKy)
-        .set('doiTuong', doiTuong)
-    });
+  getQuanLyList(loaiKy: string, selectedKy: string, doiTuong: string, maDonViCap6?: string): Observable<ApiResponse<ChiTieuQuanLyRow[]>> {
+    let params = new HttpParams()
+      .set('loaiKy', loaiKy)
+      .set('selectedKy', selectedKy)
+      .set('doiTuong', doiTuong);
+    if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);
+    return this.http.get<ApiResponse<ChiTieuQuanLyRow[]>>(`${this.api}/giao-chi-tieu/quan-ly`, { params });
   }
 
   saveChiTieu(request: ChiTieuBscRequest): Observable<ApiResponse<void>> {
@@ -159,21 +171,36 @@ export class MpaService {
     return this.http.get<ApiResponse<UnitOption[]>>(`${this.api}/giao-chi-tieu/cn-list`);
   }
 
-  getAmListForCt(): Observable<ApiResponse<UnitOption[]>> {
-    return this.http.get<ApiResponse<UnitOption[]>>(`${this.api}/giao-chi-tieu/am-list`);
+  getAmListForCt(maDonViCap6?: string): Observable<ApiResponse<UnitOption[]>> {
+    let params = new HttpParams();
+    if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);
+    return this.http.get<ApiResponse<UnitOption[]>>(`${this.api}/giao-chi-tieu/am-list`, { params });
+  }
+
+  getGiaoChiTieuLatestNgay(): Observable<ApiResponse<string>> {
+    return this.http.get<ApiResponse<string>>(`${this.api}/giao-chi-tieu/latest-ngay`);
+  }
+
+  getXuHuong(loaiKy: string, nam: number, doiTuong: string, maDonViCap6?: string, maAm?: string): Observable<ApiResponse<XuHuongResponse>> {
+    let params = new HttpParams().set('loaiKy', loaiKy).set('nam', String(nam)).set('doiTuong', doiTuong);
+    if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);
+    if (maAm) params = params.set('maAm', maAm);
+    return this.http.get<ApiResponse<XuHuongResponse>>(`${this.api}/giao-chi-tieu/xu-huong`, { params });
   }
 
   // --- Quản lý cán bộ AM ---
-  getQuanLyAmList(search: string, page: number, size: number): Observable<ApiResponse<PageResponse<ThongTinAmItem>>> {
-    const params = new HttpParams()
+  getQuanLyAmList(search: string, maDonViCap6: string | null, page: number, size: number): Observable<ApiResponse<PageResponse<ThongTinAmItem>>> {
+    let params = new HttpParams()
       .set('search', search)
       .set('page', String(page))
       .set('size', String(size));
+    if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);
     return this.http.get<ApiResponse<PageResponse<ThongTinAmItem>>>(`${this.api}/quan-ly-am`, { params });
   }
 
-  getQuanLyAmAll(search: string): Observable<ApiResponse<ThongTinAmItem[]>> {
-    const params = new HttpParams().set('search', search);
+  getQuanLyAmAll(search: string, maDonViCap6: string | null): Observable<ApiResponse<ThongTinAmItem[]>> {
+    let params = new HttpParams().set('search', search);
+    if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);
     return this.http.get<ApiResponse<ThongTinAmItem[]>>(`${this.api}/quan-ly-am/all`, { params });
   }
 
@@ -194,19 +221,22 @@ export class MpaService {
   }
 
   // --- Khách hàng ---
-  getKhachHangList(search: string, typeKhachHang: number | null, page: number, size: number): Observable<ApiResponse<PageResponse<ThongTinKhachHangItem>>> {
+  getKhachHangList(
+    search: string, maDonViCap6: string | null, amSearch: string, phanKhuc: string,
+    page: number, size: number
+  ): Observable<ApiResponse<PageResponse<ThongTinKhachHangItem>>> {
     let params = new HttpParams()
       .set('search', search)
+      .set('amSearch', amSearch)
+      .set('phanKhuc', phanKhuc)
       .set('page', String(page))
       .set('size', String(size));
-    if (typeKhachHang !== null && typeKhachHang !== undefined) {
-      params = params.set('typeKhachHang', String(typeKhachHang));
-    }
+    if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);
     return this.http.get<ApiResponse<PageResponse<ThongTinKhachHangItem>>>(`${this.api}/khach-hang`, { params });
   }
 
-  getKhachHangTypes(): Observable<ApiResponse<number[]>> {
-    return this.http.get<ApiResponse<number[]>>(`${this.api}/khach-hang/types`);
+  getKhachHangPhanKhucList(): Observable<ApiResponse<string[]>> {
+    return this.http.get<ApiResponse<string[]>>(`${this.api}/khach-hang/phan-khuc-list`);
   }
 
   createKhachHang(request: ThongTinKhachHangSaveRequest): Observable<ApiResponse<ThongTinKhachHangItem>> {
@@ -226,9 +256,13 @@ export class MpaService {
     nam: number,
     thang?: number | null,
     quy?: string | null,
+    ngayMoiNhat: boolean = false,
     soVoi: string = 'ky-truoc'
   ): Observable<ApiResponse<KhachHangChiTiet>> {
-    let params = new HttpParams().set('nam', String(nam)).set('soVoi', soVoi);
+    let params = new HttpParams()
+      .set('nam', String(nam))
+      .set('soVoi', soVoi)
+      .set('ngayMoiNhat', String(ngayMoiNhat));
     if (thang != null) params = params.set('thang', String(thang));
     if (quy != null)   params = params.set('quy', quy);
     return this.http.get<ApiResponse<KhachHangChiTiet>>(
@@ -239,7 +273,7 @@ export class MpaService {
   // --- Quản lý thẻ ---
   getTheList(
     search: string, trangThai: string, hinhThuc: string, productCode: string,
-    loaiTheTinDung: string,
+    loaiTheTinDung: string, maDonViCap6: string, amSearch: string,
     chuaKichHoat: boolean, soNgayMin: number, chuaPsgd: boolean, chuaDatPtn: boolean, datPtn: boolean,
     page: number, size: number
   ): Observable<ApiResponse<PageResponse<ThePhatHanhItem>>> {
@@ -249,6 +283,7 @@ export class MpaService {
       .set('hinhThuc', hinhThuc)
       .set('productCode', productCode)
       .set('loaiTheTinDung', loaiTheTinDung)
+      .set('amSearch', amSearch)
       .set('chuaKichHoat', String(chuaKichHoat))
       .set('soNgayMin', String(soNgayMin))
       .set('chuaPsgd', String(chuaPsgd))
@@ -256,6 +291,7 @@ export class MpaService {
       .set('datPtn', String(datPtn))
       .set('page', String(page))
       .set('size', String(size));
+    if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);
     return this.http.get<ApiResponse<PageResponse<ThePhatHanhItem>>>(`${this.api}/the-phat-hanh`, { params });
   }
 

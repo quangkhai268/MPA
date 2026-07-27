@@ -28,14 +28,14 @@
     <div class="summary-card">
       <span class="material-icons" style="color:#0f59a6">account_balance_wallet</span>
       <div>
-        <div class="s-value">{{ formatBillion(summaryTnt()) }}</div>
+        <div class="s-value">{{ formatAmount(summaryTnt()) }}</div>
         <div class="s-label">TNT tổng</div>
       </div>
     </div>
     <div class="summary-card">
       <span class="material-icons" style="color:#009640">trending_up</span>
       <div>
-        <div class="s-value">{{ formatBillion(summaryDuNo()) }}</div>
+        <div class="s-value">{{ formatAmount(summaryDuNo()) }}</div>
         <div class="s-label">Dư nợ cuối kỳ</div>
       </div>
     </div>
@@ -57,42 +57,69 @@
 
   <!-- ===== FILTER BAR ===== -->
   <div class="card filter-bar">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Tìm kiếm khách hàng, mã AM...</mat-label>
-      <input matInput [(ngModel)]="searchText" (keyup.enter)="onSearch()">
-      <span class="material-icons" matSuffix style="cursor:pointer;color:#9ca3af" (click)="onSearch()">search</span>
-    </mat-form-field>
+    <div class="flt-group flt-search">
+      <span class="flt-label">Tìm kiếm</span>
+      <div class="search-box">
+        <input type="text" class="flt-input" placeholder="Khách hàng, mã AM..."
+               [(ngModel)]="searchText" (keyup.enter)="onSearch()">
+        <span class="material-icons search-icon" (click)="onSearch()">search</span>
+      </div>
+    </div>
 
-    <mat-form-field appearance="outline" class="date-field">
-      <mat-label>Từ ngày</mat-label>
-      <input matInput [matDatepicker]="pFrom" [(ngModel)]="fromDate">
-      <mat-datepicker-toggle matSuffix [for]="pFrom"></mat-datepicker-toggle>
-      <mat-datepicker #pFrom></mat-datepicker>
-    </mat-form-field>
+    <div class="flt-group">
+      <span class="flt-label">Loại kỳ</span>
+      <select class="flt-select" [(ngModel)]="loaiKy" (change)="onLoaiKyChange()">
+        <option value="thang">Tháng</option>
+        <option value="quy">Quý</option>
+        <option value="nam">Năm</option>
+        <option value="ngay">Ngày</option>
+      </select>
+    </div>
 
-    <mat-form-field appearance="outline" class="date-field">
-      <mat-label>Đến ngày</mat-label>
-      <input matInput [matDatepicker]="pTo" [(ngModel)]="toDate">
-      <mat-datepicker-toggle matSuffix [for]="pTo"></mat-datepicker-toggle>
-      <mat-datepicker #pTo></mat-datepicker>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="select-field">
-      <mat-label>Đơn vị</mat-label>
-      <mat-select [(ngModel)]="selectedPhong">
-        <mat-option value="">-- Tất cả --</mat-option>
-        @for (p of phongList; track p.ma) {
-          <mat-option [value]="p.ma">{{ p.ten }}</mat-option>
+    <div class="flt-group">
+      <span class="flt-label">Kỳ</span>
+      <select class="flt-select flt-select--ky" [(ngModel)]="selectedKy" (change)="onKyFilterChange()">
+        @for (opt of kyOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
         }
-      </mat-select>
-    </mat-form-field>
+      </select>
+    </div>
 
-    <button mat-flat-button color="primary" (click)="loadData()">
-      <span class="material-icons">filter_list</span> Lọc
-    </button>
-    <button mat-stroked-button (click)="resetFilter()">
-      <span class="material-icons">restart_alt</span>
-    </button>
+    @if (loaiKy === 'nam') {
+      <div class="flt-group">
+        <span class="flt-label">Lũy kế đến tháng</span>
+        @if (namLuyKeOptions.length) {
+          <select class="flt-select" [(ngModel)]="selectedDenThang" (change)="loadData()">
+            @for (t of namLuyKeOptions; track t) {
+              <option [ngValue]="t">Tháng {{ t }}</option>
+            }
+          </select>
+        } @else {
+          <select class="flt-select" disabled>
+            <option>Chưa có dữ liệu</option>
+          </select>
+        }
+      </div>
+    }
+
+    <div class="flt-group">
+      <span class="flt-label">Phòng ban</span>
+      <select class="flt-select flt-select--phong" [(ngModel)]="selectedPhong">
+        <option value="">-- Tất cả --</option>
+        @for (p of phongList; track p.ma) {
+          <option [value]="p.ma">{{ p.ten }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="flt-actions">
+      <button mat-flat-button color="primary" (click)="loadData()">
+        <span class="material-icons">filter_list</span> Lọc
+      </button>
+      <button mat-stroked-button (click)="resetFilter()">
+        <span class="material-icons">restart_alt</span>
+      </button>
+    </div>
   </div>
 
   <!-- ===== DATA TABLE ===== -->
@@ -165,13 +192,13 @@
                 <td>
                   <div class="cell-sub">{{ row.tenSpCap5 || '–' }}</div>
                 </td>
-                <td class="num">{{ row.thuNhapThuanHdvFtp | number:'1.3-3' }}</td>
-                <td class="num">{{ row.thuNhapThuanDichVu | number:'1.3-3' }}</td>
-                <td class="num">{{ row.thuNhapThuanTinDung | number:'1.3-3' }}</td>
-                <td class="num font-semibold primary-val">{{ row.thuNhapThuan | number:'1.3-3' }}</td>
-                <td class="num">{{ row.duNoTinDungCuoiKy | number:'1.3-3' }}</td>
-                <td class="num">{{ row.huyDongVonBinhQuan | number:'1.3-3' }}</td>
-                <td class="num">{{ row.huyDongVonCuoiKy | number:'1.3-3' }}</td>
+                <td class="num">{{ row.thuNhapThuanHdvFtp | number:'1.0-0' }}</td>
+                <td class="num">{{ row.thuNhapThuanDichVu | number:'1.0-0' }}</td>
+                <td class="num">{{ row.thuNhapThuanTinDung | number:'1.0-0' }}</td>
+                <td class="num font-semibold primary-val">{{ row.thuNhapThuan | number:'1.0-0' }}</td>
+                <td class="num">{{ row.duNoTinDungCuoiKy | number:'1.0-0' }}</td>
+                <td class="num">{{ row.huyDongVonBinhQuan | number:'1.0-0' }}</td>
+                <td class="num">{{ row.huyDongVonCuoiKy | number:'1.0-0' }}</td>
               </tr>
             }
           }

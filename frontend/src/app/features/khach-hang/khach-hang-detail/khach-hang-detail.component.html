@@ -8,15 +8,22 @@
     </button>
   </div>
 
-  <!-- ── Loading ────────────────────────────────────────────────────── -->
-  @if (loading()) {
+  <!-- ── Loading (chỉ hiện toàn trang ở lần tải đầu tiên) ──────────── -->
+  @if (loading() && !data()) {
     <div class="loading-wrap">
       <mat-spinner diameter="40"></mat-spinner>
     </div>
   }
 
-  @if (!loading()) {
-    @if (data(); as kh) {
+  @if (data(); as kh) {
+
+      <!-- ── Filter đang tải lại (giữ nguyên dữ liệu cũ) ────────────── -->
+      @if (loading()) {
+        <div class="reload-bar">
+          <mat-spinner diameter="16"></mat-spinner>
+          Đang cập nhật dữ liệu...
+        </div>
+      }
 
       <!-- ── Customer card ───────────────────────────────────────────── -->
       <div class="kh-card">
@@ -68,35 +75,66 @@
       <!-- ── Filter bar ──────────────────────────────────────────────── -->
       <div class="filter-bar">
         <div class="filter-group">
-          <label>Năm</label>
-          <select [(ngModel)]="selectedNam" (ngModelChange)="load()">
-            @for (n of namOptions; track n) {
-              <option [ngValue]="n">{{ n }}</option>
-            }
+          <label>Loại kỳ</label>
+          <select [(ngModel)]="loaiKy" (ngModelChange)="onLoaiKyChange()">
+            <option value="thang">Tháng</option>
+            <option value="quy">Quý</option>
+            <option value="nam">Năm</option>
+            <option value="ngay">Ngày (mới nhất)</option>
           </select>
         </div>
-        <div class="filter-group">
-          <label>Tháng</label>
-          <select [(ngModel)]="selectedThang" (ngModelChange)="load()">
-            <option [ngValue]="null">Cả năm</option>
-            @for (t of thangOptions; track t) {
-              <option [ngValue]="t">Tháng {{ t }}</option>
-            }
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>So với</label>
-          <div class="toggle-group">
-            <button class="toggle-btn" [class.active]="soVoi === 'ky-truoc'"
-                    (click)="setSoVoi('ky-truoc')">
-              Kỳ trước liền kề
-            </button>
-            <button class="toggle-btn" [class.active]="soVoi === 'cung-ky-nam-truoc'"
-                    (click)="setSoVoi('cung-ky-nam-truoc')">
-              Cùng kỳ năm trước
-            </button>
+        @if (loaiKy !== 'ngay') {
+          <div class="filter-group">
+            <label>Năm</label>
+            <select [(ngModel)]="selectedNam" (ngModelChange)="load()">
+              @for (n of namOptions; track n) {
+                <option [ngValue]="n">{{ n }}</option>
+              }
+            </select>
           </div>
-        </div>
+        }
+        @if (loaiKy === 'thang') {
+          <div class="filter-group">
+            <label>Tháng</label>
+            <select [(ngModel)]="selectedThang" (ngModelChange)="load()">
+              @for (t of thangOptions; track t) {
+                <option [ngValue]="t">Tháng {{ t }}</option>
+              }
+            </select>
+          </div>
+        }
+        @if (loaiKy === 'quy') {
+          <div class="filter-group">
+            <label>Quý</label>
+            <select [(ngModel)]="selectedQuy" (ngModelChange)="load()">
+              @for (q of quyOptions; track q) {
+                <option [value]="q">{{ q }}</option>
+              }
+            </select>
+          </div>
+        }
+        @if (loaiKy !== 'ngay') {
+          <div class="filter-group">
+            <label>So với</label>
+            <div class="toggle-group">
+              <button class="toggle-btn" [class.active]="soVoi === 'ky-truoc'"
+                      (click)="setSoVoi('ky-truoc')">
+                Kỳ trước liền kề
+              </button>
+              <button class="toggle-btn" [class.active]="soVoi === 'cung-ky-nam-truoc'"
+                      (click)="setSoVoi('cung-ky-nam-truoc')">
+                Cùng kỳ năm trước
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="filter-group">
+            <span class="ngay-hint">
+              <span class="material-icons">info</span>
+              Luôn hiển thị dữ liệu của ngày mới nhất có trong hệ thống — không so sánh kỳ trước do chưa có lịch sử theo ngày.
+            </span>
+          </div>
+        }
       </div>
 
       <!-- ── Section header ─────────────────────────────────────────── -->
@@ -321,7 +359,44 @@
 
       <!-- ── Section header ─────────────────────────────────────────── -->
       <div class="section-header">
-        <h2>B. Thẻ tín dụng</h2>
+        <h2>B. Dịch vụ / sản phẩm đang sử dụng</h2>
+        <p class="section-sub">
+          Danh sách sản phẩm và kỳ hạn khách hàng đang sử dụng trong kỳ <strong>{{ kh.kyHienTai }}</strong>
+        </p>
+      </div>
+
+      <div class="dv-panel">
+        @if (!kh.danhSachDichVu || kh.danhSachDichVu.length === 0) {
+          <div class="the-empty">Không có dữ liệu sản phẩm/dịch vụ trong kỳ này.</div>
+        } @else {
+          <table class="dv-table">
+            <thead>
+              <tr>
+                <th>SẢN PHẨM (CẤP 5)</th>
+                <th>KỲ HẠN (CẤP 2)</th>
+                <th class="dv-num">THU NHẬP THUẦN</th>
+                <th class="dv-num">HĐV CUỐI KỲ</th>
+                <th class="dv-num">DƯ NỢ</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (dv of kh.danhSachDichVu; track dv.tenSpCap5 + dv.kyHanCap2) {
+                <tr>
+                  <td class="dv-ten-sp">{{ dv.tenSpCap5 }}</td>
+                  <td>{{ dv.kyHanCap2 }}</td>
+                  <td class="dv-num">{{ fmt(dv.thuNhapThuan) }}</td>
+                  <td class="dv-num">{{ fmt(dv.huyDongVonCuoiKy) }}</td>
+                  <td class="dv-num">{{ fmt(dv.duNoTinDungCuoiKy) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+
+      <!-- ── Section header ─────────────────────────────────────────── -->
+      <div class="section-header">
+        <h2>C. Thẻ tín dụng</h2>
       </div>
 
       @if (theLoading()) {
@@ -437,13 +512,12 @@
         </div>
       }
       }
-    } @else {
-      <!-- Empty state -->
-      <div class="empty-state">
-        <span class="material-icons">search_off</span>
-        <p>Không tìm thấy dữ liệu cho khách hàng này.</p>
-      </div>
-    }
+  } @else if (!loading()) {
+    <!-- Empty state -->
+    <div class="empty-state">
+      <span class="material-icons">search_off</span>
+      <p>Không tìm thấy dữ liệu cho khách hàng này.</p>
+    </div>
   }
 
 </div>

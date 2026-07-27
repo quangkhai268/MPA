@@ -25,23 +25,19 @@ public class ThongTinAmServiceImpl implements ThongTinAmService {
     private final PhongBanRepository phongBanRepo;
 
     @Override
-    public Page<ThongTinAmResponse> getList(String search, Short trangThai, int page, int size) {
+    public Page<ThongTinAmResponse> getList(String search, Short trangThai, String maDonViCap6, int page, int size) {
         Map<String, PhongBan> phongMap = buildPhongMap();
         String s = search == null ? "" : search.trim();
-        if (trangThai == null) {
-            return repo.searchAll(s, PageRequest.of(page, size)).map(t -> toResponse(t, phongMap));
-        }
-        return repo.searchByStatus(s, trangThai, PageRequest.of(page, size)).map(t -> toResponse(t, phongMap));
+        String don = (maDonViCap6 == null || maDonViCap6.isBlank()) ? null : maDonViCap6;
+        return repo.search(s, trangThai, don, PageRequest.of(page, size)).map(t -> toResponse(t, phongMap));
     }
 
     @Override
-    public List<ThongTinAmResponse> getAll(String search, Short trangThai) {
+    public List<ThongTinAmResponse> getAll(String search, Short trangThai, String maDonViCap6) {
         Map<String, PhongBan> phongMap = buildPhongMap();
         String s = search == null ? "" : search.trim();
-        List<ThongTinAm> list = trangThai == null
-            ? repo.searchAllList(s)
-            : repo.searchByStatusList(s, trangThai);
-        return list.stream().map(t -> toResponse(t, phongMap)).collect(Collectors.toList());
+        String don = (maDonViCap6 == null || maDonViCap6.isBlank()) ? null : maDonViCap6;
+        return repo.searchList(s, trangThai, don).stream().map(t -> toResponse(t, phongMap)).collect(Collectors.toList());
     }
 
     @Override

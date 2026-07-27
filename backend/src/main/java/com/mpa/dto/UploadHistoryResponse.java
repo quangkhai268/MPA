@@ -15,6 +15,7 @@ public class UploadHistoryResponse {
     private Integer soFile;
     private Integer tongDong;
     private String trangThai;
+    private String kyLabel;
 
     public static UploadHistoryResponse from(UploadHistory e) {
         UploadHistoryResponse r = new UploadHistoryResponse();
@@ -25,6 +26,7 @@ public class UploadHistoryResponse {
         r.soFile = e.getSoFile();
         r.tongDong = e.getTongDong();
         r.trangThai = e.getTrangThai();
+        r.kyLabel = e.getKyLabel();
         return r;
     }
 }

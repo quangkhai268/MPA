@@ -26,6 +26,12 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
         AND (:hinhThuc  IS NULL OR t.hinhThucThe = :hinhThuc)
         AND (:productCode IS NULL OR t.productCode = :productCode)
         AND (:loaiTheTinDung IS NULL OR t.loaiTheTinDung = :loaiTheTinDung)
+        AND (:maDonViCap6 IS NULL OR t.amIssuingContract IN (
+            SELECT a.maAm FROM ThongTinAm a WHERE a.maDonViCap6 = :maDonViCap6))
+        AND (:amSearch = ''
+            OR LOWER(COALESCE(t.amIssuingContract,'')) LIKE LOWER(CONCAT('%', :amSearch, '%'))
+            OR t.amIssuingContract IN (
+                SELECT a.maAm FROM ThongTinAm a WHERE LOWER(a.tenAm) LIKE LOWER(CONCAT('%', :amSearch, '%'))))
         AND (:chuaKichHoat = false OR t.soNgayChuaKichHoat > :soNgayMin)
         AND (:chuaPsgd = false OR (t.soNgayChuaKichHoat = 0 AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn = 0)))
         AND (
@@ -41,6 +47,8 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
             @Param("hinhThuc") String hinhThuc,
             @Param("productCode") String productCode,
             @Param("loaiTheTinDung") String loaiTheTinDung,
+            @Param("maDonViCap6") String maDonViCap6,
+            @Param("amSearch") String amSearch,
             @Param("chuaKichHoat") boolean chuaKichHoat,
             @Param("soNgayMin") int soNgayMin,
             @Param("chuaPsgd") boolean chuaPsgd,

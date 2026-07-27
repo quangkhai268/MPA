@@ -30,13 +30,15 @@ export class KhachHangDetailComponent implements OnInit {
   theSummary = signal<KhachHangTheSummary | null>(null);
 
   // ── Filter ─────────────────────────────────────────────────────────────
+  loaiKy: 'thang' | 'quy' | 'nam' | 'ngay' = 'thang';
   selectedNam:   number = new Date().getFullYear();
-  selectedThang: number | null = new Date().getMonth() + 1;
-  selectedQuy:   string | null = null;
+  selectedThang: number = new Date().getMonth() + 1;
+  selectedQuy:   string = 'Q' + (Math.floor(new Date().getMonth() / 3) + 1);
   soVoi: 'ky-truoc' | 'cung-ky-nam-truoc' = 'ky-truoc';
 
   readonly namOptions = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
   readonly thangOptions = Array.from({ length: 12 }, (_, i) => i + 1);
+  readonly quyOptions = ['Q1', 'Q2', 'Q3', 'Q4'];
 
   readonly PHAN_KHUC_LABELS: Record<number, string> = {
     1: 'KHOI BAN BUON',
@@ -98,14 +100,20 @@ export class KhachHangDetailComponent implements OnInit {
     return 'the-badge-gray';
   }
 
+  onLoaiKyChange(): void { this.load(); }
+
   load(): void {
     if (!this.cif) return;
     this.loading.set(true);
+    const thang = this.loaiKy === 'thang' ? this.selectedThang : null;
+    const quy   = this.loaiKy === 'quy'   ? this.selectedQuy   : null;
+    const ngayMoiNhat = this.loaiKy === 'ngay';
     this.mpaService.getKhachHangChiTiet(
       this.cif,
       this.selectedNam,
-      this.selectedThang,
-      this.selectedQuy,
+      thang,
+      quy,
+      ngayMoiNhat,
       this.soVoi
     ).subscribe({
       next: res => {
@@ -117,7 +125,12 @@ export class KhachHangDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/khach-hang']);
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+    } else {
+      this.router.navigate(['/khach-hang']);
+    }
   }
 
   setSoVoi(v: 'ky-truoc' | 'cung-ky-nam-truoc'): void {

@@ -25,15 +25,27 @@
 
   <!-- ── Search + Toggle ─────────────────────────────────────────── -->
   <div class="search-bar">
-    <div class="search-input-wrap">
-      <span class="material-icons search-icon">search</span>
-      <input
-        class="search-input"
-        [(ngModel)]="searchText"
-        (keyup.enter)="onSearch()"
-        placeholder="Tìm theo tên / mã CB / mã AM...">
+    <div class="filter-group filter-group--search">
+      <label>Tìm kiếm</label>
+      <div class="search-input-wrap">
+        <span class="material-icons search-icon">search</span>
+        <input
+          class="search-input"
+          [(ngModel)]="searchText"
+          (keyup.enter)="onSearch()"
+          placeholder="Tên / mã CB / mã AM...">
+      </div>
     </div>
-    <div class="toggle-group">
+    <div class="filter-group">
+      <label>Phòng</label>
+      <select [(ngModel)]="selectedPhong" (ngModelChange)="onPhongFilterChange()">
+        <option [ngValue]="null">Tất cả phòng</option>
+        @for (p of phongOptions(); track p.ma) {
+          <option [value]="p.ma">{{ p.ten }}</option>
+        }
+      </select>
+    </div>
+    <div class="toggle-group toggle-group--push">
       <button
         class="toggle-btn"
         [class.active]="viewMode === 'can-bo'"
@@ -159,11 +171,15 @@
             <tr class="group-row" (click)="toggleExpand(group.tenAm)">
               <td class="col-stt">{{ i + 1 }}</td>
               <td class="cell-ten">
-                <span class="material-icons expand-icon">
-                  {{ isExpanded(group.tenAm) ? 'expand_more' : 'chevron_right' }}
-                </span>
-                {{ group.tenAm }}
-                <span class="am-count-badge">{{ group.items.length }}</span>
+                <div class="ten-cb-row">
+                  <span class="material-icons expand-icon">
+                    {{ isExpanded(group.tenAm) ? 'expand_more' : 'chevron_right' }}
+                  </span>
+                  <span class="ten-cb-text">
+                    {{ group.tenAm }}
+                    <span class="am-count-badge">{{ group.items.length }}</span>
+                  </span>
+                </div>
               </td>
               <td>
                 @for (item of group.items; track item.id) {

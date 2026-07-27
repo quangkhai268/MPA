@@ -1,5 +1,13 @@
 <div class="page-wrapper">
 
+  @if (toast(); as t) {
+    <div class="toast" [class.toast-success]="t.success" [class.toast-error]="!t.success">
+      <span class="material-icons toast-icon">{{ t.success ? 'check_circle' : 'error' }}</span>
+      <span class="toast-text">{{ t.text }}</span>
+      <button class="toast-close" (click)="closeToast()"><span class="material-icons">close</span></button>
+    </div>
+  }
+
   <!-- ── PAGE HEADER ──────────────────────────────────────────────── -->
   <div class="page-header">
     <div class="header-left">
@@ -18,6 +26,7 @@
           <option value="thang">Tháng</option>
           <option value="quy">Quý</option>
           <option value="nam">Năm</option>
+          <option value="ngay">Ngày</option>
         </select>
       </div>
 
@@ -52,14 +61,50 @@
         </div>
       }
 
+      @if (loaiKy === 'nam') {
+        <div class="filter-item">
+          <label>Lũy kế đến tháng</label>
+          @if (namLuyKeOptions.length) {
+            <select [(ngModel)]="selectedDenThang">
+              @for (t of namLuyKeOptions; track t) {
+                <option [ngValue]="t">Tháng {{ t }}</option>
+              }
+            </select>
+          } @else {
+            <select disabled>
+              <option>Chưa có dữ liệu</option>
+            </select>
+          }
+        </div>
+      }
+
       <div class="filter-item">
         <label>Đối tượng giao</label>
-        <select [(ngModel)]="doiTuong" (change)="onFilterChange()">
-          <option value="phong">Phòng nghiệp vụ</option>
+        <select [(ngModel)]="doiTuong" (change)="onDoiTuongChange()">
           <option value="chi-nhanh">Chi nhánh</option>
+          <option value="phong">Phòng nghiệp vụ</option>
           <option value="am">Cán bộ AM</option>
         </select>
       </div>
+
+      @if (showPhongBanFilter) {
+        <div class="filter-item">
+          <label>Phòng ban</label>
+          <select [(ngModel)]="filterPhongBan" (change)="onFilterChange()">
+            <option value="">Tất cả phòng</option>
+            @for (p of filterPhongOptions(); track p.ma) {
+              <option [value]="p.ma">{{ p.ten }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      @if (showAmSearch) {
+        <div class="filter-item">
+          <label>Tìm cán bộ AM</label>
+          <input type="text" [(ngModel)]="filterAmSearch" placeholder="Tên cán bộ hoặc mã AM..." />
+        </div>
+      }
 
     </div>
 
@@ -72,7 +117,7 @@
       <mat-icon>bar_chart</mat-icon> Dashboard so sánh
     </button>
     <button class="tab-btn" [class.active]="activeTab === 'xu-huong'" (click)="setTab('xu-huong')">
-      <mat-icon>trending_up</mat-icon> Xu hướng theo tháng
+      <mat-icon>trending_up</mat-icon> Xu hướng
     </button>
     <button class="tab-btn" [class.active]="activeTab === 'quan-ly'" (click)="setTab('quan-ly')">
       <mat-icon>settings</mat-icon> Quản lý chỉ tiêu
@@ -140,6 +185,7 @@
         <table class="bsc-table">
           <thead>
             <tr>
+              <th class="th-stt">STT</th>
               <th class="th-unit sticky-col">{{ unitColumnLabel }}</th>
               <th>HĐV CUỐI KỲ</th>
               <th>CASA BÌNH QUÂN</th>
@@ -151,16 +197,17 @@
             </tr>
           </thead>
           <tbody>
-            @if (!data() || data()!.rows.length === 0) {
+            @if (!data() || filteredSoSanhRows.length === 0) {
               <tr>
-                <td colspan="8" class="empty-row">
+                <td colspan="9" class="empty-row">
                   <mat-icon>inbox</mat-icon>
-                  <span>Không có dữ liệu cho kỳ đã chọn</span>
+                  <span>{{ filterAmSearch ? 'Không tìm thấy cán bộ AM phù hợp' : 'Không có dữ liệu cho kỳ đã chọn' }}</span>
                 </td>
               </tr>
             }
-            @for (row of data()?.rows ?? []; track row.maUnit) {
+            @for (row of filteredSoSanhRows; track row.maUnit; let i = $index) {
               <tr>
+                <td class="td-stt">{{ i + 1 }}</td>
                 <td class="td-unit sticky-col">
                   <div class="unit-name">{{ row.tenUnit }}</div>
                   <div class="unit-code">{{ row.maUnit }}</div>
@@ -273,15 +320,40 @@
   }
 
   <!-- ══════════════════════════════════════════════════════════════ -->
-  <!--  TAB: XU HƯỚNG THEO THÁNG                                     -->
+  <!--  TAB: XU HƯỚNG                                                -->
   <!-- ══════════════════════════════════════════════════════════════ -->
   @if (activeTab === 'xu-huong') {
-    <div class="placeholder-tab">
-      <mat-icon>trending_up</mat-icon>
-      <h3>Xu hướng theo tháng</h3>
-      <p>Biểu đồ xu hướng thực hiện so với kế hoạch từng tháng trong năm.</p>
-      <span class="coming-soon">Đang phát triển</span>
-    </div>
+
+    @if (loaiKy === 'ngay') {
+      <div class="placeholder-tab">
+        <mat-icon>trending_up</mat-icon>
+        <h3>Xu hướng</h3>
+        <p>Biểu đồ xu hướng chưa hỗ trợ cho Loại kỳ "Ngày". Vui lòng chọn Tháng, Quý hoặc Năm.</p>
+        <span class="coming-soon">Chưa hỗ trợ</span>
+      </div>
+    } @else if (xuHuongLoading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span>Đang tải dữ liệu xu hướng...</span>
+      </div>
+    } @else {
+      <div class="table-toolbar">
+        <div class="table-title">
+          Xu hướng thực hiện vs kế hoạch — {{ periodLabel }} · Theo {{ doiTuongLabel }}
+        </div>
+      </div>
+
+      <div class="xu-huong-grid">
+        @for (chart of xuHuongCharts(); track chart.metricKey) {
+          <div class="xu-huong-card">
+            <div class="xu-huong-card-title">{{ chart.label }}</div>
+            <div class="chart-container">
+              <canvas baseChart [data]="chart.data" [options]="xuHuongChartOptions" type="bar"></canvas>
+            </div>
+          </div>
+        }
+      </div>
+    }
   }
 
   <!-- ══════════════════════════════════════════════════════════════ -->
@@ -291,7 +363,7 @@
 
     <!-- Toolbar -->
     <div class="table-toolbar">
-      <div class="table-title">Quản lý chỉ tiêu BSC kế hoạch – Năm {{ selectedNam }}</div>
+      <div class="table-title">Quản lý chỉ tiêu BSC kế hoạch – {{ periodLabel }}</div>
       <div class="table-actions">
         <button class="btn-add" (click)="openDialog()">
           <mat-icon>add</mat-icon> Thêm chỉ tiêu
@@ -326,15 +398,15 @@
             </tr>
           </thead>
           <tbody>
-            @if (quanLyList().length === 0) {
+            @if (filteredQuanLyRows.length === 0) {
               <tr>
                 <td colspan="10" class="empty-row">
                   <mat-icon>inbox</mat-icon>
-                  <span>Chưa có chỉ tiêu. Nhấn "Thêm chỉ tiêu" để bắt đầu giao.</span>
+                  <span>{{ filterAmSearch ? 'Không tìm thấy cán bộ AM phù hợp' : 'Chưa có chỉ tiêu. Nhấn "Thêm chỉ tiêu" để bắt đầu giao.' }}</span>
                 </td>
               </tr>
             }
-            @for (row of quanLyList(); track row.id; let i = $index) {
+            @for (row of filteredQuanLyRows; track row.id; let i = $index) {
               <tr>
                 <td class="td-stt">{{ i + 1 }}</td>
                 <td class="td-unit sticky-col">
@@ -406,7 +478,7 @@
               <select [(ngModel)]="dlgMaUnit" (change)="onUnitSelect()" class="form-select">
                 <option value="">— Chọn —</option>
                 @for (opt of unitOptions(); track opt.ma) {
-                  <option [value]="opt.ma">{{ opt.ten }}</option>
+                  <option [value]="opt.ma">{{ opt.ten }}{{ dlgDoiTuong === 'am' ? ' — ' + opt.ma : '' }}</option>
                 }
               </select>
             </div>
@@ -424,10 +496,11 @@
             <!-- Mục tiêu -->
             <div class="form-row">
               <label class="form-label">Mục tiêu (triệu VND)</label>
-              <input type="number" [(ngModel)]="dlgMucTieu"
-                     placeholder="VD: 350000"
-                     class="form-input"
-                     min="0" step="0.001" />
+              <input type="text" inputmode="numeric"
+                     [ngModel]="dlgMucTieuDisplay"
+                     (ngModelChange)="onMucTieuInput($event)"
+                     placeholder="VD: 350.000"
+                     class="form-input" />
             </div>
 
           </div>
@@ -447,6 +520,25 @@
       </div>
     }
 
+  }
+
+  <!-- ── CONFIRM DIALOG (thay window.confirm) ─────────────────────── -->
+  @if (showConfirmDialog()) {
+    <div class="dialog-overlay" (click)="onConfirmDialog(false)">
+      <div class="dialog-box confirm-box" (click)="$event.stopPropagation()">
+        <div class="dialog-header">
+          <mat-icon class="confirm-warn-icon">warning</mat-icon>
+          <h3>Thông báo</h3>
+        </div>
+        <div class="dialog-body">
+          <p class="confirm-message">{{ confirmMessage() }}</p>
+        </div>
+        <div class="dialog-footer">
+          <button class="btn-cancel" (click)="onConfirmDialog(false)">Huỷ</button>
+          <button class="btn-save" (click)="onConfirmDialog(true)">OK</button>
+        </div>
+      </div>
+    </div>
   }
 
 </div>

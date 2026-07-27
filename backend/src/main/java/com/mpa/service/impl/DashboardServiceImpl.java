@@ -1,11 +1,16 @@
 package com.mpa.service.impl;
 
 import com.mpa.dto.AmDetailResponse;
+import com.mpa.dto.AmTopResponse;
+import com.mpa.dto.BienDongKhResponse;
 import com.mpa.dto.DashboardKpiResponse;
+import com.mpa.dto.KhachHangTopResponse;
 import com.mpa.dto.KpiSumResult;
 import com.mpa.dto.PhongDataResponse;
 import com.mpa.dto.PhongTrendSeriesResponse;
 import com.mpa.dto.TrendDataResponse;
+import com.mpa.repository.ChiTieuBscRepository;
+import com.mpa.repository.ThucHienBscKhachHangRepository;
 import com.mpa.repository.ThucHienBscRepository;
 import com.mpa.repository.DuLieuMpaRepository;
 import com.mpa.service.DashboardService;
@@ -25,8 +30,10 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class DashboardServiceImpl implements DashboardService {
 
-    private final DuLieuMpaRepository mpaRepo;   // thực tế → du_lieu_mpa
-    private final ThucHienBscRepository bscRepo;  // thực hiện/kế hoạch → thuc_hien_bsc_chi_nhanh
+    private final DuLieuMpaRepository mpaRepo;    // thực tế → du_lieu_mpa
+    private final ThucHienBscRepository bscRepo;  // thực hiện → thuc_hien_bsc_chi_nhanh
+    private final ChiTieuBscRepository chiTieuBscRepo; // kế hoạch/chỉ tiêu → chi_tieu_bsc_chi_nhanh (menu Giao chỉ tiêu)
+    private final ThucHienBscKhachHangRepository bscKhRepo; // thực hiện theo khách hàng → thuc_hien_bsc_khach_hang
 
     // ── KPI ────────────────────────────────────────────────────────
 
@@ -34,8 +41,9 @@ public class DashboardServiceImpl implements DashboardService {
     public DashboardKpiResponse getKpi(String loaiKy, String selectedKy, String soVoi) {
         KpiSumResult current, prev, kh;
 
-        // current & prev đều lấy từ thuc_hien_bsc_chi_nhanh (type_data=1)
-        // kh (BSC năm) lấy từ thuc_hien_bsc_chi_nhanh (type_data=0)
+        // current & prev đều lấy từ thuc_hien_bsc_chi_nhanh (type_data=1/5/6)
+        // kh (chỉ tiêu năm) lấy từ chi_tieu_bsc_chi_nhanh (type_data=0, menu Giao chỉ tiêu) —
+        // type_data=0 ở thuc_hien_bsc_chi_nhanh không còn ai ghi vào, không dùng nữa.
         switch (loaiKy == null ? "thang" : loaiKy) {
             case "quy" -> {
                 String[] parts = selectedKy.split("/");
@@ -49,13 +57,13 @@ public class DashboardServiceImpl implements DashboardService {
 
                 current = bscRepo.sumThucHienByQuyNam(quyStr, y);
                 prev    = bscRepo.sumThucHienByQuyNam(prevQuyStr, prevY);
-                kh      = bscRepo.sumKhByNam(y);
+                kh      = khTuChiTieu(y);
             }
             case "nam" -> {
                 int y = Integer.parseInt(selectedKy);
                 current = bscRepo.sumThucHienByNam(y);
                 prev    = bscRepo.sumThucHienByNam(y - 1);
-                kh      = bscRepo.sumKhByNam(y);
+                kh      = khTuChiTieu(y);
             }
             case "ngay" -> {
                 // BSC không có dữ liệu theo ngày → dùng tháng của ngày được chọn
@@ -65,7 +73,7 @@ public class DashboardServiceImpl implements DashboardService {
                 if (prevM <= 0) { prevM = 12; prevY--; }
                 current = bscRepo.sumThucHienByThangNam(m, y);
                 prev    = bscRepo.sumThucHienByThangNam(prevM, prevY);
-                kh      = bscRepo.sumKhByNam(y);
+                kh      = khTuChiTieu(y);
             }
             default -> {  // thang
                 String[] parts = selectedKy.split("/");
@@ -80,11 +88,29 @@ public class DashboardServiceImpl implements DashboardService {
                 }
                 current = bscRepo.sumThucHienByThangNam(m, y);
                 prev    = bscRepo.sumThucHienByThangNam(prevM, prevY);
-                kh      = bscRepo.sumKhByNam(y);
+                kh      = khTuChiTieu(y);
             }
         }
 
         return buildKpiResponse(current, prev, kh);
+    }
+
+    /** Chỉ tiêu (kế hoạch) năm ở mức tổng chi nhánh — nguồn từ chi_tieu_bsc_chi_nhanh (menu Giao chỉ tiêu). */
+    private KpiSumResult khTuChiTieu(int nam) {
+        List<Object[]> rows = chiTieuBscRepo.keHoachCnByNam(nam);
+        if (rows.isEmpty()) {
+            return new KpiSumResult(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
+                    BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        }
+        Object[] r = rows.get(0);
+        return new KpiSumResult(
+                r[2] == null ? BigDecimal.ZERO : (BigDecimal) r[2],
+                r[3] == null ? BigDecimal.ZERO : (BigDecimal) r[3],
+                r[4] == null ? BigDecimal.ZERO : (BigDecimal) r[4],
+                r[5] == null ? BigDecimal.ZERO : (BigDecimal) r[5],
+                r[6] == null ? BigDecimal.ZERO : (BigDecimal) r[6],
+                r[7] == null ? BigDecimal.ZERO : (BigDecimal) r[7],
+                r[8] == null ? BigDecimal.ZERO : (BigDecimal) r[8]);
     }
 
     // ── Trend ──────────────────────────────────────────────────────
@@ -161,11 +187,11 @@ public class DashboardServiceImpl implements DashboardService {
     // soKhachHang: du_lieu_mpa (COUNT(*) per ma_don_vi_cap_6 for the period)
 
     @Override
-    public List<PhongDataResponse> getPhongData(String loaiKy, String selectedKy, String soVoi) {
+    public List<PhongDataResponse> getPhongData(String loaiKy, String selectedKy, String soVoi, Integer denThangLuyKe) {
         List<Object[]> curRows = bscPhongCurrent(loaiKy, selectedKy);
         List<Object[]> prvRows = bscPhongPrev(loaiKy, selectedKy, soVoi);
         List<Object[]> amRows  = bscAmCount(loaiKy, selectedKy);
-        List<Object[]> khRows  = mpaAmKh(loaiKy, selectedKy);
+        List<Object[]> khRows  = mpaAmKh(loaiKy, selectedKy, denThangLuyKe);
 
         Map<String, Object[]> prevMap = prvRows.stream().collect(
             Collectors.toMap(r -> (String) r[0], r -> r, (a, b) -> a));
@@ -209,8 +235,10 @@ public class DashboardServiceImpl implements DashboardService {
                     .thuNhapThuan(curTnt)
                     .thuNhapThuanPrevious(prvTnt != null ? prvTnt : BigDecimal.ZERO)
                     .hdvCuoiKy(curHdvCk)
+                    .hdvCuoiKyPrevious(prvHdvCk != null ? prvHdvCk : BigDecimal.ZERO)
                     .hdvBinhQuan(curCasa)
                     .duNo(curDuNo)
+                    .duNoPrevious(prvDuNo != null ? prvDuNo : BigDecimal.ZERO)
                     .thuNhapThuanDichVu(curTntDv)
                     .thuNhapThuanHdvFtp(curTntHdv)
                     .thuNhapThuanTinDung(curTntTd)
@@ -290,13 +318,17 @@ public class DashboardServiceImpl implements DashboardService {
         };
     }
 
-    private List<Object[]> mpaAmKh(String loaiKy, String selectedKy) {
+    private List<Object[]> mpaAmKh(String loaiKy, String selectedKy, Integer denThangLuyKe) {
         return switch (loaiKy == null ? "thang" : loaiKy) {
             case "quy" -> {
                 String[] p = selectedKy.split("/");
                 yield mpaRepo.phongKhCountByQuyNam("Q" + p[0].replace("Q",""), Integer.parseInt(p[1]));
             }
-            case "nam" -> mpaRepo.phongKhCountByNam(Integer.parseInt(selectedKy));
+            case "nam" -> {
+                int y = Integer.parseInt(selectedKy);
+                Integer thang = denThangLuyKe != null ? denThangLuyKe : mpaRepo.findLatestThangForNamLuyKe(y);
+                yield thang != null ? mpaRepo.phongKhCountByNamLuyKe(thang, y) : List.of();
+            }
             default -> {
                 int m, y;
                 if ("ngay".equals(loaiKy)) {
@@ -307,6 +339,11 @@ public class DashboardServiceImpl implements DashboardService {
                 yield mpaRepo.phongKhCountByThangNam(m, y);
             }
         };
+    }
+
+    @Override
+    public List<Integer> getNamLuyKeOptions(int nam) {
+        return mpaRepo.findAvailableThangForNamLuyKe(nam);
     }
 
     // ── AM Detail (chi_tieu_bsc, type_data=3) ──────────────────────
@@ -483,6 +520,269 @@ public class DashboardServiceImpl implements DashboardService {
             .limit(5)
             .map(AbstractMap.SimpleEntry::getValue)
             .collect(Collectors.toList());
+    }
+
+    // ── Top AM / Top Khách hàng ──────────────────────────────────────
+
+    /**
+     * Vị trí cột chỉ tiêu trong hàng [.., hdvCuoiKy, casaBinhQuan, duNo, tntDichVu, tntHdvFtp, tntTinDung, tnt]
+     * — offset là số cột "mô tả" đứng trước (VD 3 với hàng AM, 4 với hàng khách hàng).
+     */
+    private int topMetricColIndex(String metricKey, int offset) {
+        return offset + switch (metricKey == null ? "tong-tnt" : metricKey) {
+            case "hdv-cuoi-ky"  -> 0;
+            case "casa"         -> 1;
+            case "du-no"        -> 2;
+            case "tnt-dich-vu"  -> 3;
+            case "tnt-hdv"      -> 4;
+            case "tnt-tin-dung" -> 5;
+            default             -> 6; // tong-tnt
+        };
+    }
+
+    private BigDecimal metricValueFromKpi(KpiSumResult r, String metricKey) {
+        return switch (metricKey == null ? "tong-tnt" : metricKey) {
+            case "hdv-cuoi-ky"  -> r.getHuyDongVonCuoiKy();
+            case "casa"         -> r.getCasaBinhQuan();
+            case "du-no"        -> r.getDuNoTinDungCuoiKy();
+            case "tnt-dich-vu"  -> r.getThuNhapThuanDichVu();
+            case "tnt-hdv"      -> r.getThuNhapThuanHdvFtp();
+            case "tnt-tin-dung" -> r.getThuNhapThuanTinDung();
+            default             -> r.getThuNhapThuan();
+        };
+    }
+
+    @Override
+    public List<AmTopResponse> getTopAm(String loaiKy, String selectedKy, String soVoi, String metricKey, int limit) {
+        List<Object[]> curRows;
+        List<Object[]> prevRows;
+        switch (loaiKy == null ? "thang" : loaiKy) {
+            case "quy" -> {
+                String[] p = selectedKy.split("/");
+                int q = Integer.parseInt(p[0].replace("Q", "")), y = Integer.parseInt(p[1]);
+                int pq = q - 1, py = y; if (pq <= 0) { pq = 4; py--; }
+                if ("dau-nam".equals(soVoi)) { pq = 1; py = y; }
+                curRows  = bscRepo.topAmByQuyNam("Q" + q, y);
+                prevRows = bscRepo.topAmByQuyNam("Q" + pq, py);
+            }
+            case "nam" -> {
+                int y = Integer.parseInt(selectedKy);
+                curRows  = bscRepo.topAmByNam(y);
+                prevRows = bscRepo.topAmByNam(y - 1);
+            }
+            default -> {
+                int m, y;
+                if ("ngay".equals(loaiKy)) {
+                    LocalDate d = LocalDate.parse(selectedKy); m = d.getMonthValue(); y = d.getYear();
+                } else {
+                    String[] p = selectedKy.split("/"); m = Integer.parseInt(p[0]); y = Integer.parseInt(p[1]);
+                }
+                int pm = m - 1, py = y; if (pm <= 0) { pm = 12; py--; }
+                if ("dau-nam".equals(soVoi))        { pm = 1; py = y; }
+                else if ("quy-truoc".equals(soVoi)) { pm -= 3; if (pm <= 0) { pm += 12; py--; } }
+                curRows  = bscRepo.topAmByThangNam(m, y);
+                prevRows = bscRepo.topAmByThangNam(pm, py);
+            }
+        }
+
+        Map<String, Integer> khCountMap = topAmKhCount(loaiKy, selectedKy);
+        int valIdx = topMetricColIndex(metricKey, 3);
+        Map<String, Object[]> prevMap = prevRows.stream()
+                .filter(r -> r[0] != null)
+                .collect(Collectors.toMap(r -> (String) r[0], r -> r, (a, b) -> a));
+
+        return curRows.stream()
+                .sorted((a, b) -> toBd(b[valIdx]).compareTo(toBd(a[valIdx])))
+                .limit(limit)
+                .map(r -> {
+                    String maAm = (String) r[0];
+                    BigDecimal cur = toBd(r[valIdx]);
+                    Object[] pr = prevMap.get(maAm);
+                    BigDecimal prev = pr != null ? toBd(pr[valIdx]) : null;
+                    return AmTopResponse.builder()
+                            .maAm(maAm)
+                            .tenAm(r[1] != null ? (String) r[1] : maAm)
+                            .tenDonViCap6(r[2] != null ? (String) r[2] : "")
+                            .hdvCuoiKy(toBd(r[3]))
+                            .duNo(toBd(r[5]))
+                            .thuNhapThuan(toBd(r[9]))
+                            .value(cur)
+                            .soKhachHang(khCountMap.getOrDefault(maAm, 0))
+                            .thuNhapThuanPrevious(prev)
+                            .change(prev != null ? cur.subtract(prev) : null)
+                            .changePercent(pctChange(cur, prev))
+                            .build();
+                }).collect(Collectors.toList());
+    }
+
+    private Map<String, Integer> topAmKhCount(String loaiKy, String selectedKy) {
+        List<Object[]> rows = switch (loaiKy == null ? "thang" : loaiKy) {
+            case "quy" -> {
+                String[] p = selectedKy.split("/");
+                yield bscKhRepo.countKhByAmQuyNam("Q" + p[0].replace("Q", ""), Integer.parseInt(p[1]));
+            }
+            case "nam" -> bscKhRepo.countKhByAmNam(Integer.parseInt(selectedKy));
+            default -> {
+                int m, y;
+                if ("ngay".equals(loaiKy)) {
+                    LocalDate d = LocalDate.parse(selectedKy); m = d.getMonthValue(); y = d.getYear();
+                } else {
+                    String[] p = selectedKy.split("/"); m = Integer.parseInt(p[0]); y = Integer.parseInt(p[1]);
+                }
+                yield bscKhRepo.countKhByAmThangNam(m, y);
+            }
+        };
+        return rows.stream()
+                .filter(r -> r[0] != null)
+                .collect(Collectors.toMap(r -> (String) r[0], r -> ((Number) r[1]).intValue(), (a, b) -> a));
+    }
+
+    @Override
+    public List<KhachHangTopResponse> getTopKh(String loaiKy, String selectedKy, String soVoi, String metricKey, int limit) {
+        List<Object[]> rows = switch (loaiKy == null ? "thang" : loaiKy) {
+            case "quy" -> {
+                String[] p = selectedKy.split("/");
+                yield bscKhRepo.topKhByQuyNam("Q" + p[0].replace("Q", ""), Integer.parseInt(p[1]));
+            }
+            case "nam" -> bscKhRepo.topKhByNam(Integer.parseInt(selectedKy));
+            default -> {
+                int m, y;
+                if ("ngay".equals(loaiKy)) {
+                    LocalDate d = LocalDate.parse(selectedKy); m = d.getMonthValue(); y = d.getYear();
+                } else {
+                    String[] p = selectedKy.split("/"); m = Integer.parseInt(p[0]); y = Integer.parseInt(p[1]);
+                }
+                yield bscKhRepo.topKhByThangNam(m, y);
+            }
+        };
+
+        int valIdx = topMetricColIndex(metricKey, 4);
+
+        return rows.stream()
+                .sorted((a, b) -> toBd(b[valIdx]).compareTo(toBd(a[valIdx])))
+                .limit(limit)
+                .map(r -> {
+                    String cif = (String) r[0];
+                    BigDecimal cur  = toBd(r[valIdx]);
+                    BigDecimal tnt  = toBd(r[10]);
+                    BigDecimal prev = topKhPrevSum(loaiKy, selectedKy, soVoi, cif, metricKey);
+                    return KhachHangTopResponse.builder()
+                            .maKhCif(cif)
+                            .tenKhachHang(r[1] != null ? (String) r[1] : cif)
+                            .tenDonViCap6(r[2] != null ? (String) r[2] : "")
+                            .tenAm(r[3] != null ? (String) r[3] : "")
+                            .thuNhapThuan(tnt)
+                            .thuNhapThuanPrevious(prev)
+                            .value(cur)
+                            .change(cur.subtract(prev))
+                            .changePercent(pctChange(cur, prev))
+                            .build();
+                }).collect(Collectors.toList());
+    }
+
+    private BigDecimal topKhPrevSum(String loaiKy, String selectedKy, String soVoi, String cif, String metricKey) {
+        KpiSumResult r = switch (loaiKy == null ? "thang" : loaiKy) {
+            case "quy" -> {
+                String[] p = selectedKy.split("/");
+                int q = Integer.parseInt(p[0].replace("Q", "")), y = Integer.parseInt(p[1]);
+                int pq = q - 1, py = y; if (pq <= 0) { pq = 4; py--; }
+                if ("dau-nam".equals(soVoi)) { pq = 1; py = y; }
+                yield bscKhRepo.sumByCifAndQuyNam(cif, "Q" + pq, py);
+            }
+            case "nam" -> bscKhRepo.sumByCifAndNam(cif, Integer.parseInt(selectedKy) - 1);
+            default -> {
+                int m, y;
+                if ("ngay".equals(loaiKy)) {
+                    LocalDate d = LocalDate.parse(selectedKy); m = d.getMonthValue(); y = d.getYear();
+                } else {
+                    String[] p = selectedKy.split("/"); m = Integer.parseInt(p[0]); y = Integer.parseInt(p[1]);
+                }
+                int pm = m - 1, py = y; if (pm <= 0) { pm = 12; py--; }
+                if ("dau-nam".equals(soVoi))        { pm = 1; py = y; }
+                else if ("quy-truoc".equals(soVoi)) { pm -= 3; if (pm <= 0) { pm += 12; py--; } }
+                yield bscKhRepo.sumByCifAndThangNam(cif, pm, py);
+            }
+        };
+        return metricValueFromKpi(r, metricKey);
+    }
+
+    @Override
+    public BienDongKhResponse getBienDongKh(String loaiKy, String selectedKy, String soVoi, String metricKey, int limit) {
+        List<Object[]> curRows;
+        List<Object[]> prevRows;
+        switch (loaiKy == null ? "thang" : loaiKy) {
+            case "quy" -> {
+                String[] p = selectedKy.split("/");
+                int q = Integer.parseInt(p[0].replace("Q", "")), y = Integer.parseInt(p[1]);
+                int pq = q - 1, py = y; if (pq <= 0) { pq = 4; py--; }
+                if ("dau-nam".equals(soVoi)) { pq = 1; py = y; }
+                curRows  = bscKhRepo.topKhByQuyNam("Q" + q, y);
+                prevRows = bscKhRepo.topKhByQuyNam("Q" + pq, py);
+            }
+            case "nam" -> {
+                int y = Integer.parseInt(selectedKy);
+                curRows  = bscKhRepo.topKhByNam(y);
+                prevRows = bscKhRepo.topKhByNam(y - 1);
+            }
+            default -> {
+                int m, y;
+                if ("ngay".equals(loaiKy)) {
+                    LocalDate d = LocalDate.parse(selectedKy); m = d.getMonthValue(); y = d.getYear();
+                } else {
+                    String[] p = selectedKy.split("/"); m = Integer.parseInt(p[0]); y = Integer.parseInt(p[1]);
+                }
+                int pm = m - 1, py = y; if (pm <= 0) { pm = 12; py--; }
+                if ("dau-nam".equals(soVoi))        { pm = 1; py = y; }
+                else if ("quy-truoc".equals(soVoi)) { pm -= 3; if (pm <= 0) { pm += 12; py--; } }
+                curRows  = bscKhRepo.topKhByThangNam(m, y);
+                prevRows = bscKhRepo.topKhByThangNam(pm, py);
+            }
+        }
+
+        int valIdx = topMetricColIndex(metricKey, 4);
+        Map<String, Object[]> prevMap = prevRows.stream()
+                .filter(r -> r[0] != null)
+                .collect(Collectors.toMap(r -> (String) r[0], r -> r, (a, b) -> a));
+
+        List<KhachHangTopResponse> all = curRows.stream()
+                .filter(r -> r[0] != null)
+                .map(r -> {
+                    String cif = (String) r[0];
+                    Object[] pr = prevMap.get(cif);
+                    BigDecimal cur = toBd(r[valIdx]);
+                    BigDecimal prev = pr != null ? toBd(pr[valIdx]) : null;
+                    Double pct = pctChange(cur, prev);
+                    if (pct == null) return null;
+                    return KhachHangTopResponse.builder()
+                            .maKhCif(cif)
+                            .tenKhachHang(r[1] != null ? (String) r[1] : cif)
+                            .tenDonViCap6(r[2] != null ? (String) r[2] : "")
+                            .tenAm(r[3] != null ? (String) r[3] : "")
+                            .thuNhapThuan(toBd(r[10]))
+                            .thuNhapThuanPrevious(prev)
+                            .value(cur)
+                            .change(cur.subtract(prev))
+                            .changePercent(pct)
+                            .build();
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        // Xếp hạng theo số tiền thay đổi tuyệt đối (không theo %) — tránh trường hợp
+        // kỳ trước gần bằng 0 khiến % biến động phi thực tế (VD hàng chục triệu %) chi phối top.
+        List<KhachHangTopResponse> tang = all.stream()
+                .filter(k -> k.getChange().signum() > 0)
+                .sorted((a, b) -> b.getChange().compareTo(a.getChange()))
+                .limit(limit)
+                .collect(Collectors.toList());
+
+        List<KhachHangTopResponse> giam = all.stream()
+                .filter(k -> k.getChange().signum() < 0)
+                .sorted(Comparator.comparing(KhachHangTopResponse::getChange))
+                .limit(limit)
+                .collect(Collectors.toList());
+
+        return new BienDongKhResponse(tang, giam);
     }
 
     // ── Helpers ────────────────────────────────────────────────────

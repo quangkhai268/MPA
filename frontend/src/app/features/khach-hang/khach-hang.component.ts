@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -13,17 +13,20 @@ import { PageResponse } from '../../core/models/user.model';
 @Component({
   selector: 'app-khach-hang',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule, DatePipe],
+  imports: [CommonModule, FormsModule, RouterModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule],
   templateUrl: './khach-hang.component.html',
   styleUrl: './khach-hang.component.scss'
 })
 export class KhachHangComponent implements OnInit {
   private mpaService = inject(MpaService);
   private router = inject(Router);
+  private route  = inject(ActivatedRoute);
 
   // ── Filter ────────────────────────────────────────────────────────────
   searchText     = '';
-  selectedType: number | null = null;
+  selectedPhanKhuc: string | null = null;
+  selectedPhong: string | null = null;
+  amSearchText   = '';
 
   // ── Data ─────────────────────────────────────────────────────────────
   loading  = signal(false);
@@ -32,7 +35,7 @@ export class KhachHangComponent implements OnInit {
   readonly pageSize = 20;
 
   // ── Dropdown options ─────────────────────────────────────────────────
-  phanKhucTypes = signal<{ value: number; label: string }[]>([]);
+  phanKhucList  = signal<string[]>([]);
   phongOptions  = signal<UnitOption[]>([]);
   amOptions     = signal<{ ma: string; ten: string }[]>([]);
 
@@ -49,20 +52,65 @@ export class KhachHangComponent implements OnInit {
   editId: number | null = null;
   dlg: ThongTinKhachHangSaveRequest = this.emptyDlg();
 
+  // ── Giữ vị trí cuộn + filter khi back từ trang chi tiết KH ─────────────
+  private readonly scrollKey = 'kh-scroll-pos';
+
   ngOnInit(): void {
-    this.loadPage(0);
+    const qp = this.route.snapshot.queryParamMap;
+    if (qp.keys.length > 0) {
+      this.searchText       = qp.get('q') ?? '';
+      this.amSearchText     = qp.get('am') ?? '';
+      this.selectedPhanKhuc = qp.get('phanKhuc');
+      this.selectedPhong    = qp.get('phong');
+      this.currentPage      = Number(qp.get('page') ?? 0);
+    }
+
+    const savedScroll = sessionStorage.getItem(this.scrollKey);
+    const restoreScrollY = savedScroll != null ? Number(savedScroll) : null;
+
+    this.loadPage(this.currentPage, restoreScrollY);
     this.loadDropdowns();
+  }
+
+  // Vùng nội dung chính (main.main-content) mới thực sự cuộn, không phải window
+  private getScrollContainer(): Element | null {
+    return document.querySelector('main.main-content');
+  }
+
+  private restoreScroll(y: number): void {
+    sessionStorage.removeItem(this.scrollKey);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const el = this.getScrollContainer();
+      if (el) el.scrollTop = y; else window.scrollTo({ top: y });
+    }));
+  }
+
+  // ── Giữ nguyên filter trên URL để back từ trang chi tiết không mất ─────
+  private syncQueryParams(): void {
+    const params: Record<string, string | null> = {
+      q:        this.searchText.trim() || null,
+      am:       this.amSearchText.trim() || null,
+      phanKhuc: this.selectedPhanKhuc || null,
+      phong:    this.selectedPhong || null,
+      page:     this.currentPage ? String(this.currentPage) : null,
+    };
+    this.router.navigate([], { relativeTo: this.route, queryParams: params, replaceUrl: true });
   }
 
   // ── Load ─────────────────────────────────────────────────────────────
 
-  loadPage(page: number): void {
+  loadPage(page: number, restoreScrollY: number | null = null): void {
     this.currentPage = page;
+    this.syncQueryParams();
     this.loading.set(true);
-    this.mpaService.getKhachHangList(this.searchText.trim(), this.selectedType, page, this.pageSize).subscribe({
+    this.mpaService.getKhachHangList(
+      this.searchText.trim(), this.selectedPhong, this.amSearchText.trim(),
+      this.selectedPhanKhuc ?? '', page, this.pageSize
+    ).subscribe({
       next: res => {
         if (res.success) this.pageData.set(res.data);
         this.loading.set(false);
+        if (restoreScrollY != null) this.restoreScroll(restoreScrollY);
       },
       error: () => this.loading.set(false)
     });
@@ -70,15 +118,12 @@ export class KhachHangComponent implements OnInit {
 
   search(): void { this.loadPage(0); }
 
-  onTypeChange(): void { this.loadPage(0); }
+  onPhanKhucChange(): void { this.loadPage(0); }
+  onPhongChange(): void { this.loadPage(0); }
 
   private loadDropdowns(): void {
-    this.mpaService.getKhachHangTypes().subscribe(res => {
-      if (res.success) {
-        this.phanKhucTypes.set(
-          res.data.map(v => ({ value: v, label: this.PHAN_KHUC_LABELS[v] ?? 'Loại ' + v }))
-        );
-      }
+    this.mpaService.getKhachHangPhanKhucList().subscribe(res => {
+      if (res.success) this.phanKhucList.set(res.data);
     });
     this.mpaService.getPhongListForCt().subscribe(res => {
       if (res.success) this.phongOptions.set(res.data);
@@ -191,7 +236,9 @@ export class KhachHangComponent implements OnInit {
   }
 
   goToDetail(cif: string): void {
-    this.router.navigate(['/khach-hang', cif]);
+    const el = this.getScrollContainer();
+    sessionStorage.setItem(this.scrollKey, String(el ? el.scrollTop : window.scrollY));
+    this.router.navigate(['/khach-hang', cif], { queryParams: { returnUrl: this.router.url } });
   }
 
   private emptyDlg(): ThongTinKhachHangSaveRequest {

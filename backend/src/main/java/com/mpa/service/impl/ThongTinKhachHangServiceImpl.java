@@ -1,12 +1,14 @@
 package com.mpa.service.impl;
 
 import com.mpa.dto.KhachHangChiTietResponse;
+import com.mpa.dto.KhachHangDichVuItem;
 import com.mpa.dto.KpiSumResult;
 import com.mpa.dto.ThongTinKhachHangRequest;
 import com.mpa.dto.ThongTinKhachHangResponse;
 import com.mpa.entity.PhongBan;
 import com.mpa.entity.ThongTinAm;
 import com.mpa.entity.ThongTinKhachHang;
+import com.mpa.repository.DuLieuMpaRepository;
 import com.mpa.repository.PhongBanRepository;
 import com.mpa.repository.ThongTinAmRepository;
 import com.mpa.repository.ThongTinKhachHangRepository;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +36,7 @@ public class ThongTinKhachHangServiceImpl implements ThongTinKhachHangService {
     private final ThongTinAmRepository amRepo;
     private final PhongBanRepository phongBanRepo;
     private final ThucHienBscKhachHangRepository bscKhRepo;
+    private final DuLieuMpaRepository duLieuMpaRepo;
 
     private static final Map<Integer, String> PHAN_KHUC_MAP = Map.of(
         1, "Khối Bán Buôn",
@@ -41,16 +46,16 @@ public class ThongTinKhachHangServiceImpl implements ThongTinKhachHangService {
     );
 
     @Override
-    public Page<ThongTinKhachHangResponse> getList(String search, Integer typeKhachHang, int page, int size) {
+    public Page<ThongTinKhachHangResponse> getList(String search, String maDonViCap6, String amSearch,
+                                                     String phanKhuc, int page, int size) {
         Map<String, ThongTinAm>  amMap    = buildAmMap();
         Map<String, PhongBan>    phongMap = buildPhongMap();
-        String s = search == null ? "" : search.trim();
+        String s   = search == null ? "" : search.trim();
+        String am  = amSearch == null ? "" : amSearch.trim();
+        String pk  = phanKhuc == null ? "" : phanKhuc.trim();
+        String don = (maDonViCap6 == null || maDonViCap6.isBlank()) ? null : maDonViCap6;
 
-        if (typeKhachHang == null) {
-            return repo.searchAll(s, PageRequest.of(page, size))
-                       .map(t -> toResponse(t, amMap, phongMap));
-        }
-        return repo.searchByType(s, typeKhachHang, PageRequest.of(page, size))
+        return repo.search(s, don, am, pk, PageRequest.of(page, size))
                    .map(t -> toResponse(t, amMap, phongMap));
     }
 
@@ -77,8 +82,8 @@ public class ThongTinKhachHangServiceImpl implements ThongTinKhachHangService {
     }
 
     @Override
-    public List<Integer> getDistinctTypes() {
-        return repo.findDistinctTypes();
+    public List<String> getPhanKhucList() {
+        return duLieuMpaRepo.findDistinctPhanKhucList();
     }
 
     // ── Helpers ────────────────────────────────────────────────────────
@@ -138,7 +143,8 @@ public class ThongTinKhachHangServiceImpl implements ThongTinKhachHangService {
     }
 
     @Override
-    public KhachHangChiTietResponse getChiTiet(String cif, int nam, Integer thang, String quy, String soVoi) {
+    public KhachHangChiTietResponse getChiTiet(String cif, int nam, Integer thang, String quy,
+                                                boolean ngayMoiNhat, String soVoi) {
         ThongTinKhachHang kh = repo.findFirstByMaKhCifOrderByIdDesc(cif).orElse(null);
 
         String tenAm = null, tenPhong = null;
@@ -161,7 +167,22 @@ public class ThongTinKhachHangServiceImpl implements ThongTinKhachHangService {
         String kyHienTai;
         String kyTruoc;
 
-        if (thang != null) {
+        // "Ngày" luôn là ngày mới nhất có dữ liệu trong DB (không cho chọn ngày tùy ý) —
+        // lấy trực tiếp từ du_lieu_mpa (loai_ky='NGAY') vì thuc_hien_bsc_khach_hang không
+        // đồng bộ dữ liệu theo ngày. Không có lịch sử ngày trước đó nên không so sánh được.
+        LocalDate latestNgay = null;
+        if (ngayMoiNhat) {
+            latestNgay = duLieuMpaRepo.findLatestNgay();
+            if (latestNgay != null) {
+                current = duLieuMpaRepo.sumByCifAndNgay(cif, latestNgay);
+                kyHienTai = "Ngày " + latestNgay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            } else {
+                current = zeroKpi();
+                kyHienTai = "Chưa có dữ liệu ngày";
+            }
+            prev = zeroKpi();
+            kyTruoc = "—";
+        } else if (thang != null) {
             current = bscKhRepo.sumByCifAndThangNam(cif, thang, nam);
             kyHienTai = "Tháng " + String.format("%02d", thang) + "/" + nam;
             if ("cung-ky-nam-truoc".equals(soVoi)) {
@@ -197,7 +218,7 @@ public class ThongTinKhachHangServiceImpl implements ThongTinKhachHangService {
 
         KpiSumResult segTotal;
         BigDecimal bdCount;
-        if (type == null) {
+        if (type == null || ngayMoiNhat) {
             segTotal = zeroKpi();
             bdCount  = BigDecimal.ONE;
         } else {
@@ -222,7 +243,8 @@ public class ThongTinKhachHangServiceImpl implements ThongTinKhachHangService {
         }
 
         // ── Trend (sparkline) ─────────────────────────────────────────────
-        List<Object[]> trendRows = bscKhRepo.trendByThang(cif, nam);
+        int namForTrend = (ngayMoiNhat && latestNgay != null) ? latestNgay.getYear() : nam;
+        List<Object[]> trendRows = bscKhRepo.trendByThang(cif, namForTrend);
         List<String>     trendLabels     = new ArrayList<>();
         List<BigDecimal> hdvTrend        = new ArrayList<>();
         List<BigDecimal> casaTrend       = new ArrayList<>();
@@ -242,6 +264,39 @@ public class ThongTinKhachHangServiceImpl implements ThongTinKhachHangService {
             tntTdTrend.add(toBD(row[6]));
             tongTntTrend.add(toBD(row[7]));
         }
+
+        // ── Dịch vụ/sản phẩm đang dùng (theo đúng kỳ đang chọn) ───────────
+        String loaiKyDv;
+        Integer thangDv = null;
+        String quyDv = null;
+        Integer namDv = null;
+        LocalDate ngayDv = null;
+        if (ngayMoiNhat) {
+            loaiKyDv = "NGAY";
+            ngayDv = latestNgay;
+        } else if (thang != null) {
+            loaiKyDv = "THANG";
+            thangDv = thang;
+            namDv = nam;
+        } else if (quy != null) {
+            loaiKyDv = "QUY";
+            quyDv = quy;
+            namDv = nam;
+        } else {
+            loaiKyDv = "NAM";
+            namDv = nam;
+            thangDv = duLieuMpaRepo.findLatestThangForNamLuyKe(nam);
+        }
+        List<KhachHangDichVuItem> danhSachDichVu = duLieuMpaRepo
+            .findDichVuByCif(cif, loaiKyDv, thangDv, quyDv, namDv, ngayDv).stream()
+            .map(r -> KhachHangDichVuItem.builder()
+                .tenSpCap5(r[0] != null ? (String) r[0] : "—")
+                .kyHanCap2(r[1] != null ? (String) r[1] : "—")
+                .thuNhapThuan(toBD(r[2]))
+                .huyDongVonCuoiKy(toBD(r[3]))
+                .duNoTinDungCuoiKy(toBD(r[4]))
+                .build())
+            .collect(Collectors.toList());
 
         return KhachHangChiTietResponse.builder()
             .maKhCif(kh != null ? kh.getMaKhCif() : cif)
@@ -291,6 +346,8 @@ public class ThongTinKhachHangServiceImpl implements ThongTinKhachHangService {
             // Kỳ mô tả
             .kyHienTai(kyHienTai)
             .kyTruoc(kyTruoc)
+            // Dịch vụ đang dùng
+            .danhSachDichVu(danhSachDichVu)
             .build();
     }
 

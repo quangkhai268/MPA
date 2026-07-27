@@ -23,16 +23,6 @@ import { SumFieldPipe } from '../../shared/pipes/sum-field.pipe';
 
 Chart.register(...registerables);
 
-interface AlertItem {
-  icon: string;
-  count: number;
-  title: string;
-  sub: string;
-  color: string;
-  bg: string;
-  borderColor: string;
-}
-
 interface KpiMetric {
   key: string;
   label: string;
@@ -77,32 +67,43 @@ export class DashboardComponent implements OnInit {
   loadingPhongBar         = signal(true);
   topAm        = signal<AmData[]>([]);
   topKh        = signal<KhachHangData[]>([]);
-  topPhong     = signal<PhongData[]>([]);
   bienDongTang = signal<KhachHangData[]>([]);
   bienDongGiam = signal<KhachHangData[]>([]);
+
+  // ── Top rankings (Phòng / AM / Khách hàng) ─────────────────────
+  selectedTopMetricKey = signal('tong-tnt');
+  topPhong = computed(() => {
+    const key = this.selectedTopMetricKey();
+    return [...this.phongData()]
+      .sort((a, b) => this.getPhongMetricValue(b, key) - this.getPhongMetricValue(a, key))
+      .slice(0, 5);
+  });
+
+  get topMetricLabel(): string {
+    return this.phongMetricOptions.find(o => o.key === this.selectedTopMetricKey())?.label ?? 'Tổng TNT';
+  }
+
+  selectTopMetric(key: string): void {
+    this.selectedTopMetricKey.set(key);
+    this.loadTop();
+  }
+
+  // ── Biến động khách hàng ─────────────────────────────────────────
+  selectedBienDongMetricKey = signal('tong-tnt');
+
+  get bienDongMetricLabel(): string {
+    return this.phongMetricOptions.find(o => o.key === this.selectedBienDongMetricKey())?.label ?? 'Tổng TNT';
+  }
+
+  selectBienDongMetric(key: string): void {
+    this.selectedBienDongMetricKey.set(key);
+    this.loadBienDong();
+  }
 
   // AM detail expand state
   expandedPhong    = signal<string | null>(null);
   amDetailData     = signal<AmDetailData[]>([]);
   loadingAmDetail  = signal(false);
-
-  alertItems: AlertItem[] = [
-    {
-      icon: 'assignment_late', count: 3,
-      title: 'đơn cần xử lý', sub: 'Chờ phê duyệt quá hạn',
-      color: '#92400e', bg: '#fef9ec', borderColor: '#fde68a'
-    },
-    {
-      icon: 'how_to_reg', count: 14,
-      title: 'định danh cần nộc thực', sub: 'Chờ kiểm tra và xác nhận',
-      color: '#991b1b', bg: '#fff5f5', borderColor: '#fca5a5'
-    },
-    {
-      icon: 'verified_user', count: 7,
-      title: 'tài sản thực cần kiểm tra [KYC]', sub: 'Chờ tra xác thực hồ sơ',
-      color: '#5b21b6', bg: '#f5f3ff', borderColor: '#c4b5fd'
-    },
-  ];
 
   filter: FilterParams = { fromDate: this.getDefaultFrom(), toDate: this.today() };
   phongList: { ma: string; ten: string }[] = [];
@@ -112,6 +113,10 @@ export class DashboardComponent implements OnInit {
   selectedKy = '';
   soVoi = 'ky-truoc';
   phanKhuc = 'all';
+
+  // ── Lũy kế đến tháng (chỉ áp dụng khi loaiKy === 'nam') ────────────
+  namLuyKeOptions: number[] = [];
+  selectedDenThang: number | null = null;
 
   get kyOptions(): { value: string; label: string }[] {
     const now = new Date();
@@ -196,7 +201,30 @@ export class DashboardComponent implements OnInit {
     this.onFilterChange();
   }
 
-  onFilterChange(): void { this.loadAll(); }
+  onFilterChange(): void {
+    if (this.loaiKy === 'nam') {
+      this.loadNamLuyKeOptionsAndRefresh();
+    } else {
+      this.loadAll();
+    }
+  }
+
+  private loadNamLuyKeOptionsAndRefresh(): void {
+    const y = +this.selectedKy;
+    if (!y) { this.namLuyKeOptions = []; this.selectedDenThang = null; this.loadAll(); return; }
+    this.mpaService.getNamLuyKeOptions(y).subscribe({
+      next: r => {
+        this.namLuyKeOptions = r.success && r.data ? r.data : [];
+        this.selectedDenThang = this.namLuyKeOptions.length ? this.namLuyKeOptions[0] : null;
+        this.loadAll();
+      },
+      error: () => {
+        this.namLuyKeOptions = [];
+        this.selectedDenThang = null;
+        this.loadAll();
+      }
+    });
+  }
 
   // Chart data signals
   trendChartData  = signal<ChartData<'line'>>({ labels: [], datasets: [] });
@@ -335,6 +363,15 @@ export class DashboardComponent implements OnInit {
   selectKpi(key: string): void {
     this.selectedKpiKey.set(key);
     this.loadTrend();
+
+    this.selectedPhongMetricKey.set(key);
+    this.loadPhongTrend();
+    this.selectedPhongBarMetricKey.set(key);
+    this.loadPhongBar();
+    this.selectedTopMetricKey.set(key);
+    this.loadTop();
+    this.selectedBienDongMetricKey.set(key);
+    this.loadBienDong();
   }
 
   selectPhongMetric(key: string): void {
@@ -468,6 +505,7 @@ export class DashboardComponent implements OnInit {
     this.filter.selectedKy = this.selectedKy;
     this.filter.soVoi     = this.soVoi;
     this.filter.phanKhuc  = this.phanKhuc !== 'all' ? this.phanKhuc : undefined;
+    this.filter.denThangLuyKe = undefined;
     // Derive fromDate/toDate from loaiKy + selectedKy
     if (this.loaiKy === 'thang' && this.selectedKy) {
       const [ms, ys] = this.selectedKy.split('/');
@@ -486,6 +524,7 @@ export class DashboardComponent implements OnInit {
       const y = +this.selectedKy;
       this.filter.fromDate = `${y}-01-01`; this.filter.toDate = `${y}-12-31`;
       this.filter.nam = y;
+      this.filter.denThangLuyKe = this.selectedDenThang ?? undefined;
     } else if (this.loaiKy === 'ngay' && this.selectedKy) {
       this.filter.fromDate = this.selectedKy; this.filter.toDate = this.selectedKy;
     } else {
@@ -543,7 +582,6 @@ export class DashboardComponent implements OnInit {
 
   private applyPhongData(data: PhongData[]): void {
     this.phongData.set(data);
-    this.topPhong.set(data.slice(0, 5));
   }
 
   private loadPhongBar(): void {
@@ -574,18 +612,19 @@ export class DashboardComponent implements OnInit {
 
   private loadTop(): void {
     this.loadingTop.set(true);
-    this.mpaService.getTopAm(this.filter).subscribe({
+    const metricKey = this.selectedTopMetricKey();
+    this.mpaService.getTopAm(this.filter, metricKey, 5).subscribe({
       next: r => { this.topAm.set(r.success ? r.data : this.mockTopAm()); },
       error: () => { this.topAm.set(this.mockTopAm()); }
     });
-    this.mpaService.getTopKh(this.filter).subscribe({
+    this.mpaService.getTopKh(this.filter, metricKey, 5).subscribe({
       next: r => { this.topKh.set(r.success ? r.data : this.mockTopKh()); this.loadingTop.set(false); },
       error: () => { this.topKh.set(this.mockTopKh()); this.loadingTop.set(false); }
     });
   }
 
   private loadBienDong(): void {
-    this.mpaService.getBienDongKh(this.filter).subscribe({
+    this.mpaService.getBienDongKh(this.filter, this.selectedBienDongMetricKey(), 10).subscribe({
       next: r => {
         if (r.success) {
           this.bienDongTang.set(r.data.tang);
@@ -841,7 +880,7 @@ export class DashboardComponent implements OnInit {
     return [...this.phongData()].sort((a, b) => this.getPhongMetricValue(b, key) - this.getPhongMetricValue(a, key));
   });
 
-  private getPhongMetricValue(row: PhongData, key: string): number {
+  getPhongMetricValue(row: PhongData, key: string): number {
     switch (key) {
       case 'hdv-cuoi-ky':  return row.hdvCuoiKy ?? 0;
       case 'casa':         return row.hdvBinhQuan ?? 0;
@@ -928,7 +967,9 @@ export class DashboardComponent implements OnInit {
     const mk = (ma: string, ten: string, tnt: number, prev: number, duNo: number, hdvCk: number, hdvBq: number, kh: number, am: number): PhongData => ({
       maDonViCap6: ma, tenDonViCap6: ten,
       thuNhapThuan: tnt, thuNhapThuanPrevious: prev,
-      duNo, hdvCuoiKy: hdvCk, hdvBinhQuan: hdvBq,
+      duNo, duNoPrevious: +(duNo / 1.047).toFixed(0),
+      hdvCuoiKy: hdvCk, hdvCuoiKyPrevious: +(hdvCk / 1.052).toFixed(0),
+      hdvBinhQuan: hdvBq,
       thuNhapThuanDichVu: tnt * 0.25, thuNhapThuanHdvFtp: tnt * 0.45, thuNhapThuanTinDung: tnt * 0.30,
       soKhachHang: kh, soAm: am,
       changePercent: prev ? +((tnt - prev) / Math.abs(prev) * 100).toFixed(1) : null,

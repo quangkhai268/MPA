@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MpaService } from '../../core/services/mpa.service';
 import { AuthService } from '../../core/services/auth.service';
 import { SystemSettingService } from '../../core/services/system-setting.service';
-import { ThePhatHanhItem, TheSummary } from '../../core/models/mpa.model';
+import { ThePhatHanhItem, TheSummary, UnitOption } from '../../core/models/mpa.model';
 import { PageResponse } from '../../core/models/user.model';
 
 @Component({
@@ -35,6 +35,8 @@ export class QuanLyTheComponent implements OnInit {
   hinhThuc       = '';
   productCode    = '';
   loaiTheTinDung = 'TDQT';
+  maDonViCap6    = '';
+  amSearch       = '';
   chuaKichHoat   = false;
   chuaPsgd       = false;
   chuaDatPtn     = true;
@@ -56,6 +58,7 @@ export class QuanLyTheComponent implements OnInit {
   trangThaiOptions  = signal<string[]>([]);
   hinhThucOptions   = signal<string[]>([]);
   productOptions    = signal<string[]>([]);
+  phongOptions      = signal<UnitOption[]>([]);
 
   // ── Summary (KPI cards) ──────────────────────────────────────────────
   summary = signal<TheSummary | null>(null);
@@ -79,6 +82,8 @@ export class QuanLyTheComponent implements OnInit {
       this.trangThai       = qp.get('trangThai') ?? '';
       this.productCode     = qp.get('productCode') ?? '';
       this.loaiTheTinDung  = qp.get('loaiTheTinDung') ?? '';
+      this.maDonViCap6     = qp.get('maDonViCap6') ?? '';
+      this.amSearch        = qp.get('amSearch') ?? '';
       this.chuaKichHoat    = qp.get('chuaKichHoat') === '1';
       this.chuaPsgd        = qp.get('chuaPsgd') === '1';
       this.chuaDatPtn      = qp.get('chuaDatPtn') === '1';
@@ -137,6 +142,8 @@ export class QuanLyTheComponent implements OnInit {
       trangThai:      this.trangThai || null,
       productCode:    this.productCode || null,
       loaiTheTinDung: this.loaiTheTinDung || null,
+      maDonViCap6:    this.maDonViCap6 || null,
+      amSearch:       this.amSearch.trim() || null,
       chuaKichHoat:   this.chuaKichHoat ? '1' : null,
       chuaPsgd:       this.chuaPsgd ? '1' : null,
       chuaDatPtn:     this.chuaDatPtn ? '1' : null,
@@ -181,6 +188,9 @@ export class QuanLyTheComponent implements OnInit {
     this.mpaService.getTheProductOptions().subscribe(res => {
       if (res.success) this.productOptions.set(res.data);
     });
+    this.mpaService.getPhongListForCt().subscribe(res => {
+      if (res.success) this.phongOptions.set(res.data);
+    });
   }
 
   loadPage(page: number, restoreScrollY: number | null = null): void {
@@ -190,7 +200,7 @@ export class QuanLyTheComponent implements OnInit {
     this.mpaService.getTheList(
       this.searchText.trim(),
       this.trangThai, this.hinhThuc, this.productCode,
-      this.loaiTheTinDung,
+      this.loaiTheTinDung, this.maDonViCap6, this.amSearch.trim(),
       this.chuaKichHoat, this.soNgayMin, this.chuaPsgd, this.chuaDatPtn, this.datPtn,
       page, this.pageSize
     ).subscribe({

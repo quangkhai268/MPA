@@ -15,6 +15,9 @@ public class DuLieuMpa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "loai_ky")
+    private String loaiKy;
+
     @Column(name = "ngay")
     private LocalDate ngay;
 

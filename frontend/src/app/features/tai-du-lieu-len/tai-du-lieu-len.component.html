@@ -92,6 +92,7 @@
             <tr>
               <th>THỜI GIAN</th>
               <th>NGƯỜI UPLOAD</th>
+              <th>TÊN FILE</th>
               <th>NGÀY DATA</th>
               <th>SỐ FILE</th>
               <th>TỔNG DÒNG</th>
@@ -100,12 +101,13 @@
           </thead>
           <tbody>
             @if (history().length === 0) {
-              <tr><td colspan="6" class="empty-cell">Chưa có lịch sử upload</td></tr>
+              <tr><td colspan="7" class="empty-cell">Chưa có lịch sử upload</td></tr>
             }
             @for (h of history(); track h.id) {
               <tr>
                 <td>{{ h.thoiGian | date:'dd/MM/yyyy HH:mm' }}</td>
                 <td>{{ h.nguoiUpload || '—' }}</td>
+                <td>{{ h.kyLabel || '—' }}</td>
                 <td>{{ h.ngayDuLieu | date:'yyyy-MM-dd' }}</td>
                 <td>{{ h.soFile }} file</td>
                 <td>{{ h.tongDong | number:'1.0-0' }}</td>

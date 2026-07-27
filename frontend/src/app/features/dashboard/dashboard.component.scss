@@ -6,60 +6,6 @@
   gap: 20px;
 }
 
-// ── Alert Row ──────────────────────────────────────────────────
-.alert-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-
-  @media (max-width: 900px) { grid-template-columns: 1fr; }
-}
-
-.alert-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 18px;
-  border-radius: var(--radius-md);
-  border: 1px solid;
-  cursor: pointer;
-  transition: box-shadow var(--transition), transform var(--transition);
-
-  &:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,.08);
-    transform: translateY(-1px);
-  }
-}
-
-.alert-icon-wrap {
-  width: 38px; height: 38px;
-  border-radius: 10px;
-  background: rgba(0,0,0,.06);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-
-  .material-icons { font-size: 20px; }
-}
-
-.alert-body { flex: 1; }
-
-.alert-title {
-  font-size: 13px;
-  font-weight: 600;
-  strong { font-size: 16px; margin-right: 2px; }
-}
-
-.alert-sub {
-  font-size: 11px;
-  color: var(--color-text-muted);
-  margin-top: 1px;
-}
-
-.alert-arrow {
-  font-size: 20px;
-  opacity: .6;
-}
-
 // ── Filter Bar ─────────────────────────────────────────────────
 .filter-bar {
   display: flex;
@@ -68,6 +14,9 @@
   gap: 20px;
   padding: 12px 20px;
   flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 .filter-groups {
@@ -547,10 +496,15 @@
 }
 
 .bd-col-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   font-weight: 700;
   padding: 6px 10px;
   border-radius: 6px;
+
+  .material-icons { font-size: 16px; }
 
   &.tang { background: #d1fae5; color: #065f46; }
   &.giam { background: #fee2e2; color: #991b1b; }
@@ -593,15 +547,46 @@
 .kh-name { font-size: 12.5px; font-weight: 500; color: var(--color-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .kh-sub  { font-size: 10.5px; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.kh-pct {
-  font-size: 11.5px;
+.kh-value-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+  min-width: 70px;
+}
+
+.kh-value {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 12.5px;
   font-weight: 700;
   white-space: nowrap;
-  min-width: 60px;
+
+  .material-icons { font-size: 14px; }
+
+  &.tang { color: var(--color-success); }
+  &.giam { color: var(--color-danger); }
+}
+
+.kh-pct {
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
   text-align: right;
 
   &.tang { color: var(--color-success); }
   &.giam { color: var(--color-danger); }
+}
+
+// ── Top rankings header ──────────────────────────────────────────
+.top-rankings-header .card-header {
+  margin-bottom: 0;
+}
+
+.hl {
+  color: #1c7a5a;
 }
 
 // ── Top 3 grid ─────────────────────────────────────────────────
@@ -752,7 +737,10 @@
 
 // ── Phong Trend section ────────────────────────────────────────
 .phong-metric-select {
-  min-width: 148px;
+  box-sizing: border-box;
+  width: 180px !important;
+  max-width: 180px;
+  flex-shrink: 0;
 }
 
 .phong-trend-subtitle {

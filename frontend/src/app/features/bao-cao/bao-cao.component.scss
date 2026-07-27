@@ -85,13 +85,59 @@
 .filter-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
+  padding: 12px 20px;
   flex-wrap: wrap;
-  padding: 14px 18px;
 }
 
-.date-field   { width: 150px; flex-shrink: 0; }
-.select-field { width: 200px; flex-shrink: 0; }
+.filter-groups {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.flt-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.flt-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: .04em;
+  user-select: none;
+}
+
+.flt-select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 7px 32px 7px 11px;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 500;
+  color: #1a1a2e;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 15px;
+  cursor: pointer;
+  outline: none;
+  min-width: 120px;
+  transition: border-color .15s, box-shadow .15s;
+
+  &:hover  { border-color: #9ca3af; }
+  &:focus  { border-color: #0f59a6; box-shadow: 0 0 0 3px rgba(15,89,166,.12); }
+  &:disabled { background-color: #f3f4f6; color: #9ca3af; cursor: not-allowed; }
+
+  &--ky    { min-width: 148px; }
+  &--sovoi { min-width: 168px; }
+}
 
 // ── Loading ────────────────────────────────────────────────────
 .loading-block {
@@ -178,6 +224,7 @@
   }
 }
 
+.empty-row    { text-align: center; padding: 32px !important; color: var(--color-text-muted); font-size: 13px; }
 .idx          { color: var(--color-text-muted); font-size: 11px; width: 36px; }
 .cell-primary { font-weight: 500; color: var(--color-text); }
 .cell-sub     { font-size: 10.5px; color: var(--color-text-muted); margin-top: 1px; }

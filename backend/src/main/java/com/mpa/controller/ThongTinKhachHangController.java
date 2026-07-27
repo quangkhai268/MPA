@@ -21,20 +21,22 @@ public class ThongTinKhachHangController {
     @GetMapping
     public ApiResponse<Page<ThongTinKhachHangResponse>> getList(
             @RequestParam(defaultValue = "") String search,
-            @RequestParam(required = false) Integer typeKhachHang,
+            @RequestParam(required = false) String maDonViCap6,
+            @RequestParam(defaultValue = "") String amSearch,
+            @RequestParam(defaultValue = "") String phanKhuc,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         try {
-            return ApiResponse.ok(service.getList(search, typeKhachHang, page, size));
+            return ApiResponse.ok(service.getList(search, maDonViCap6, amSearch, phanKhuc, page, size));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi khi tải danh sách: " + e.getMessage());
         }
     }
 
-    @GetMapping("/types")
-    public ApiResponse<List<Integer>> getDistinctTypes() {
+    @GetMapping("/phan-khuc-list")
+    public ApiResponse<List<String>> getPhanKhucList() {
         try {
-            return ApiResponse.ok(service.getDistinctTypes());
+            return ApiResponse.ok(service.getPhanKhucList());
         } catch (Exception e) {
             return ApiResponse.error(e.getMessage());
         }
@@ -75,9 +77,10 @@ public class ThongTinKhachHangController {
             @RequestParam int nam,
             @RequestParam(required = false) Integer thang,
             @RequestParam(required = false) String quy,
+            @RequestParam(defaultValue = "false") boolean ngayMoiNhat,
             @RequestParam(defaultValue = "ky-truoc") String soVoi) {
         try {
-            return ApiResponse.ok(service.getChiTiet(cif, nam, thang, quy, soVoi));
+            return ApiResponse.ok(service.getChiTiet(cif, nam, thang, quy, ngayMoiNhat, soVoi));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi khi tải chi tiết khách hàng: " + e.getMessage());
         }

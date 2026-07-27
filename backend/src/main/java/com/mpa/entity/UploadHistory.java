@@ -34,4 +34,7 @@ public class UploadHistory {
 
     @Column(name = "chi_tiet")
     private String chiTiet;
+
+    @Column(name = "ky_label")
+    private String kyLabel;
 }

@@ -31,7 +31,7 @@ export class SidebarComponent {
     { label: 'Dữ liệu MPA',       icon: 'table_chart',          route: '/du-lieu-mpa'  },
     { label: 'Khách hàng',        icon: 'people',               route: '/khach-hang'   },
     { label: 'Báo cáo & Thống kê',icon: 'bar_chart',            route: '/bao-cao'      },
-    { label: 'Giao chỉ tiêu BSC', icon: 'assignment_turned_in', route: '/giao-chi-tieu'},
+    { label: 'Quản lý chỉ tiêu BSC', icon: 'assignment_turned_in', route: '/giao-chi-tieu'},
     { label: 'Quản lý cán bộ AM', icon: 'badge',                route: '/quan-ly-am'   },
     { label: 'Quản lý thẻ',       icon: 'credit_card',          route: '/quan-ly-the'  },
     { label: 'Tải dữ liệu lên',   icon: 'upload_file',          route: '/tai-du-lieu-len', roles: ['ROLE_ADMIN'] },
@@ -46,7 +46,7 @@ export class SidebarComponent {
         { label: 'Dữ liệu MPA',        icon: 'table_chart',          route: '/du-lieu-mpa'    },
         { label: 'Khách hàng',         icon: 'people',               route: '/khach-hang'     },
         { label: 'Báo cáo & Thống kê', icon: 'bar_chart',            route: '/bao-cao'        },
-        { label: 'Giao chỉ tiêu BSC',  icon: 'assignment_turned_in', route: '/giao-chi-tieu' },
+        { label: 'Quản lý chỉ tiêu BSC', icon: 'assignment_turned_in', route: '/giao-chi-tieu' },
       ]
     },
     {

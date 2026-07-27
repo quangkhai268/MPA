@@ -67,4 +67,7 @@ public class KhachHangChiTietResponse {
     // ── Mô tả kỳ ─────────────────────────────────────────────────────────
     private String kyHienTai;
     private String kyTruoc;
+
+    // ── Dịch vụ / sản phẩm đang sử dụng (từ du_lieu_mpa, theo kỳ đang chọn) ──
+    private List<KhachHangDichVuItem> danhSachDichVu;
 }

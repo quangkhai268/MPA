@@ -15,7 +15,9 @@ public class PhongDataResponse {
     private BigDecimal thuNhapThuan;
     private BigDecimal thuNhapThuanPrevious;
     private BigDecimal duNo;
+    private BigDecimal duNoPrevious;
     private BigDecimal hdvCuoiKy;
+    private BigDecimal hdvCuoiKyPrevious;
     private BigDecimal hdvBinhQuan;
     private BigDecimal thuNhapThuanDichVu;
     private BigDecimal thuNhapThuanHdvFtp;

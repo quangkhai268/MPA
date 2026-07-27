@@ -33,12 +33,32 @@
     </div>
     <div class="filter-field">
       <label>Phân khúc</label>
-      <select [(ngModel)]="selectedType" (ngModelChange)="onTypeChange()">
+      <select [(ngModel)]="selectedPhanKhuc" (ngModelChange)="onPhanKhucChange()">
         <option [ngValue]="null">Tất cả phân khúc</option>
-        @for (t of phanKhucTypes(); track t.value) {
-          <option [ngValue]="t.value">{{ t.label }}</option>
+        @for (pk of phanKhucList(); track pk) {
+          <option [ngValue]="pk">{{ pk }}</option>
         }
       </select>
+    </div>
+    <div class="filter-field">
+      <label>Phòng</label>
+      <select [(ngModel)]="selectedPhong" (ngModelChange)="onPhongChange()">
+        <option [ngValue]="null">Tất cả phòng</option>
+        @for (p of phongOptions(); track p.ma) {
+          <option [value]="p.ma">{{ p.ten }}</option>
+        }
+      </select>
+    </div>
+    <div class="search-field">
+      <label>AM (tên hoặc mã)</label>
+      <div class="search-input-wrap">
+        <span class="material-icons search-icon">person_search</span>
+        <input
+          class="search-input"
+          [(ngModel)]="amSearchText"
+          (keyup.enter)="search()"
+          placeholder="VD: Nguyễn Văn A hoặc AM001">
+      </div>
     </div>
     <button class="btn-search" (click)="search()">Tìm kiếm</button>
   </div>
@@ -67,14 +87,12 @@
             <th>PHÂN KHÚC</th>
             <th>AM PHỤ TRÁCH</th>
             <th>PHÒNG</th>
-            <th>LIÊN HỆ</th>
-            <th>NGÀY MỞ</th>
             <th class="col-actions"></th>
           </tr>
         </thead>
         <tbody>
           @if (items.length === 0) {
-            <tr><td colspan="9" class="empty-cell">Không có dữ liệu</td></tr>
+            <tr><td colspan="7" class="empty-cell">Không có dữ liệu</td></tr>
           }
           @for (item of items; track item.id; let i = $index) {
             <tr class="clickable-row" (click)="goToDetail(item.maKhCif)">
@@ -99,20 +117,6 @@
                 }
               </td>
               <td class="cell-phong">{{ item.tenPhong || '—' }}</td>
-              <td class="cell-lien-he">
-                @if (item.soDienThoai) {
-                  <div>{{ item.soDienThoai }}</div>
-                }
-                @if (item.email) {
-                  <div class="email-text">{{ item.email }}</div>
-                }
-                @if (!item.soDienThoai && !item.email) {
-                  <span class="text-muted">—</span>
-                }
-              </td>
-              <td class="cell-date">
-                {{ item.ngayBatDau ? (item.ngayBatDau | date:'dd/MM/yyyy') : '—' }}
-              </td>
               <td class="col-actions" (click)="$event.stopPropagation()">
                 <button class="icon-btn edit-btn" (click)="openEdit(item)" matTooltip="Chỉnh sửa">
                   <span class="material-icons">edit</span>

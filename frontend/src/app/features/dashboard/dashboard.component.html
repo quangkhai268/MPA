@@ -1,23 +1,5 @@
 <div class="dashboard animate-fade-in">
 
-  <!-- ===== ALERT BAR ===== -->
-  <div class="alert-row">
-    @for (alert of alertItems; track alert.count) {
-      <div class="alert-card" [style.border-color]="alert.borderColor" [style.background]="alert.bg">
-        <div class="alert-icon-wrap" [style.color]="alert.color">
-          <span class="material-icons">{{ alert.icon }}</span>
-        </div>
-        <div class="alert-body">
-          <div class="alert-title" [style.color]="alert.color">
-            <strong>{{ alert.count }}</strong> {{ alert.title }}
-          </div>
-          <div class="alert-sub">{{ alert.sub }}</div>
-        </div>
-        <span class="material-icons alert-arrow" [style.color]="alert.color">chevron_right</span>
-      </div>
-    }
-  </div>
-
   <!-- ===== FILTER BAR ===== -->
   <div class="filter-bar card">
     <div class="filter-groups">
@@ -40,6 +22,23 @@
           }
         </select>
       </div>
+
+      @if (loaiKy === 'nam') {
+        <div class="flt-group">
+          <span class="flt-label">Lũy kế đến tháng</span>
+          @if (namLuyKeOptions.length) {
+            <select class="flt-select" [(ngModel)]="selectedDenThang" (change)="loadAll()">
+              @for (t of namLuyKeOptions; track t) {
+                <option [ngValue]="t">Tháng {{ t }}</option>
+              }
+            </select>
+          } @else {
+            <select class="flt-select" disabled>
+              <option>Chưa có dữ liệu</option>
+            </select>
+          }
+        </div>
+      }
 
       <div class="flt-group">
         <span class="flt-label">So với</span>
@@ -524,20 +523,24 @@
   <div class="card" id="section-bien-dong">
     <div class="card-header">
       <div>
-        <h3>Biến động khách hàng cá thể</h3>
-        <p class="card-sub">Khi biểu đồng khách hàng cá thể – Tháng 03 – Tháng 03/2026</p>
+        <h3>Biến động khách hàng cá thể theo <span class="hl">{{ bienDongMetricLabel }}</span></h3>
+        <p class="card-sub">So sánh {{ currentKyLabel }} với {{ compareKyLabel }}</p>
       </div>
       <div class="card-header-right">
-        <span class="text-muted text-sm">Theo chỉ tiêu</span>
-        <mat-select class="mini-select" value="tnt">
-          <mat-option value="tnt">Tổng TNT</mat-option>
-        </mat-select>
+        <span class="text-muted text-sm">Theo chỉ tiêu:</span>
+        <select class="flt-select phong-metric-select"
+                [ngModel]="selectedBienDongMetricKey()"
+                (ngModelChange)="selectBienDongMetric($event)">
+          @for (opt of phongMetricOptions; track opt.key) {
+            <option [value]="opt.key">{{ opt.label }}</option>
+          }
+        </select>
       </div>
     </div>
 
     <div class="bien-dong-columns">
-      <div class="bd-col-header tang">Top 10 khi động tăng</div>
-      <div class="bd-col-header giam">Top 10 khi giảm</div>
+      <div class="bd-col-header tang"><span class="material-icons">trending_up</span>Top 10 KH đóng góp tăng</div>
+      <div class="bd-col-header giam"><span class="material-icons">trending_down</span>Top 10 KH giảm</div>
     </div>
 
     <div class="bien-dong-grid">
@@ -547,9 +550,14 @@
             <span class="bd-rank">{{ i + 1 }}</span>
             <div class="kh-info">
               <div class="kh-name">{{ kh.tenKhachHang }}</div>
-              <div class="kh-sub">CIF {{ kh.maKhCif }} · {{ kh.tenAm }} · {{ kh.tenDonViCap6 }}</div>
+              <div class="kh-sub">CIF {{ kh.maKhCif }} · {{ kh.tenAm }}@if (kh.tenDonViCap6) { · {{ kh.tenDonViCap6 }} }</div>
             </div>
-            <div class="kh-pct tang">+{{ kh.changePercent | number:'1.2-2' }}%</div>
+            <div class="kh-value-col">
+              <div class="kh-value tang">
+                <span class="material-icons">trending_up</span>{{ formatBillion(kh.change) }} tỷ
+              </div>
+              <div class="kh-pct tang">+{{ kh.changePercent | number:'1.2-2' }}%</div>
+            </div>
           </div>
         }
       </div>
@@ -559,9 +567,14 @@
             <span class="bd-rank">{{ i + 1 }}</span>
             <div class="kh-info">
               <div class="kh-name">{{ kh.tenKhachHang }}</div>
-              <div class="kh-sub">CIF {{ kh.maKhCif }} · {{ kh.tenAm }} · {{ kh.tenDonViCap6 }}</div>
+              <div class="kh-sub">CIF {{ kh.maKhCif }} · {{ kh.tenAm }}@if (kh.tenDonViCap6) { · {{ kh.tenDonViCap6 }} }</div>
             </div>
-            <div class="kh-pct giam">{{ kh.changePercent | number:'1.2-2' }}%</div>
+            <div class="kh-value-col">
+              <div class="kh-value giam">
+                <span class="material-icons">trending_down</span>{{ formatBillion(kh.change < 0 ? -kh.change : kh.change) }} tỷ
+              </div>
+              <div class="kh-pct giam">{{ kh.changePercent | number:'1.2-2' }}%</div>
+            </div>
           </div>
         }
       </div>
@@ -569,6 +582,25 @@
   </div>
 
   <!-- ===== TOP RANKINGS ===== -->
+  <div class="card top-rankings-header">
+    <div class="card-header">
+      <div>
+        <h3>Top theo <span class="hl">{{ topMetricLabel }}</span> — {{ currentKyLabel }}</h3>
+        <p class="card-sub">Xếp hạng Phòng / Cán bộ AM / Khách hàng đóng góp cao nhất trong kỳ</p>
+      </div>
+      <div class="card-header-right">
+        <span class="text-muted text-sm">Theo chỉ tiêu:</span>
+        <select class="flt-select phong-metric-select"
+                [ngModel]="selectedTopMetricKey()"
+                (ngModelChange)="selectTopMetric($event)">
+          @for (opt of phongMetricOptions; track opt.key) {
+            <option [value]="opt.key">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </div>
+
   <div class="top-three-grid" id="section-top-rankings">
     <!-- Top 5 Phòng -->
     <div class="card top-card">
@@ -585,7 +617,7 @@
             <div class="top-name">{{ p.tenDonViCap6 }}</div>
             <div class="top-sub">{{ p.soAm }} AM</div>
           </div>
-          <div class="top-value">{{ formatBillion(p.thuNhapThuan) }} tỷ</div>
+          <div class="top-value">{{ formatBillion(getPhongMetricValue(p, selectedTopMetricKey())) }} tỷ</div>
         </div>
       }
     </div>
@@ -605,7 +637,7 @@
             <div class="top-name">{{ am.tenAm }}</div>
             <div class="top-sub">{{ am.tenDonViCap6 }}</div>
           </div>
-          <div class="top-value">{{ formatMillion(am.thuNhapThuan) }}</div>
+          <div class="top-value">{{ formatMillion(am.value ?? am.thuNhapThuan) }}</div>
         </div>
       }
     </div>
@@ -625,7 +657,7 @@
             <div class="top-name">{{ kh.tenKhachHang }}</div>
             <div class="top-sub">{{ kh.maKhCif }}</div>
           </div>
-          <div class="top-value">{{ formatMillion(kh.thuNhapThuan) }}</div>
+          <div class="top-value">{{ formatMillion(kh.value ?? kh.thuNhapThuan) }}</div>
         </div>
       }
     </div>

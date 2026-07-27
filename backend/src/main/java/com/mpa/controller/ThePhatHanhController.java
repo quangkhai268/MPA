@@ -26,6 +26,8 @@ public class ThePhatHanhController {
             @RequestParam(defaultValue = "")    String hinhThuc,
             @RequestParam(defaultValue = "")    String productCode,
             @RequestParam(defaultValue = "")    String loaiTheTinDung,
+            @RequestParam(required = false)     String maDonViCap6,
+            @RequestParam(defaultValue = "")    String amSearch,
             @RequestParam(defaultValue = "false") boolean chuaKichHoat,
             @RequestParam(defaultValue = "0")   int soNgayMin,
             @RequestParam(defaultValue = "false") boolean chuaPsgd,
@@ -35,7 +37,7 @@ public class ThePhatHanhController {
             @RequestParam(defaultValue = "20")  int size) {
         try {
             return ApiResponse.ok(service.getList(search, trangThai, hinhThuc, productCode,
-                    loaiTheTinDung, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, page, size));
+                    loaiTheTinDung, maDonViCap6, amSearch, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, page, size));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi tải danh sách thẻ: " + e.getMessage());
         }
