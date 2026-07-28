@@ -1,0 +1,182 @@
+<div class="detail-wrapper">
+
+  <!-- ── Loading ────────────────────────────────────────────────────── -->
+  @if (loading()) {
+    <div class="loading-wrap"><mat-spinner diameter="40"></mat-spinner></div>
+  }
+
+  @if (!loading()) {
+    @if (data(); as d) {
+
+      <!-- ── Header ───────────────────────────────────────────────────── -->
+      <div class="detail-header">
+        <div class="header-left">
+          <button class="back-btn" (click)="goBack()">
+            <span class="material-icons">arrow_back</span>
+          </button>
+          <div>
+            <h1 class="page-title">
+              {{ d.tenAm || '—' }}
+              @if (d.isCanBo) {
+                <span class="scope-badge">{{ d.maAmList.length }} mã AM</span>
+              } @else {
+                <span class="scope-badge scope-badge--code">{{ d.maAmList[0] }}</span>
+              }
+            </h1>
+            <p class="page-subtitle">
+              {{ d.tenDonViCap6 || '—' }}{{ d.chucVu ? ' · ' + d.chucVu : '' }}
+            </p>
+            @if (d.isCanBo) {
+              <div class="am-code-chips">
+                <span class="chips-label">Gộp từ:</span>
+                @for (code of d.maAmList; track code) {
+                  <span class="am-code-chip" (click)="goToAmDetail(code)">{{ code }}</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Filter bar ───────────────────────────────────────────────── -->
+      <div class="filter-bar">
+        <div class="filter-fields">
+          <div class="filter-item">
+            <label>Loại kỳ</label>
+            <select [(ngModel)]="loaiKy" (change)="onFilterChange()">
+              <option value="thang">Tháng</option>
+              <option value="quy">Quý</option>
+              <option value="nam">Năm</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label>Năm</label>
+            <select [(ngModel)]="selectedNam" (change)="onFilterChange()">
+              @for (y of namOptions; track y) {
+                <option [value]="y">{{ y }}</option>
+              }
+            </select>
+          </div>
+          @if (loaiKy === 'thang') {
+            <div class="filter-item">
+              <label>Tháng</label>
+              <select [(ngModel)]="selectedThang" (change)="onFilterChange()">
+                @for (m of thangOptions; track m) {
+                  <option [value]="m">Tháng {{ m < 10 ? '0' + m : m }}</option>
+                }
+              </select>
+            </div>
+          }
+          @if (loaiKy === 'quy') {
+            <div class="filter-item">
+              <label>Quý</label>
+              <select [(ngModel)]="selectedQuy" (change)="onFilterChange()">
+                @for (q of quyOptions; track q) {
+                  <option [value]="q">{{ q }}</option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+        <div class="period-badge">{{ periodLabel }}</div>
+      </div>
+
+      <!-- ── KPI cards ────────────────────────────────────────────────── -->
+      <div class="kpi-grid">
+        @for (m of metricCards; track m.key) {
+          <div class="kpi-card" [ngClass]="cellClass(m.pct)">
+            <div class="kpi-label">{{ m.label }}</div>
+            <div class="kpi-row-top">
+              <div class="kpi-value">{{ formatTy(m.th) }}</div>
+              <span class="kpi-pct">{{ pctText(m.pct) }}</span>
+            </div>
+            <div class="kpi-sub">
+              Kế hoạch: {{ formatTy(m.kh) }}
+              @if (m.delta !== null) {
+                <span class="kpi-delta" [class.delta-up]="m.delta > 0" [class.delta-down]="m.delta < 0">
+                  {{ deltaSign(m.delta) }} so kỳ trước
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- ── Xu hướng thực hiện chỉ tiêu ──────────────────────────────── -->
+      <div class="section-title">
+        <span class="material-icons section-title-icon">trending_up</span>
+        Xu hướng thực hiện chỉ tiêu
+      </div>
+
+      @if (xuHuongLoading()) {
+        <div class="loading-state"><mat-spinner diameter="32"></mat-spinner></div>
+      } @else {
+        <div class="xu-huong-grid">
+          @for (chart of xuHuongCharts(); track chart.metricKey) {
+            <div class="xu-huong-card">
+              <div class="xu-huong-card-title">{{ chart.label }}</div>
+              <div class="chart-container">
+                <canvas baseChart [data]="chart.data" [options]="xuHuongChartOptions" type="bar"></canvas>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ── Quản lý thẻ ──────────────────────────────────────────────── -->
+      <div class="section-title">
+        <span class="material-icons section-title-icon">credit_card</span>
+        Quản lý thẻ
+        <span class="section-count-badge">{{ d.soThe }} thẻ</span>
+      </div>
+
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>SỐ THẺ</th>
+              <th>CHỦ THẺ</th>
+              <th>TRẠNG THÁI</th>
+              <th>NGÀY PHÁT HÀNH</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (cardsLoading()) {
+              <tr><td colspan="4" class="empty-cell"><mat-spinner diameter="28"></mat-spinner></td></tr>
+            } @else if (cardItems.length === 0) {
+              <tr><td colspan="4" class="empty-cell">Chưa quản lý thẻ nào</td></tr>
+            }
+            @for (c of cardItems; track c.id) {
+              <tr class="clickable-row" (click)="goToCard(c.id)">
+                <td class="cell-so-the">{{ c.soTheDaPhatHanh || '—' }}</td>
+                <td>{{ c.tenChuTheChinh || '—' }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="trangThaiTheBadgeClass(c.trangThaiHienThi)">
+                    {{ c.trangThaiHienThi || '—' }}
+                  </span>
+                </td>
+                <td>{{ c.ngayPhatHanhHienThi ? (c.ngayPhatHanhHienThi | date:'dd/MM/yyyy') : '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if (cardTotalPages > 1) {
+          <div class="pagination">
+            <button class="page-btn" [disabled]="currentCardPage === 0" (click)="loadCards(currentCardPage - 1)">
+              <span class="material-icons">chevron_left</span>
+            </button>
+            <span class="page-info">{{ currentCardPage + 1 }} / {{ cardTotalPages }}</span>
+            <button class="page-btn" [disabled]="currentCardPage >= cardTotalPages - 1" (click)="loadCards(currentCardPage + 1)">
+              <span class="material-icons">chevron_right</span>
+            </button>
+          </div>
+        }
+      </div>
+
+    } @else {
+      <div class="empty-cell">Không tìm thấy thông tin.</div>
+    }
+  }
+
+</div>

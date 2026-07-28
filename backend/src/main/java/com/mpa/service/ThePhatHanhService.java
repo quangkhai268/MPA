@@ -12,7 +12,7 @@ public interface ThePhatHanhService {
 
     Page<ThePhatHanhResponse> getList(
             String search, String trangThai, String hinhThuc, String productCode,
-            String loaiTheTinDung, String maDonViCap6, String amSearch,
+            String loaiTheTinDung, String maDonViCap6, String amSearch, List<String> amCodes,
             boolean chuaKichHoat, int soNgayMin, boolean chuaPsgd, boolean chuaDatPtn, boolean datPtn,
             int page, int size);
 

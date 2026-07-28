@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -21,6 +22,7 @@ type ViewMode = 'ma-am' | 'can-bo';
 })
 export class QuanLyAmComponent implements OnInit {
   private mpaService = inject(MpaService);
+  private router = inject(Router);
 
   // ── View state ────────────────────────────────────────────────────────
   viewMode: ViewMode = 'ma-am';
@@ -150,6 +152,17 @@ export class QuanLyAmComponent implements OnInit {
 
   isExpanded(tenAm: string): boolean {
     return this.expandedCanBo.has(tenAm);
+  }
+
+  // ── Điều hướng sang trang chi tiết ──────────────────────────────────────
+
+  goToAmDetail(maAm: string): void {
+    this.router.navigate(['/quan-ly-am', maAm]);
+  }
+
+  goToCanBoDetail(tenAm: string): void {
+    // Router tự encode segment (dấu cách/dấu tiếng Việt) khi build URL — không encode thủ công ở đây.
+    this.router.navigate(['/quan-ly-am/can-bo', tenAm]);
   }
 
   // ── Dialog ────────────────────────────────────────────────────────────

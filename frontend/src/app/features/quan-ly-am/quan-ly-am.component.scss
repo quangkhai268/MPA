@@ -272,6 +272,20 @@ $text:         #1A1A2E;
   tbody tr:hover td { background: #f8fafc; }
 }
 
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-text {
+  cursor: pointer;
+  &:hover { color: $primary; text-decoration: underline; }
+}
+
+.clickable-chip {
+  cursor: pointer;
+  &:hover { border-color: $primary; background: #e8f0f9; }
+}
+
 .col-stt    { width: 48px; color: $gray; }
 .col-actions { width: 80px; text-align: right; }
 
@@ -367,6 +381,7 @@ $text:         #1A1A2E;
   color: $gray;
   flex-shrink: 0;
   margin-top: 1px;
+  cursor: pointer;
 }
 
 .ten-cb-text {

@@ -373,4 +373,32 @@ public interface ThucHienBscRepository extends JpaRepository<ThucHienBscChiNhanh
            "FROM ThucHienBscChiNhanh c WHERE c.typeData = 3 AND c.maAm = :maAm AND c.nam IN :years " +
            "GROUP BY c.nam ORDER BY c.nam")
     List<Object[]> trendAmOneByNam(@Param("maAm") String maAm, @Param("years") List<Integer> years);
+
+    // ── XU HƯỚNG (nhiều mã AM cùng lúc — dùng cho AM detail / Cán bộ gộp) ──
+    // Cùng shape với trendAmOneBy{Thang,Quy,Nam} ở trên, chỉ khác IN thay vì =.
+    // Danh sách 1 phần tử cho ra kết quả giống hệt bản = tương ứng.
+
+    @Query("SELECT c.thang, COALESCE(SUM(c.huyDongVonCuoiKy),0), COALESCE(SUM(c.casaBinhQuan),0), " +
+           "COALESCE(SUM(c.duNoTinDungCuoiKy),0), COALESCE(SUM(c.thuNhapThuanDichVu),0), " +
+           "COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
+           "COALESCE(SUM(c.thuNhapThuan),0) " +
+           "FROM ThucHienBscChiNhanh c WHERE c.typeData = 3 AND c.maAm IN :maAmCodes AND c.nam = :nam AND c.thang IS NOT NULL " +
+           "GROUP BY c.thang ORDER BY c.thang")
+    List<Object[]> trendAmListByThang(@Param("maAmCodes") List<String> maAmCodes, @Param("nam") int nam);
+
+    @Query("SELECT c.quy, COALESCE(SUM(c.huyDongVonCuoiKy),0), COALESCE(SUM(c.casaBinhQuan),0), " +
+           "COALESCE(SUM(c.duNoTinDungCuoiKy),0), COALESCE(SUM(c.thuNhapThuanDichVu),0), " +
+           "COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
+           "COALESCE(SUM(c.thuNhapThuan),0) " +
+           "FROM ThucHienBscChiNhanh c WHERE c.typeData = 3 AND c.maAm IN :maAmCodes AND c.nam = :nam AND c.quy IS NOT NULL " +
+           "GROUP BY c.quy ORDER BY c.quy")
+    List<Object[]> trendAmListByQuy(@Param("maAmCodes") List<String> maAmCodes, @Param("nam") int nam);
+
+    @Query("SELECT c.nam, COALESCE(SUM(c.huyDongVonCuoiKy),0), COALESCE(SUM(c.casaBinhQuan),0), " +
+           "COALESCE(SUM(c.duNoTinDungCuoiKy),0), COALESCE(SUM(c.thuNhapThuanDichVu),0), " +
+           "COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
+           "COALESCE(SUM(c.thuNhapThuan),0) " +
+           "FROM ThucHienBscChiNhanh c WHERE c.typeData = 3 AND c.maAm IN :maAmCodes AND c.nam IN :years " +
+           "GROUP BY c.nam ORDER BY c.nam")
+    List<Object[]> trendAmListByNam(@Param("maAmCodes") List<String> maAmCodes, @Param("years") List<Integer> years);
 }

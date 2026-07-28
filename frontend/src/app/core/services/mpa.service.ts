@@ -10,7 +10,8 @@ import {
   ThongTinAmItem, ThongTinAmSaveRequest,
   ThongTinKhachHangItem, ThongTinKhachHangSaveRequest, KhachHangChiTiet,
   ThePhatHanhItem, TheSummary, ThePhatHanhDetail, KhachHangTheSummary,
-  EmailLogItem, JobRunResult, CardRevenueMilestone, RevenueSeriesResponse
+  EmailLogItem, JobRunResult, CardRevenueMilestone, RevenueSeriesResponse,
+  AmChiTietResponse
 } from '../models/mpa.model';
 
 @Injectable({ providedIn: 'root' })
@@ -275,7 +276,7 @@ export class MpaService {
     search: string, trangThai: string, hinhThuc: string, productCode: string,
     loaiTheTinDung: string, maDonViCap6: string, amSearch: string,
     chuaKichHoat: boolean, soNgayMin: number, chuaPsgd: boolean, chuaDatPtn: boolean, datPtn: boolean,
-    page: number, size: number
+    page: number, size: number, amCodes?: string[]
   ): Observable<ApiResponse<PageResponse<ThePhatHanhItem>>> {
     let params = new HttpParams()
       .set('search', search)
@@ -292,7 +293,29 @@ export class MpaService {
       .set('page', String(page))
       .set('size', String(size));
     if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);
+    if (amCodes && amCodes.length) {
+      for (const code of amCodes) params = params.append('amCodes', code);
+    }
     return this.http.get<ApiResponse<PageResponse<ThePhatHanhItem>>>(`${this.api}/the-phat-hanh`, { params });
+  }
+
+  // --- Chi tiết AM / theo cán bộ (quan-ly-am/:maAm, quan-ly-am/can-bo/:tenAm) ---
+  getAmChiTiet(
+    loaiKy: string, selectedKy: string, maAm?: string, tenAm?: string
+  ): Observable<ApiResponse<AmChiTietResponse>> {
+    let params = new HttpParams().set('loaiKy', loaiKy).set('selectedKy', selectedKy);
+    if (maAm) params = params.set('maAm', maAm);
+    if (tenAm) params = params.set('tenAm', tenAm);
+    return this.http.get<ApiResponse<AmChiTietResponse>>(`${this.api}/quan-ly-am/chi-tiet`, { params });
+  }
+
+  getAmChiTietXuHuong(
+    loaiKy: string, nam: number, maAm?: string, tenAm?: string
+  ): Observable<ApiResponse<XuHuongResponse>> {
+    let params = new HttpParams().set('loaiKy', loaiKy).set('nam', String(nam));
+    if (maAm) params = params.set('maAm', maAm);
+    if (tenAm) params = params.set('tenAm', tenAm);
+    return this.http.get<ApiResponse<XuHuongResponse>>(`${this.api}/quan-ly-am/xu-huong`, { params });
   }
 
   getTheDetail(id: number): Observable<ApiResponse<ThePhatHanhDetail>> {

@@ -118,6 +118,10 @@ export class GiaoChiTieuComponent implements OnInit {
   dlgMucTieuDisplay = '';
   unitOptions  = signal<UnitOption[]>([]);
 
+  // Đang sửa 1 dòng có sẵn (khác null) hay thêm mới (null) — quyết định tiêu đề dialog
+  // và tự điền lại "Mục tiêu" theo giá trị hiện có mỗi khi đổi "Chỉ tiêu" trong dialog.
+  editingRow = signal<ChiTieuQuanLyRow | null>(null);
+
   // ── Static options ────────────────────────────────────────────────
   readonly namOptions   = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
   readonly thangOptions = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -281,6 +285,7 @@ export class GiaoChiTieuComponent implements OnInit {
 
   // ── Dialog ────────────────────────────────────────────────────────
   openDialog(): void {
+    this.editingRow.set(null);
     this.dlgDoiTuong = this.doiTuong;
     this.dlgMaUnit   = '';
     this.dlgTenUnit  = '';
@@ -291,9 +296,37 @@ export class GiaoChiTieuComponent implements OnInit {
     this.showDialog.set(true);
   }
 
+  // Sửa 1 dòng có sẵn trong bảng "Quản lý chỉ tiêu" — tái dùng dialog Thêm chỉ tiêu,
+  // điền sẵn đơn vị + giá trị hiện tại của chỉ tiêu đang chọn (mặc định Tổng TNT).
+  openEditDialog(row: ChiTieuQuanLyRow): void {
+    this.editingRow.set(row);
+    this.dlgDoiTuong = this.doiTuong;
+    this.dlgMaUnit   = row.maUnit;
+    this.dlgTenUnit  = row.tenUnit;
+    this.dlgChiTieu  = 'tong-tnt';
+    this.loadUnitOptions(this.dlgDoiTuong);
+    this.applyRowValueToDlg(row, this.dlgChiTieu);
+    this.showDialog.set(true);
+  }
+
   closeDialog(): void { this.showDialog.set(false); }
 
+  // Khi đang sửa 1 dòng có sẵn, đổi "Chỉ tiêu" sẽ tự điền lại "Mục tiêu" theo giá trị
+  // hiện có của dòng đó cho chỉ tiêu vừa chọn — khỏi phải tra bảng rồi gõ lại thủ công.
+  onDlgChiTieuChange(): void {
+    const row = this.editingRow();
+    if (row) this.applyRowValueToDlg(row, this.dlgChiTieu);
+  }
+
+  private applyRowValueToDlg(row: ChiTieuQuanLyRow, chiTieu: string): void {
+    const field = this.chiTieuFieldMap[chiTieu];
+    const val = field ? Number(row[field]) : 0;
+    this.dlgMucTieu = val || null;
+    this.dlgMucTieuDisplay = val ? val.toLocaleString('vi-VN') : '';
+  }
+
   onDlgDoiTuongChange(dt: DoiTuong): void {
+    this.editingRow.set(null);
     this.dlgDoiTuong = dt;
     this.dlgMaUnit   = '';
     this.dlgTenUnit  = '';

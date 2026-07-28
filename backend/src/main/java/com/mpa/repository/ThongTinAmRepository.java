@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ThongTinAmRepository extends JpaRepository<ThongTinAm, Integer> {
 
@@ -37,4 +38,9 @@ public interface ThongTinAmRepository extends JpaRepository<ThongTinAm, Integer>
     List<ThongTinAm> searchList(@Param("search") String search,
                                  @Param("trangThai") Short trangThai,
                                  @Param("maDonViCap6") String maDonViCap6);
+
+    /** Toàn bộ mã AM của 1 cán bộ (khớp chính xác tên) — dùng cho màn hình chi tiết AM theo cán bộ. */
+    List<ThongTinAm> findByTenAm(String tenAm);
+
+    Optional<ThongTinAm> findByMaAm(String maAm);
 }

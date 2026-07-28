@@ -178,6 +178,34 @@ public interface ChiTieuBscRepository extends JpaRepository<ChiTieuBscChiNhanh, 
            "GROUP BY c.nam ORDER BY c.nam")
     List<Object[]> keHoachTrendAmByNam(@Param("ma") String ma, @Param("years") List<Integer> years);
 
+    // ── XU HƯỚNG (nhiều mã AM cùng lúc — dùng cho AM detail / Cán bộ gộp) ──
+    // Cùng shape với keHoachTrendAmBy{Thang,Quy,Nam} ở trên, chỉ khác IN thay vì =.
+    // Danh sách 1 phần tử cho ra kết quả giống hệt bản = tương ứng.
+
+    @Query("SELECT c.thang, COALESCE(SUM(c.huyDongVonCuoiKy),0), COALESCE(SUM(c.casaBinhQuan),0), " +
+           "COALESCE(SUM(c.duNoTinDungCuoiKy),0), COALESCE(SUM(c.thuNhapThuanDichVu),0), " +
+           "COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
+           "COALESCE(SUM(c.thuNhapThuan),0) " +
+           "FROM ChiTieuBscChiNhanh c WHERE c.typeData = 1 AND c.nam = :nam AND c.maAm IN :maAmCodes " +
+           "GROUP BY c.thang ORDER BY c.thang")
+    List<Object[]> keHoachTrendAmListByThang(@Param("maAmCodes") List<String> maAmCodes, @Param("nam") int nam);
+
+    @Query("SELECT c.quy, COALESCE(SUM(c.huyDongVonCuoiKy),0), COALESCE(SUM(c.casaBinhQuan),0), " +
+           "COALESCE(SUM(c.duNoTinDungCuoiKy),0), COALESCE(SUM(c.thuNhapThuanDichVu),0), " +
+           "COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
+           "COALESCE(SUM(c.thuNhapThuan),0) " +
+           "FROM ChiTieuBscChiNhanh c WHERE c.typeData = 5 AND c.nam = :nam AND c.maAm IN :maAmCodes " +
+           "GROUP BY c.quy ORDER BY c.quy")
+    List<Object[]> keHoachTrendAmListByQuy(@Param("maAmCodes") List<String> maAmCodes, @Param("nam") int nam);
+
+    @Query("SELECT c.nam, COALESCE(SUM(c.huyDongVonCuoiKy),0), COALESCE(SUM(c.casaBinhQuan),0), " +
+           "COALESCE(SUM(c.duNoTinDungCuoiKy),0), COALESCE(SUM(c.thuNhapThuanDichVu),0), " +
+           "COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
+           "COALESCE(SUM(c.thuNhapThuan),0) " +
+           "FROM ChiTieuBscChiNhanh c WHERE c.typeData = 0 AND c.nam IN :years AND c.maAm IN :maAmCodes " +
+           "GROUP BY c.nam ORDER BY c.nam")
+    List<Object[]> keHoachTrendAmListByNam(@Param("maAmCodes") List<String> maAmCodes, @Param("years") List<Integer> years);
+
     // ── QUẢN LÝ: full entity list theo kỳ (kế hoạch) ────────────────
 
     @Query("SELECT c FROM ChiTieuBscChiNhanh c WHERE c.typeData = 0 AND c.nam = :nam " +

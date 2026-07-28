@@ -295,6 +295,52 @@ export interface CanBoGroup {
   trangThai: number;
 }
 
+export interface AmChiTietResponse {
+  maAmList: string[];
+  isCanBo: boolean;
+
+  tenAm: string | null;
+  maDonViCap6: string | null;
+  tenDonViCap6: string | null;
+  tenCn: string | null;
+  chucVu: string | null;
+  email: string | null;
+  soDienThoai: string | null;
+  ngayBatDau: string | null;
+  trangThai: number | null;
+
+  soThe: number;
+
+  hdvCuoiKyTh: number;
+  hdvCuoiKyKh: number;
+  hdvCuoiKyPct: number | null;
+  hdvCuoiKyDelta: number | null;
+  casaBinhQuanTh: number;
+  casaBinhQuanKh: number;
+  casaBinhQuanPct: number | null;
+  casaBinhQuanDelta: number | null;
+  duNoTh: number;
+  duNoKh: number;
+  duNoPct: number | null;
+  duNoDelta: number | null;
+  tntDichVuTh: number;
+  tntDichVuKh: number;
+  tntDichVuPct: number | null;
+  tntDichVuDelta: number | null;
+  tntHdvTh: number;
+  tntHdvKh: number;
+  tntHdvPct: number | null;
+  tntHdvDelta: number | null;
+  tntTinDungTh: number;
+  tntTinDungKh: number;
+  tntTinDungPct: number | null;
+  tntTinDungDelta: number | null;
+  tntTh: number;
+  tntKh: number;
+  tntPct: number | null;
+  tntDelta: number | null;
+}
+
 export interface ThongTinKhachHangItem {
   id: number;
   maCn: string | null;

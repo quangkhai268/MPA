@@ -100,7 +100,7 @@
             </tr>
           }
           @for (item of pageItems; track item.id; let i = $index) {
-            <tr>
+            <tr class="clickable-row" (click)="goToAmDetail(item.maAm)">
               <td class="col-stt">{{ stt(i) }}</td>
               <td class="cell-ma-am">{{ item.maAm }}</td>
               <td class="cell-ten">{{ item.tenAm }}</td>
@@ -116,10 +116,10 @@
                 </span>
               </td>
               <td class="col-actions">
-                <button class="icon-btn edit-btn" (click)="openEdit(item)" matTooltip="Chỉnh sửa">
+                <button class="icon-btn edit-btn" (click)="$event.stopPropagation(); openEdit(item)" matTooltip="Chỉnh sửa">
                   <span class="material-icons">edit</span>
                 </button>
-                <button class="icon-btn delete-btn" (click)="delete(item.id)" matTooltip="Xóa">
+                <button class="icon-btn delete-btn" (click)="$event.stopPropagation(); delete(item.id)" matTooltip="Xóa">
                   <span class="material-icons">delete</span>
                 </button>
               </td>
@@ -168,14 +168,14 @@
             </tr>
           }
           @for (group of canBoGroups(); track group.tenAm; let i = $index) {
-            <tr class="group-row" (click)="toggleExpand(group.tenAm)">
+            <tr class="group-row">
               <td class="col-stt">{{ i + 1 }}</td>
               <td class="cell-ten">
                 <div class="ten-cb-row">
-                  <span class="material-icons expand-icon">
+                  <span class="material-icons expand-icon" (click)="$event.stopPropagation(); toggleExpand(group.tenAm)">
                     {{ isExpanded(group.tenAm) ? 'expand_more' : 'chevron_right' }}
                   </span>
-                  <span class="ten-cb-text">
+                  <span class="ten-cb-text clickable-text" matTooltip="Xem chi tiết cán bộ" (click)="goToCanBoDetail(group.tenAm)">
                     {{ group.tenAm }}
                     <span class="am-count-badge">{{ group.items.length }}</span>
                   </span>
@@ -183,7 +183,7 @@
               </td>
               <td>
                 @for (item of group.items; track item.id) {
-                  <span class="am-chip">
+                  <span class="am-chip clickable-chip" matTooltip="Xem chi tiết mã AM" (click)="goToAmDetail(item.maAm)">
                     <span class="am-chip-code">{{ item.maAm }}</span>
                     <span class="loai-badge sm" [ngClass]="loaiBadgeClass(item.loaiAm)">{{ loaiLabel(item.loaiAm) }}</span>
                   </span>
@@ -203,7 +203,7 @@
             </tr>
             @if (isExpanded(group.tenAm)) {
               @for (item of group.items; track item.id) {
-                <tr class="sub-row">
+                <tr class="sub-row clickable-row" (click)="goToAmDetail(item.maAm)">
                   <td></td>
                   <td></td>
                   <td>
@@ -217,10 +217,10 @@
                     </span>
                   </td>
                   <td class="col-actions">
-                    <button class="icon-btn edit-btn" (click)="openEdit(item)" matTooltip="Chỉnh sửa">
+                    <button class="icon-btn edit-btn" (click)="$event.stopPropagation(); openEdit(item)" matTooltip="Chỉnh sửa">
                       <span class="material-icons">edit</span>
                     </button>
-                    <button class="icon-btn delete-btn" (click)="delete(item.id)" matTooltip="Xóa">
+                    <button class="icon-btn delete-btn" (click)="$event.stopPropagation(); delete(item.id)" matTooltip="Xóa">
                       <span class="material-icons">delete</span>
                     </button>
                   </td>

@@ -482,8 +482,9 @@ td.cell-chua .cell-pct { color: $gray; }
 }
 
 .th-action, .td-action {
-  width: 80px;
+  width: 110px;
   text-align: center;
+  white-space: nowrap;
 }
 
 .ql-num {
@@ -518,7 +519,7 @@ td.cell-chua .cell-pct { color: $gray; }
   &:hover { background: #004a90; }
 }
 
-.btn-del {
+.btn-edit, .btn-del {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -531,12 +532,22 @@ td.cell-chua .cell-pct { color: $gray; }
   transition: color 0.15s, border-color 0.15s, background 0.15s;
 
   mat-icon { font-size: 18px; height: 18px; width: 18px; }
+}
+
+.btn-edit {
+  margin-right: 4px;
 
   &:hover {
-    color: $red;
-    border-color: $red-border;
-    background: $red-bg;
+    color: $primary;
+    border-color: #bfdbfe;
+    background: #eff6ff;
   }
+}
+
+.btn-del:hover {
+  color: $red;
+  border-color: $red-border;
+  background: $red-bg;
 }
 
 // ── Dialog ────────────────────────────────────────────────────────────

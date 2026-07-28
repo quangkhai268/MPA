@@ -421,6 +421,10 @@
                 <td class="ql-num">{{ formatTy(row.tntTinDung) }}</td>
                 <td class="ql-num ql-total">{{ formatTy(row.thuNhapThuan) }}</td>
                 <td class="td-action">
+                  <button class="btn-edit" (click)="openEditDialog(row)"
+                          matTooltip="Sửa chỉ tiêu">
+                    <mat-icon>edit</mat-icon>
+                  </button>
                   <button class="btn-del" (click)="deleteChiTieu(row.id)"
                           matTooltip="Xóa chỉ tiêu">
                     <mat-icon>delete_outline</mat-icon>
@@ -441,7 +445,7 @@
           <!-- Header -->
           <div class="dialog-header">
             <span class="dialog-icon">◎</span>
-            <h3>Thêm chỉ tiêu BSC</h3>
+            <h3>{{ editingRow() ? 'Sửa chỉ tiêu BSC' : 'Thêm chỉ tiêu BSC' }}</h3>
             <button class="dialog-close" (click)="closeDialog()">
               <mat-icon>close</mat-icon>
             </button>
@@ -486,7 +490,7 @@
             <!-- Chỉ tiêu -->
             <div class="form-row">
               <label class="form-label">Chỉ tiêu</label>
-              <select [(ngModel)]="dlgChiTieu" class="form-select">
+              <select [(ngModel)]="dlgChiTieu" (change)="onDlgChiTieuChange()" class="form-select">
                 @for (ct of chiTieuOptions; track ct.value) {
                   <option [value]="ct.value">{{ ct.label }}</option>
                 }

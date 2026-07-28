@@ -3,31 +3,42 @@
 Initial chunk files | Names                       |  Raw size
 styles.css          | styles                      |  93.55 kB | 
 polyfills.js        | polyfills                   |  88.09 kB | 
-main.js             | main                        |   5.44 kB | 
+main.js             | main                        |   5.93 kB | 
 chunk-BZPASSYS.js   | -                           |   3.75 kB | 
 chunk-GGQRMPSQ.js   | -                           |   1.64 kB | 
 
-                    | Initial total               | 192.47 kB
+                    | Initial total               | 192.95 kB
 
 Lazy chunk files    | Names                       |  Raw size
-chunk-QWPYCEP3.js   | dashboard-component         | 144.28 kB | 
-chunk-AKTA4WV4.js   | giao-chi-tieu-component     | 102.23 kB | 
-chunk-GC5PVU2U.js   | quan-ly-the-component       |  91.11 kB | 
-chunk-MIWP4RAQ.js   | khach-hang-detail-component |  86.68 kB | 
-chunk-ND7QB55T.js   | du-lieu-mpa-component       |  65.30 kB | 
-chunk-T4GAKPJU.js   | cai-dat-canh-bao-component  |  61.39 kB | 
-chunk-3SKIM2PS.js   | quan-ly-am-component        |  56.51 kB | 
-chunk-PU3QSNRG.js   | khach-hang-component        |  56.34 kB | 
+chunk-C4UFF3L2.js   | dashboard-component         | 144.28 kB | 
+chunk-N5SKTZ7O.js   | giao-chi-tieu-component     | 104.65 kB | 
+chunk-NKWFERTO.js   | quan-ly-the-component       |  91.11 kB | 
+chunk-54EZAN77.js   | khach-hang-detail-component |  86.68 kB | 
+chunk-C4WT27BB.js   | du-lieu-mpa-component       |  65.30 kB | 
+chunk-CYR6JZNM.js   | cai-dat-canh-bao-component  |  61.39 kB | 
+chunk-3KPL3T76.js   | quan-ly-am-component        |  59.19 kB | 
+chunk-5GENLIGC.js   | khach-hang-component        |  56.34 kB | 
 chunk-EYIKMSQF.js   | quan-tri-component          |  53.62 kB | 
-chunk-LJYXM5AB.js   | the-detail-component        |  53.37 kB | 
-chunk-W3ODS52W.js   | bao-cao-component           |  43.88 kB | 
+chunk-2WU5XFAY.js   | the-detail-component        |  53.37 kB | 
+chunk-WDZ2PYCD.js   | bao-cao-component           |  43.88 kB | 
+chunk-6D2MHHC5.js   | am-detail-component         |  43.27 kB | 
 chunk-4U5TUEXH.js   | chien-dich-form-component   |  38.96 kB | 
 chunk-NK2SXJEM.js   | tai-du-lieu-len-component   |  32.47 kB | 
 chunk-57L4RRJQ.js   | main-layout-component       |  28.07 kB | 
-chunk-QTPAJLTR.js   | login-component             |  18.08 kB | 
-...and 4 more lazy chunks files. Use "--verbose" to show all the files.
+...and 5 more lazy chunks files. Use "--verbose" to show all the files.
 
-Application bundle generation complete. [24.820 seconds]
+Application bundle generation complete. [16.905 seconds]
 
 Watch mode enabled. Watching for file changes...
   ➜  Local:   http://localhost:4200/
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names               | Raw size
+main.js             | main                |  5.93 kB | 
+
+Lazy chunk files    | Names               | Raw size
+chunk-2AV7Y2B6.js   | am-detail-component | 43.54 kB | 
+
+Application bundle generation complete. [5.680 seconds]
+
+Page reload sent to client(s).

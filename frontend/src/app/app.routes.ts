@@ -42,6 +42,16 @@ export const routes: Routes = [
         loadComponent: () => import('./features/quan-ly-am/quan-ly-am.component').then(m => m.QuanLyAmComponent)
       },
       {
+        // Lưu ý: route tĩnh 'quan-ly-am/can-bo/:tenAm' PHẢI khai báo TRƯỚC route động
+        // 'quan-ly-am/:maAm' bên dưới, nếu không router sẽ khớp nhầm 'can-bo' vào :maAm.
+        path: 'quan-ly-am/can-bo/:tenAm',
+        loadComponent: () => import('./features/quan-ly-am/am-detail/am-detail.component').then(m => m.AmDetailComponent)
+      },
+      {
+        path: 'quan-ly-am/:maAm',
+        loadComponent: () => import('./features/quan-ly-am/am-detail/am-detail.component').then(m => m.AmDetailComponent)
+      },
+      {
         path: 'khach-hang',
         loadComponent: () => import('./features/khach-hang/khach-hang.component').then(m => m.KhachHangComponent)
       },

@@ -32,6 +32,7 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
             OR LOWER(COALESCE(t.amIssuingContract,'')) LIKE LOWER(CONCAT('%', :amSearch, '%'))
             OR t.amIssuingContract IN (
                 SELECT a.maAm FROM ThongTinAm a WHERE LOWER(a.tenAm) LIKE LOWER(CONCAT('%', :amSearch, '%'))))
+        AND (:amCodes IS NULL OR t.amIssuingContract IN :amCodes)
         AND (:chuaKichHoat = false OR t.soNgayChuaKichHoat > :soNgayMin)
         AND (:chuaPsgd = false OR (t.soNgayChuaKichHoat = 0 AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn = 0)))
         AND (
@@ -49,6 +50,7 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
             @Param("loaiTheTinDung") String loaiTheTinDung,
             @Param("maDonViCap6") String maDonViCap6,
             @Param("amSearch") String amSearch,
+            @Param("amCodes") List<String> amCodes,
             @Param("chuaKichHoat") boolean chuaKichHoat,
             @Param("soNgayMin") int soNgayMin,
             @Param("chuaPsgd") boolean chuaPsgd,
@@ -72,6 +74,8 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
     List<String> findDistinctNhomKhThe();
 
     List<ThePhatHanh> findBySoCifKhachHangPhtOrderByIdDesc(String soCifKhachHangPht);
+
+    long countByAmIssuingContractIn(List<String> amCodes);
 
     @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE t.soNgayChuaKichHoat > 0")
     long countChuaKichHoat();
