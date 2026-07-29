@@ -42,3 +42,25 @@ chunk-2AV7Y2B6.js   | am-detail-component | 43.54 kB |
 Application bundle generation complete. [5.680 seconds]
 
 Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names               | Raw size
+main.js             | main                |  5.93 kB | 
+
+Lazy chunk files    | Names               | Raw size
+chunk-6D2MHHC5.js   | am-detail-component | 43.27 kB | 
+
+Application bundle generation complete. [1.219 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names               | Raw size
+main.js             | main                |  5.93 kB | 
+
+Lazy chunk files    | Names               | Raw size
+chunk-DJK2G2V5.js   | am-detail-component | 43.27 kB | 
+
+Application bundle generation complete. [1.722 seconds]
+
+Page reload sent to client(s).
