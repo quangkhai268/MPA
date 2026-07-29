@@ -21,46 +21,24 @@ chunk-5GENLIGC.js   | khach-hang-component        |  56.34 kB |
 chunk-EYIKMSQF.js   | quan-tri-component          |  53.62 kB | 
 chunk-2WU5XFAY.js   | the-detail-component        |  53.37 kB | 
 chunk-WDZ2PYCD.js   | bao-cao-component           |  43.88 kB | 
-chunk-6D2MHHC5.js   | am-detail-component         |  43.27 kB | 
+chunk-DJK2G2V5.js   | am-detail-component         |  43.27 kB | 
 chunk-4U5TUEXH.js   | chien-dich-form-component   |  38.96 kB | 
 chunk-NK2SXJEM.js   | tai-du-lieu-len-component   |  32.47 kB | 
 chunk-57L4RRJQ.js   | main-layout-component       |  28.07 kB | 
 ...and 5 more lazy chunks files. Use "--verbose" to show all the files.
 
-Application bundle generation complete. [16.905 seconds]
+Application bundle generation complete. [19.243 seconds]
 
 Watch mode enabled. Watching for file changes...
   ➜  Local:   http://localhost:4200/
 - Changes detected. Rebuilding...
 
-Initial chunk files | Names               | Raw size
-main.js             | main                |  5.93 kB | 
+Initial chunk files | Names                 | Raw size
+main.js             | main                  |  5.93 kB | 
 
-Lazy chunk files    | Names               | Raw size
-chunk-2AV7Y2B6.js   | am-detail-component | 43.54 kB | 
+Lazy chunk files    | Names                 | Raw size
+chunk-ZBVPU7CO.js   | du-lieu-mpa-component | 65.35 kB | 
 
-Application bundle generation complete. [5.680 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names               | Raw size
-main.js             | main                |  5.93 kB | 
-
-Lazy chunk files    | Names               | Raw size
-chunk-6D2MHHC5.js   | am-detail-component | 43.27 kB | 
-
-Application bundle generation complete. [1.219 seconds]
-
-Page reload sent to client(s).
-- Changes detected. Rebuilding...
-
-Initial chunk files | Names               | Raw size
-main.js             | main                |  5.93 kB | 
-
-Lazy chunk files    | Names               | Raw size
-chunk-DJK2G2V5.js   | am-detail-component | 43.27 kB | 
-
-Application bundle generation complete. [1.722 seconds]
+Application bundle generation complete. [7.410 seconds]
 
 Page reload sent to client(s).

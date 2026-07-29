@@ -60,6 +60,7 @@ export class DuLieuMpaComponent implements OnInit {
         for (let i = 0; i < 24; i++) {
           let m = month - i; let y = year;
           while (m <= 0) { m += 12; y--; }
+          if (y === 2025) continue; // ẩn các tháng thuộc năm 2025
           opts.push({ value: `${String(m).padStart(2,'0')}/${y}`, label: `Tháng ${String(m).padStart(2,'0')}/${y}` });
         }
         return opts;
