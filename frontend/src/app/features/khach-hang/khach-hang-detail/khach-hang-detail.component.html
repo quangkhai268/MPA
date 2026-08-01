@@ -369,6 +369,7 @@
         @if (!kh.danhSachDichVu || kh.danhSachDichVu.length === 0) {
           <div class="the-empty">Không có dữ liệu sản phẩm/dịch vụ trong kỳ này.</div>
         } @else {
+          <div class="table-scroll">
           <table class="dv-table">
             <thead>
               <tr>
@@ -391,6 +392,7 @@
               }
             </tbody>
           </table>
+          </div>
         }
       </div>
 

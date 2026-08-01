@@ -1,4 +1,8 @@
-<aside class="sidebar" [class.collapsed]="collapsed()">
+@if (layoutState.mobileNavOpen()) {
+  <div class="sidebar-backdrop" (click)="layoutState.close()"></div>
+}
+
+<aside class="sidebar" [class.collapsed]="collapsed()" [class.mobile-open]="layoutState.mobileNavOpen()">
   <!-- Logo -->
   <div class="sidebar-logo">
     <div class="logo-mark">B</div>

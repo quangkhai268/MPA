@@ -81,6 +81,7 @@
   <!-- ══════════════════ THEO MÃ AM ════════════════════════════════ -->
   @if (!loading() && viewMode === 'ma-am') {
     <div class="table-card">
+      <div class="table-scroll">
       <table class="data-table">
         <thead>
           <tr>
@@ -127,6 +128,7 @@
           }
         </tbody>
       </table>
+      </div>
 
       <!-- Pagination -->
       @if (totalPages > 1) {
@@ -150,6 +152,7 @@
   <!-- ══════════════════ THEO CÁN BỘ ══════════════════════════════ -->
   @if (!loading() && viewMode === 'can-bo') {
     <div class="table-card">
+      <div class="table-scroll">
       <table class="data-table">
         <thead>
           <tr>
@@ -230,6 +233,7 @@
           }
         </tbody>
       </table>
+      </div>
     </div>
   }
 

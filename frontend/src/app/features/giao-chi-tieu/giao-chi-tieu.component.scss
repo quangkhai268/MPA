@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // ── Variables ────────────────────────────────────────────────────────
 $primary:     #005BAA;
 $green:       #16a34a;
@@ -186,6 +188,7 @@ $gray-border: #e5e7eb;
   margin-bottom: 20px;
 
   @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+  @include bp.mobile { grid-template-columns: 1fr; }
 }
 
 .summary-card {

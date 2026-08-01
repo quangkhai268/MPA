@@ -210,8 +210,13 @@ $text:         #1A1A2E;
   overflow: hidden;
 }
 
+.table-scroll {
+  overflow-x: auto;
+}
+
 .data-table {
   width: 100%;
+  min-width: 700px;
   border-collapse: collapse;
   font-size: 13px;
 

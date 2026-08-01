@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { filter } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { LayoutStateService } from '../../core/services/layout-state.service';
 
 interface NavItem {
   label: string;
@@ -23,6 +24,7 @@ interface NavItem {
 })
 export class SidebarComponent {
   auth = inject(AuthService);
+  layoutState = inject(LayoutStateService);
   collapsed = signal(false);
   activeRoute = signal('');
 
@@ -69,6 +71,7 @@ export class SidebarComponent {
   constructor(private router: Router) {
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((e: any) => {
       this.activeRoute.set(e.urlAfterRedirects);
+      this.layoutState.close(); // đóng drawer mobile sau khi chuyển trang
     });
     this.activeRoute.set(this.router.url);
   }

@@ -1,0 +1,16 @@
+// Breakpoint constants dùng chung cho toàn bộ app — @use partial này thay vì
+// hardcode lại 900px/600px ở từng file, để mốc responsive nhất quán.
+$bp-tablet: 900px;
+$bp-mobile: 600px;
+
+@mixin tablet {
+  @media (max-width: $bp-tablet) {
+    @content;
+  }
+}
+
+@mixin mobile {
+  @media (max-width: $bp-mobile) {
+    @content;
+  }
+}

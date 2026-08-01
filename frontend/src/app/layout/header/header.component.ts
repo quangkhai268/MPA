@@ -8,6 +8,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../core/services/auth.service';
+import { LayoutStateService } from '../../core/services/layout-state.service';
 
 @Component({
   selector: 'app-header',
@@ -22,6 +23,7 @@ import { AuthService } from '../../core/services/auth.service';
 export class HeaderComponent {
   auth = inject(AuthService);
   router = inject(Router);
+  layoutState = inject(LayoutStateService);
   notifCount = signal(3);
 
   logout(): void { this.auth.logout(); }

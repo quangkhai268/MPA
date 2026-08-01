@@ -36,6 +36,11 @@ import { HeaderComponent } from '../header/header.component';
       padding: 24px;
       background: var(--color-bg);
     }
+    @media (max-width: 900px) {
+      .main-content {
+        padding: 12px;
+      }
+    }
   `]
 })
 export class MainLayoutComponent {}

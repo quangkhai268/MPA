@@ -1,4 +1,9 @@
 <header class="app-header">
+  <!-- Hamburger — chỉ hiện trên tablet/mobile, mở/đóng sidebar drawer -->
+  <button mat-icon-button class="hamburger-btn" (click)="layoutState.toggle()" matTooltip="Menu">
+    <span class="material-icons">menu</span>
+  </button>
+
   <!-- Page title -->
   <div class="page-info">
     <h1 class="page-title">{{ pageTitle }}</h1>

@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host { display: block; height: 100vh; }
 
 .login-page {
@@ -113,6 +115,8 @@
   padding: 40px;
   background: #f8fafc;
   position: relative;
+
+  @include bp.mobile { padding: 20px; }
 }
 
 .login-card {

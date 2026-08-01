@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // ── Variables ─────────────────────────────────────────────────────────
 $primary:      #005BAA;
 $primary-dark: #1C3557;
@@ -139,7 +141,12 @@ $text:         #1A1A2E;
   }
 }
 
-.filter-group--search { width: 300px; flex-shrink: 0; }
+.filter-group--search {
+  width: 300px;
+  flex-shrink: 0;
+
+  @include bp.mobile { width: 100%; }
+}
 
 .search-input-wrap {
   position: relative;
@@ -239,8 +246,13 @@ $text:         #1A1A2E;
   overflow: hidden;
 }
 
+.table-scroll {
+  overflow-x: auto;
+}
+
 .data-table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
   font-size: 13px;
 

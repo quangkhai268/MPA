@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // ── Variables ─────────────────────────────────────────────────────────
 $primary:      #005BAA;
 $primary-dark: #1C3557;
@@ -55,6 +57,7 @@ $text:         #1A1A2E;
 
   @media (max-width: 1200px) { grid-template-columns: repeat(3, 1fr); }
   @media (max-width: 768px)  { grid-template-columns: repeat(2, 1fr); }
+  @include bp.mobile { grid-template-columns: 1fr; }
 }
 
 .kpi-card {
@@ -179,6 +182,7 @@ $text:         #1A1A2E;
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .search-field {

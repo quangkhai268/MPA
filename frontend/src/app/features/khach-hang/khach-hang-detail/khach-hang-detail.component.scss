@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // ── Variables ─────────────────────────────────────────────────────────
 $primary:   #005BAA;
 $green:     #009640;
@@ -386,6 +388,7 @@ $gray-bg: #F9FAFB;
   display: grid; grid-template-columns: repeat(4, 1fr);
   gap: 12px; margin-bottom: 14px;
   @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+  @include bp.mobile { grid-template-columns: 1fr; }
 }
 .the-stat-box {
   background: $gray-bg; border-radius: 10px; padding: 12px 14px;
@@ -486,8 +489,13 @@ $gray-bg: #F9FAFB;
   overflow: hidden;
 }
 
+.table-scroll {
+  overflow-x: auto;
+}
+
 .dv-table {
   width: 100%;
+  min-width: 640px;
   border-collapse: collapse;
   font-size: 13px;
 

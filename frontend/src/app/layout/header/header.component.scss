@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host { display: block; }
 
 .app-header {
@@ -9,6 +11,17 @@
   justify-content: space-between;
   padding: 0 24px;
   box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  gap: 8px;
+}
+
+.hamburger-btn {
+  display: none;
+  color: var(--color-text) !important;
+  flex-shrink: 0;
+
+  @include bp.tablet {
+    display: flex;
+  }
 }
 
 .page-info {

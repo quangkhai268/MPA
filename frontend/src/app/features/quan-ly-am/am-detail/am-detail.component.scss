@@ -178,8 +178,11 @@ $text:         #1A1A2E;
 .table-card {
   background: #fff; border: 1px solid $gray-border; border-radius: 10px; overflow: hidden;
 }
+.table-scroll {
+  overflow-x: auto;
+}
 .data-table {
-  width: 100%; border-collapse: collapse; font-size: 13px;
+  width: 100%; min-width: 560px; border-collapse: collapse; font-size: 13px;
 
   thead tr { background: $gray-bg; border-bottom: 1.5px solid $gray-border; }
   th {
