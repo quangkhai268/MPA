@@ -60,6 +60,23 @@ app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:65084,https://mpa-green.vercel.app}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        # Chỉ mở health + info ra ngoài — KHÔNG thêm env/beans/configprops... vì
+        # SecurityConfig đang permitAll() mọi request, mở thêm sẽ lộ DB_PASSWORD/JWT_SECRET.
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+  health:
+    # Mail health indicator tự bật kèm spring-boot-starter-mail và fail khi SMTP
+    # chưa cấu hình (mặc định localhost:25) — email là tính năng tùy chọn
+    # (CARD_EMAIL_ENABLED), không nên kéo cả app xuống DOWN vì SMTP chưa sẵn sàng.
+    mail:
+      enabled: false
+
 logging:
   level:
     com.mpa: DEBUG
