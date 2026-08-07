@@ -3,10 +3,20 @@ package com.mpa.service.impl;
 import com.mpa.dto.FileImportResult;
 import com.mpa.service.ThePhatHanhImportService;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ooxml.util.SAXHelper;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable;
+import org.apache.poi.xssf.eventusermodel.XSSFReader;
+import org.apache.poi.xssf.eventusermodel.XSSFSheetXMLHandler;
+import org.apache.poi.xssf.model.StylesTable;
+import org.apache.poi.xssf.usermodel.XSSFComment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -14,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +36,13 @@ import java.util.Map;
  * Vì vậy luồng nạp dùng staging table: stage toàn bộ trước, chỉ khi thành công mới
  * TRUNCATE bảng sống rồi nạp lại từ staging trong 1 transaction — dữ liệu cũ không bao giờ
  * bị xóa nếu quá trình đọc/stage file mới thất bại giữa chừng.
+ *
+ * File .xlsx đọc bằng SAX streaming (XSSFReader) — tránh OutOfMemoryError khi file có
+ * hàng chục nghìn dòng (WorkbookFactory/XSSFWorkbook load toàn bộ DOM vào RAM, đã gây OOM
+ * thật trên VPS RAM thấp dù chạy bình thường ở máy local nhiều RAM hơn). Cùng pattern đã
+ * dùng ổn định ở DuLieuMpaImportServiceImpl cho file MPA. File .xls (nhị phân cũ, không có
+ * XSSFReader tương ứng, và có giới hạn cứng 65.536 dòng nên không có rủi ro OOM tương tự)
+ * vẫn đọc qua WorkbookFactory như cũ.
  */
 @Service
 @RequiredArgsConstructor
@@ -38,10 +56,12 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
             DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy"),
             DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"),
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"),
     };
     private static final DateTimeFormatter[] DATE_FORMATS = {
             DateTimeFormatter.ofPattern("yyyy-MM-dd"),
             DateTimeFormatter.ofPattern("dd-MM-yyyy"),
+            DateTimeFormatter.ofPattern("dd/MM/yyyy"),
     };
 
     private enum ColType { TEXT, TEXT_NUM_SAFE, INTEGER, DECIMAL, DATE, TIMESTAMP }
@@ -116,6 +136,149 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
 
     @Override
     public FileImportResult stageFile(InputStream excelStream, String fileName) {
+        boolean isXlsx = fileName != null && fileName.toLowerCase().endsWith(".xlsx");
+        return isXlsx ? stageXlsxStreaming(excelStream, fileName) : stageLegacyDom(excelStream, fileName);
+    }
+
+    // ── .xlsx: SAX streaming (bộ nhớ hằng định, không phụ thuộc số dòng) ────
+
+    private FileImportResult stageXlsxStreaming(InputStream excelStream, String fileName) {
+        RowHandler handler = new RowHandler();
+        try (OPCPackage pkg = OPCPackage.open(excelStream)) {
+            XSSFReader reader = new XSSFReader(pkg);
+            StylesTable styles = reader.getStylesTable();
+            ReadOnlySharedStringsTable sst = new ReadOnlySharedStringsTable(pkg);
+            XSSFReader.SheetIterator sheets = (XSSFReader.SheetIterator) reader.getSheetsData();
+
+            // Chỉ đọc sheet đầu tiên — khớp hành vi cũ (wb.getSheetAt(0)).
+            if (sheets.hasNext()) {
+                try (InputStream sheetStream = sheets.next()) {
+                    XMLReader xmlReader = SAXHelper.newXMLReader();
+                    xmlReader.setContentHandler(new XSSFSheetXMLHandler(styles, sst, handler, false));
+                    xmlReader.parse(new InputSource(sheetStream));
+                }
+            }
+            handler.flush();
+            return handler.buildResult(fileName);
+        } catch (Exception e) {
+            return new FileImportResult(fileName, "ISS_02", 0, "FAILED", "Lỗi đọc file: " + e.getMessage(), null);
+        }
+    }
+
+    private class RowHandler implements XSSFSheetXMLHandler.SheetContentsHandler {
+
+        private final Map<Integer, String> currentRow = new HashMap<>();
+        private final List<Object[]> batch = new ArrayList<>(BATCH_SIZE);
+
+        private Map<String, Integer> headerIndex;
+        private List<String> missingColumns;
+        private int totalStaged = 0;
+        private int totalSkipped = 0;
+
+        void flush() {
+            if (!batch.isEmpty()) {
+                jdbcTemplate.batchUpdate(STAGING_INSERT_SQL, batch);
+                batch.clear();
+            }
+        }
+
+        FileImportResult buildResult(String fileName) {
+            if (headerIndex == null) {
+                return new FileImportResult(fileName, "ISS_02", 0, "FAILED", "File rỗng, không tìm thấy dòng tiêu đề", null);
+            }
+            if (missingColumns != null) {
+                return new FileImportResult(fileName, "ISS_02", 0, "FAILED",
+                        "Thiếu cột: " + String.join(", ", missingColumns), null);
+            }
+            if (totalStaged == 0) {
+                return new FileImportResult(fileName, "ISS_02", 0, "FAILED", "Không có dòng dữ liệu hợp lệ", null);
+            }
+            String ghiChu = totalSkipped > 0 ? ("Bỏ qua " + totalSkipped + " dòng lỗi/trống") : null;
+            return new FileImportResult(fileName, "ISS_02", totalStaged, "SUCCESS", ghiChu, null);
+        }
+
+        @Override
+        public void startRow(int rowNum) {
+            currentRow.clear();
+        }
+
+        @Override
+        public void endRow(int rowNum) {
+            if (headerIndex == null) {
+                processHeaderRow();
+            } else if (missingColumns == null) {
+                processDataRow();
+            }
+        }
+
+        @Override
+        public void cell(String cellReference, String formattedValue, XSSFComment comment) {
+            if (cellReference == null) return;
+            int col = new CellReference(cellReference).getCol();
+            currentRow.put(col, formattedValue);
+        }
+
+        @Override
+        public void headerFooter(String text, boolean isHeader, String tagName) {
+            // không dùng
+        }
+
+        private void processHeaderRow() {
+            Map<String, Integer> idx = new LinkedHashMap<>();
+            for (Map.Entry<Integer, String> e : currentRow.entrySet()) {
+                String v = e.getValue();
+                if (v != null && !v.isBlank()) idx.put(v.trim(), e.getKey());
+            }
+            headerIndex = idx;
+
+            List<String> missing = new ArrayList<>();
+            for (ColumnDef c : COLUMNS) {
+                if (!idx.containsKey(c.header())) missing.add(c.header());
+            }
+            if (!missing.isEmpty()) missingColumns = missing;
+        }
+
+        private void processDataRow() {
+            Integer cardIdCol = headerIndex.get("CARD ID");
+            Integer soTheCol = headerIndex.get("Số thẻ đã phát hành");
+            String cardId = cardIdCol != null ? currentRow.get(cardIdCol) : null;
+            String soThe = soTheCol != null ? currentRow.get(soTheCol) : null;
+            if (isBlank(cardId) && isBlank(soThe)) {
+                totalSkipped++; // dòng trắng
+                return;
+            }
+
+            try {
+                Object[] values = new Object[COLUMNS.size()];
+                for (int i = 0; i < COLUMNS.size(); i++) {
+                    ColumnDef c = COLUMNS.get(i);
+                    String raw = currentRow.get(headerIndex.get(c.header()));
+                    values[i] = switch (c.type()) {
+                        case TEXT, TEXT_NUM_SAFE -> textOrNull(raw);
+                        case INTEGER -> parseIntegerStr(raw);
+                        case DECIMAL -> parseDecimalStr(raw);
+                        case DATE -> parseDateStr(raw);
+                        case TIMESTAMP -> parseDateTimeStr(raw);
+                    };
+                }
+                batch.add(values);
+                totalStaged++;
+            } catch (Exception ex) {
+                totalSkipped++;
+                return;
+            }
+
+            if (batch.size() >= BATCH_SIZE) {
+                jdbcTemplate.batchUpdate(STAGING_INSERT_SQL, batch);
+                batch.clear();
+            }
+        }
+    }
+
+    // ── .xls (nhị phân cũ): giữ nguyên cách đọc DOM cũ — không có API streaming
+    // tương ứng, và giới hạn cứng 65.536 dòng của .xls khiến rủi ro OOM không đáng kể. ──
+
+    private FileImportResult stageLegacyDom(InputStream excelStream, String fileName) {
         try (Workbook wb = WorkbookFactory.create(excelStream)) {
             Sheet sheet = wb.getSheetAt(0);
             Row headerRow = sheet.getRow(sheet.getFirstRowNum());
@@ -148,7 +311,7 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
                 Row row = sheet.getRow(r);
                 if (row == null) continue;
                 try {
-                    Object[] values = parseRow(row, headerIndex);
+                    Object[] values = parseLegacyRow(row, headerIndex);
                     if (values == null) { totalSkipped++; continue; } // dòng trắng
                     batch.add(values);
                     totalStaged++;
@@ -176,33 +339,14 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
         }
     }
 
-    @Override
-    @Transactional
-    public void commitStagedData() {
-        StringBuilder cols = new StringBuilder();
-        for (ColumnDef c : COLUMNS) {
-            if (cols.length() > 0) cols.append(", ");
-            cols.append(c.dbColumn());
-        }
-        jdbcTemplate.execute("TRUNCATE TABLE the_phat_hanh");
-        jdbcTemplate.execute(
-                "INSERT INTO the_phat_hanh (" + cols + ", created_at) " +
-                "SELECT " + cols + ", now() FROM the_phat_hanh_staging"
-        );
-        jdbcTemplate.execute("TRUNCATE TABLE the_phat_hanh_staging");
-    }
-
-    // ── Row / cell parsing ──────────────────────────────────────────────
-
-    /** Trả về null nếu dòng hoàn toàn trống (bỏ qua, không tính lỗi). */
-    private Object[] parseRow(Row row, Map<String, Integer> headerIndex) {
+    private Object[] parseLegacyRow(Row row, Map<String, Integer> headerIndex) {
         Integer cardIdIdx = headerIndex.get("CARD ID");
         Integer soTheIdx = headerIndex.get("Số thẻ đã phát hành");
         Cell cardIdCell = cardIdIdx != null ? row.getCell(cardIdIdx) : null;
         Cell soTheCell = soTheIdx != null ? row.getCell(soTheIdx) : null;
         String cardId = getCellAsString(cardIdCell);
         String soThe = getCellAsString(soTheCell);
-        if ((cardId == null || cardId.isBlank()) && (soThe == null || soThe.isBlank())) {
+        if (isBlank(cardId) && isBlank(soThe)) {
             return null;
         }
 
@@ -221,6 +365,77 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
         return values;
     }
 
+    @Override
+    @Transactional
+    public void commitStagedData() {
+        StringBuilder cols = new StringBuilder();
+        for (ColumnDef c : COLUMNS) {
+            if (cols.length() > 0) cols.append(", ");
+            cols.append(c.dbColumn());
+        }
+        jdbcTemplate.execute("TRUNCATE TABLE the_phat_hanh");
+        jdbcTemplate.execute(
+                "INSERT INTO the_phat_hanh (" + cols + ", created_at) " +
+                "SELECT " + cols + ", now() FROM the_phat_hanh_staging"
+        );
+        jdbcTemplate.execute("TRUNCATE TABLE the_phat_hanh_staging");
+    }
+
+    // ── Parsing helpers dùng chung (String đã format sẵn — cả 2 đường .xlsx/.xls
+    // đều quy về String trước khi ép kiểu, để không phải viết trùng logic parse) ──
+
+    private static boolean isBlank(String s) {
+        return s == null || s.isBlank();
+    }
+
+    private static String textOrNull(String s) {
+        if (s == null) return null;
+        String t = s.trim();
+        return t.isEmpty() ? null : t;
+    }
+
+    private static Integer parseIntegerStr(String s) {
+        if (isBlank(s)) return null;
+        try {
+            return (int) Double.parseDouble(s.trim().replace(",", ""));
+        } catch (Exception e) { return null; }
+    }
+
+    private static BigDecimal parseDecimalStr(String s) {
+        if (isBlank(s)) return null;
+        try {
+            return new BigDecimal(s.trim().replace(",", ""));
+        } catch (Exception e) { return null; }
+    }
+
+    private static LocalDate parseDateStr(String s) {
+        if (isBlank(s)) return null;
+        String t = s.trim();
+        for (DateTimeFormatter f : DATE_FORMATS) {
+            try { return LocalDate.parse(t, f); } catch (Exception ignored) {}
+        }
+        LocalDateTime dt = tryParseDateTime(t);
+        return dt != null ? dt.toLocalDate() : null;
+    }
+
+    private static LocalDateTime parseDateTimeStr(String s) {
+        if (isBlank(s)) return null;
+        String t = s.trim();
+        LocalDateTime dt = tryParseDateTime(t);
+        if (dt != null) return dt;
+        LocalDate d = parseDateStr(t);
+        return d != null ? d.atStartOfDay() : null;
+    }
+
+    private static LocalDateTime tryParseDateTime(String s) {
+        for (DateTimeFormatter f : DATETIME_FORMATS) {
+            try { return LocalDateTime.parse(s, f); } catch (Exception ignored) {}
+        }
+        return null;
+    }
+
+    // ── Cell helpers — chỉ dùng cho đường .xls DOM cũ ───────────────────
+
     private String getCellAsString(Cell cell) {
         if (cell == null) return null;
         switch (cell.getCellType()) {
@@ -237,24 +452,18 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
             case BOOLEAN:
                 return String.valueOf(cell.getBooleanCellValue());
             case FORMULA:
-                try { return getCellAsString0(cell.getStringCellValue()); }
-                catch (Exception e) { return getCellAsString0(String.valueOf(cell.getNumericCellValue())); }
+                try { return textOrNull(cell.getStringCellValue()); }
+                catch (Exception e) { return textOrNull(String.valueOf(cell.getNumericCellValue())); }
             default:
                 return null;
         }
-    }
-
-    private String getCellAsString0(String s) {
-        return s == null || s.isBlank() ? null : s.trim();
     }
 
     private Integer getCellAsInteger(Cell cell) {
         if (cell == null) return null;
         try {
             if (cell.getCellType() == CellType.NUMERIC) return (int) cell.getNumericCellValue();
-            String s = getCellAsString(cell);
-            if (s == null) return null;
-            return (int) Double.parseDouble(s.trim());
+            return parseIntegerStr(getCellAsString(cell));
         } catch (Exception e) { return null; }
     }
 
@@ -262,9 +471,7 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
         if (cell == null) return null;
         try {
             if (cell.getCellType() == CellType.NUMERIC) return BigDecimal.valueOf(cell.getNumericCellValue());
-            String s = getCellAsString(cell);
-            if (s == null) return null;
-            return new BigDecimal(s.trim().replace(",", ""));
+            return parseDecimalStr(getCellAsString(cell));
         } catch (Exception e) { return null; }
     }
 
@@ -273,14 +480,7 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
         if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
             return cell.getLocalDateTimeCellValue().toLocalDate();
         }
-        String s = getCellAsString(cell);
-        if (s == null) return null;
-        s = s.trim();
-        for (DateTimeFormatter f : DATE_FORMATS) {
-            try { return LocalDate.parse(s, f); } catch (Exception ignored) {}
-        }
-        LocalDateTime dt = tryParseDateTime(s);
-        return dt != null ? dt.toLocalDate() : null;
+        return parseDateStr(getCellAsString(cell));
     }
 
     private LocalDateTime getCellAsDateTime(Cell cell) {
@@ -288,18 +488,6 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
         if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
             return cell.getLocalDateTimeCellValue();
         }
-        String s = getCellAsString(cell);
-        if (s == null) return null;
-        LocalDateTime dt = tryParseDateTime(s.trim());
-        if (dt != null) return dt;
-        LocalDate d = getCellAsDate(cell);
-        return d != null ? d.atStartOfDay() : null;
-    }
-
-    private LocalDateTime tryParseDateTime(String s) {
-        for (DateTimeFormatter f : DATETIME_FORMATS) {
-            try { return LocalDateTime.parse(s, f); } catch (Exception ignored) {}
-        }
-        return null;
+        return parseDateTimeStr(getCellAsString(cell));
     }
 }
