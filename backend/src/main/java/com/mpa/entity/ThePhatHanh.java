@@ -145,4 +145,9 @@ public class ThePhatHanh {
 
     @Column(name = "so_gttt")
     private String soGttt;
+
+    // Tự tính khi import: ngay_thu_phi_thuong_nien_gan_nhat + 1 năm. NULL nếu thẻ thuộc
+    // Card Auto-Closed/Closed/Fraud/Lost (không tính PTN) — xem commitStagedData().
+    @Column(name = "ngay_thu_phi_thuong_tien_tiep_theo")
+    private LocalDate ngayThuPhiThuongTienTiepTheo;
 }

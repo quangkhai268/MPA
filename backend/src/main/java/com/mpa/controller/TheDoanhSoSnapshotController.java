@@ -50,7 +50,7 @@ public class TheDoanhSoSnapshotController {
     @PostMapping("/snapshot/run-now")
     public ApiResponse<Integer> runNow() {
         try {
-            return ApiResponse.ok(snapshotService.runDailySnapshot());
+            return ApiResponse.ok(snapshotService.runSnapshot(LocalDate.now()));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi khi chạy snapshot: " + e.getMessage());
         }

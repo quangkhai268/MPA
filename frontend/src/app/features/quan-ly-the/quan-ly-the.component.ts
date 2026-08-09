@@ -88,6 +88,7 @@ export class QuanLyTheComponent implements OnInit {
       this.chuaPsgd        = qp.get('chuaPsgd') === '1';
       this.chuaDatPtn      = qp.get('chuaDatPtn') === '1';
       this.datPtn          = qp.get('datPtn') === '1';
+      this.onPtnFilterChange();
       this.currentPage     = Number(qp.get('page') ?? 0);
       const soNgay = qp.get('soNgayMin');
       if (soNgay != null) {
@@ -162,7 +163,17 @@ export class QuanLyTheComponent implements OnInit {
     this.chuaPsgd     = tab === 2;
     this.chuaDatPtn   = tab === 3;
     this.datPtn       = false;
+    this.onPtnFilterChange();
     this.loadPage(0);
+  }
+
+  // Phí thường niên chỉ tính với thẻ Tín dụng QT — tích 1 trong 2 filter PTN thì
+  // Loại thẻ mặc định chuyển sang Tín dụng QT (4 trạng thái Auto-Closed/Closed/
+  // Fraud/Lost bị loại khỏi kết quả ngay ở backend, không cần xử lý ở đây).
+  onPtnFilterChange(): void {
+    if (this.chuaDatPtn || this.datPtn) {
+      this.loaiTheTinDung = 'TDQT';
+    }
   }
 
   // ── Load ─────────────────────────────────────────────────────────────

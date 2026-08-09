@@ -8,6 +8,7 @@ import com.mpa.entity.UploadHistory;
 import com.mpa.repository.UploadHistoryRepository;
 import com.mpa.service.BscSyncService;
 import com.mpa.service.DuLieuMpaImportService;
+import com.mpa.service.SnapshotService;
 import com.mpa.service.ThePhatHanhImportService;
 import com.mpa.service.UploadService;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class UploadServiceImpl implements UploadService {
     private final ThePhatHanhImportService thePhatHanhImportService;
     private final DuLieuMpaImportService duLieuMpaImportService;
     private final BscSyncService bscSyncService;
+    private final SnapshotService snapshotService;
     private final UploadHistoryRepository uploadHistoryRepository;
 
     private record Entry(String name, byte[] bytes) {}
@@ -79,6 +81,13 @@ public class UploadServiceImpl implements UploadService {
 
         if (anyStaged) {
             thePhatHanhImportService.commitStagedData();
+            // Snapshot doanh số ngay sau khi nạp xong — thay cho job chạy theo lịch cố định
+            // hằng ngày, vì doanh_so_giao_dich_mien_ptn chỉ thật sự đổi khi có import mới
+            // (the_phat_hanh là bảng thay thế toàn bộ, không cập nhật realtime giữa các lần
+            // import). Dùng ngayDuLieu (ngày nghiệp vụ dữ liệu đại diện, không phải giờ bấm
+            // upload) làm ngày snapshot. Upsert theo (card_id, ngay_snapshot) nên nếu 1 ngày
+            // import nhiều lần, lần sau tự ghi đè lần trước — không tạo nhiều dòng trùng ngày.
+            snapshotService.runSnapshot(ngayDuLieu);
         }
         if (anyMpaStaged) {
             List<DuLieuMpaPeriod> periods = duLieuMpaImportService.commitStagedData();

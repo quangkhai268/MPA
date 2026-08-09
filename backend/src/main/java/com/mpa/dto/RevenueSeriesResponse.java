@@ -10,6 +10,6 @@ import java.util.List;
 public class RevenueSeriesResponse {
     private List<RevenueSeriesPoint> points;
     private BigDecimal tong;
-    /** true nếu chưa đủ snapshot để tính delta có ý nghĩa (mới có 0-1 điểm dữ liệu). */
+    /** true nếu chưa có snapshot nào trong khoảng lọc. */
     private boolean chuaDuLieu;
 }

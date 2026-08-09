@@ -79,7 +79,7 @@ export class TheDetailComponent implements OnInit {
             labels: res.data.points.map(p => p.label),
             datasets: [{
               data: res.data.points.map(p => p.value),
-              label: 'Doanh số phát sinh',
+              label: 'Doanh số lũy kế',
               backgroundColor: '#005BAA',
               borderRadius: 4
             }]
@@ -164,6 +164,8 @@ export class TheDetailComponent implements OnInit {
   }
 
   daDatMucPtn(d: ThePhatHanhDetail): boolean {
+    // Thẻ TDQT có phí thường niên = 0 (miễn phí luôn) thì coi như đã đạt, bất kể doanh số.
+    if (d.loaiTheTinDung === 'TDQT' && (d.soTienPhiThuongNien ?? null) === 0) return true;
     return (d.pctPtn ?? 0) >= 100;
   }
 

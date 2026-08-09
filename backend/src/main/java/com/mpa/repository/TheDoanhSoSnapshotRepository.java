@@ -15,4 +15,12 @@ public interface TheDoanhSoSnapshotRepository extends JpaRepository<TheDoanhSoSn
             String cardId, LocalDate from, LocalDate to);
 
     List<TheDoanhSoSnapshot> findByNgaySnapshotBetweenOrderByNgaySnapshot(LocalDate from, LocalDate to);
+
+    /**
+     * 7 bản ghi snapshot mới nhất của 1 thẻ (mới nhất trước) — dùng cho chart "Theo ngày"
+     * ở trang chi tiết thẻ. Không lọc theo khoảng ngày vì snapshot giờ chỉ tạo khi có import
+     * (không chạy hằng ngày), các lần snapshot có thể cách nhau nhiều ngày — cần lấy đúng
+     * 7 LẦN gần nhất chứ không phải 7 ngày dương lịch gần nhất.
+     */
+    List<TheDoanhSoSnapshot> findFirst7ByCardIdOrderByNgaySnapshotDesc(String cardId);
 }

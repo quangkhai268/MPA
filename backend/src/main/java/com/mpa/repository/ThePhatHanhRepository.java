@@ -25,7 +25,10 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
         AND (:trangThai IS NULL OR t.trangThaiThe = :trangThai)
         AND (:hinhThuc  IS NULL OR t.hinhThucThe = :hinhThuc)
         AND (:productCode IS NULL OR t.productCode = :productCode)
-        AND (:loaiTheTinDung IS NULL OR t.loaiTheTinDung = :loaiTheTinDung)
+        AND (
+            (:chuaDatPtn = false AND :datPtn = false AND (:loaiTheTinDung IS NULL OR t.loaiTheTinDung = :loaiTheTinDung))
+            OR ((:chuaDatPtn = true OR :datPtn = true) AND t.loaiTheTinDung = 'TDQT')
+        )
         AND (:maDonViCap6 IS NULL OR t.amIssuingContract IN (
             SELECT a.maAm FROM ThongTinAm a WHERE a.maDonViCap6 = :maDonViCap6))
         AND (:amSearch = ''
@@ -37,8 +40,17 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
         AND (:chuaPsgd = false OR (t.soNgayChuaKichHoat = 0 AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn = 0)))
         AND (
             :chuaDatPtn = :datPtn
-            OR (:chuaDatPtn = true AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn < t.doanhSoMienPtn))
-            OR (:datPtn = true AND t.doanhSoGiaoDichMienPtn IS NOT NULL AND t.doanhSoMienPtn IS NOT NULL AND t.doanhSoGiaoDichMienPtn >= t.doanhSoMienPtn)
+            OR (:chuaDatPtn = true
+                AND (t.soTienPhiThuongNien IS NULL OR t.soTienPhiThuongNien <> 0)
+                AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn < t.doanhSoMienPtn))
+            OR (:datPtn = true
+                AND (t.soTienPhiThuongNien = 0
+                    OR (t.doanhSoGiaoDichMienPtn IS NOT NULL AND t.doanhSoMienPtn IS NOT NULL AND t.doanhSoGiaoDichMienPtn >= t.doanhSoMienPtn)))
+        )
+        AND (
+            (:chuaDatPtn = false AND :datPtn = false)
+            OR t.trangThaiThe IS NULL
+            OR t.trangThaiThe NOT IN ('Card Auto-Closed', 'Card Closed', 'Card Fraud', 'Card Lost')
         )
         ORDER BY t.id DESC
         """)
@@ -83,7 +95,18 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
     @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE (t.soNgayChuaKichHoat = 0 OR t.soNgayChuaKichHoat IS NULL) AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn = 0)")
     long countChuaPsgd();
 
-    @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn < t.doanhSoMienPtn")
+    // Phí thường niên chỉ tính với thẻ Tín dụng QT và không thuộc 4 trạng thái
+    // Auto-Closed/Closed/Fraud/Lost — countChuaDatPtn/countTdqt/countTdqtDatPtn dưới đây
+    // đều giới hạn theo đúng phạm vi thẻ "đủ điều kiện xét PTN" này. Thẻ có
+    // so_tien_phi_thuong_nien = 0 (miễn phí thường niên luôn) cũng tính là đã đạt, bất kể
+    // doanh số giao dịch thực tế.
+    @Query("""
+        SELECT COUNT(t) FROM ThePhatHanh t
+        WHERE t.loaiTheTinDung = 'TDQT'
+          AND (t.trangThaiThe IS NULL OR t.trangThaiThe NOT IN ('Card Auto-Closed', 'Card Closed', 'Card Fraud', 'Card Lost'))
+          AND (t.soTienPhiThuongNien IS NULL OR t.soTienPhiThuongNien <> 0)
+          AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn < t.doanhSoMienPtn)
+        """)
     long countChuaDatPtn();
 
     @Query("SELECT COALESCE(SUM(t.hmtdIssuingContract), 0) FROM ThePhatHanh t")
@@ -92,15 +115,19 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
     @Query("SELECT COALESCE(SUM(t.doanhSoGiaoDichMienPtn), 0) FROM ThePhatHanh t")
     java.math.BigDecimal sumDoanhSo();
 
-    @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE t.loaiTheTinDung = 'TDQT'")
+    @Query("""
+        SELECT COUNT(t) FROM ThePhatHanh t
+        WHERE t.loaiTheTinDung = 'TDQT'
+          AND (t.trangThaiThe IS NULL OR t.trangThaiThe NOT IN ('Card Auto-Closed', 'Card Closed', 'Card Fraud', 'Card Lost'))
+        """)
     long countTdqt();
 
     @Query("""
         SELECT COUNT(t) FROM ThePhatHanh t
         WHERE t.loaiTheTinDung = 'TDQT'
-          AND t.doanhSoGiaoDichMienPtn IS NOT NULL
-          AND t.doanhSoMienPtn IS NOT NULL
-          AND t.doanhSoGiaoDichMienPtn >= t.doanhSoMienPtn
+          AND (t.trangThaiThe IS NULL OR t.trangThaiThe NOT IN ('Card Auto-Closed', 'Card Closed', 'Card Fraud', 'Card Lost'))
+          AND (t.soTienPhiThuongNien = 0
+              OR (t.doanhSoGiaoDichMienPtn IS NOT NULL AND t.doanhSoMienPtn IS NOT NULL AND t.doanhSoGiaoDichMienPtn >= t.doanhSoMienPtn))
         """)
     long countTdqtDatPtn();
 

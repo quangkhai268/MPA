@@ -55,13 +55,16 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
         long total    = repo.count();
         long chuaKh   = repo.countChuaKichHoat();
         long chuaPsgd = repo.countChuaPsgd();
+        // countChuaDatPtn/countTdqt đã giới hạn theo đúng phạm vi thẻ đủ điều kiện xét PTN
+        // (TDQT, không thuộc 4 trạng thái Auto-Closed/Closed/Fraud/Lost) — datPtn tính trên
+        // cùng phạm vi đó, không phải trừ trên tổng toàn bộ thẻ.
         long chuaPtn  = repo.countChuaDatPtn();
-        long datPtn   = total - chuaPtn;
 
         BigDecimal hanMuc  = repo.sumHanMuc();
         BigDecimal doanhSo = repo.sumDoanhSo();
         long tongTdqt      = repo.countTdqt();
         long tdqtDatPtn    = repo.countTdqtDatPtn();
+        long datPtn        = Math.max(tongTdqt - chuaPtn, 0);
 
         long biKhoaCount = repo.findAll().stream()
                 .filter(e -> isKhoa(e.getTrangThaiIssuingContract()))
@@ -103,8 +106,14 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
         int soKhoa = (int) cards.stream()
                 .filter(c -> isKhoa(c.getTrangThaiIssuingContract()))
                 .count();
+        // Phí thường niên chỉ tính với thẻ Tín dụng QT và không thuộc 4 trạng thái
+        // Auto-Closed/Closed/Fraud/Lost — cùng nguyên tắc áp dụng ở ThePhatHanhRepository.search().
+        // Thẻ có so_tien_phi_thuong_nien = 0 (miễn phí thường niên luôn) cũng tính là đã đạt.
         int soChuaDatPtn = (int) cards.stream()
+                .filter(c -> "TDQT".equals(c.getLoaiTheTinDung()) && !isDongThe(c.getTrangThaiThe()))
                 .filter(c -> {
+                    BigDecimal phi = c.getSoTienPhiThuongNien();
+                    if (phi != null && phi.compareTo(BigDecimal.ZERO) == 0) return false;
                     BigDecimal ds = c.getDoanhSoGiaoDichMienPtn();
                     BigDecimal muc = c.getDoanhSoMienPtn();
                     return ds == null || muc == null || ds.compareTo(muc) < 0;
@@ -145,6 +154,14 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
         String upper = trangThaiIssuingContract.toUpperCase();
         return upper.contains("KHÓA") || upper.contains("KHOA")
                 || upper.contains("BLOCK") || upper.contains("BLK");
+    }
+
+    /** Auto-Closed/Closed/Fraud/Lost — thẻ ở 1 trong 4 trạng thái này không tính vào PTN. */
+    private static final java.util.Set<String> TRANG_THAI_KHONG_TINH_PTN = java.util.Set.of(
+            "Card Auto-Closed", "Card Closed", "Card Fraud", "Card Lost");
+
+    private boolean isDongThe(String trangThaiThe) {
+        return trangThaiThe != null && TRANG_THAI_KHONG_TINH_PTN.contains(trangThaiThe);
     }
 
     @Override

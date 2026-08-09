@@ -31,8 +31,7 @@ public class SnapshotServiceImpl implements SnapshotService {
 
     @Override
     @Transactional
-    public int runDailySnapshot() {
-        LocalDate today = LocalDate.now();
+    public int runSnapshot(LocalDate ngaySnapshot) {
         List<ThePhatHanh> all = thePhatHanhRepo.findAll();
         List<ThePhatHanh> valid = all.stream()
                 .filter(c -> c.getCardId() != null && !c.getCardId().isBlank())
@@ -43,10 +42,10 @@ public class SnapshotServiceImpl implements SnapshotService {
             jdbcTemplate.batchUpdate(UPSERT_SQL, chunk, chunk.size(), (ps, card) -> {
                 BigDecimal doanhSo = card.getDoanhSoGiaoDichMienPtn() != null ? card.getDoanhSoGiaoDichMienPtn() : BigDecimal.ZERO;
                 Integer soNgayTuPhatHanh = card.getNgayPhatHanhThe() != null
-                        ? (int) ChronoUnit.DAYS.between(card.getNgayPhatHanhThe().toLocalDate(), today)
+                        ? (int) ChronoUnit.DAYS.between(card.getNgayPhatHanhThe().toLocalDate(), ngaySnapshot)
                         : null;
                 ps.setString(1, card.getCardId());
-                ps.setObject(2, today);
+                ps.setObject(2, ngaySnapshot);
                 ps.setBigDecimal(3, doanhSo);
                 if (soNgayTuPhatHanh != null) ps.setInt(4, soNgayTuPhatHanh);
                 else ps.setNull(4, Types.INTEGER);

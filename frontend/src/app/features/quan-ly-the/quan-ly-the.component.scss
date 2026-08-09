@@ -408,7 +408,7 @@ $text:         #1A1A2E;
   &.badge-gray   { background: $gray-bg; color: $gray; border: 1px solid $gray-border; }
 }
 
-// ── Kích hoạt / PSGD ─────────────────────────────────────────────────
+// ── Ngày PHT / Ngày thu phí TN ───────────────────────────────────────
 .date-row {
   display: flex; align-items: center; gap: 4px;
   font-size: 12px; color: $text; margin-bottom: 3px;
@@ -417,6 +417,7 @@ $text:         #1A1A2E;
 }
 
 .date-icon { font-size: 13px; color: $yellow; }
+.date-label { font-size: 11px; color: $gray; }
 
 // ── Ngày phát hành ────────────────────────────────────────────────────
 .date-main { font-size: 12px; color: $text; }

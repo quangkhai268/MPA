@@ -402,6 +402,7 @@ export interface ThePhatHanhItem {
   pctPtn: number | null;
   ngayKichHoat: string | null;
   ngayPsgd: string | null;
+  ngayThuPhiThuongTienTiepTheo: string | null;
   nhomKhThe: string | null;
   kenhPhatHanh: string | null;
   mangLuoi: string | null;
@@ -452,6 +453,7 @@ export interface ThePhatHanhDetail {
   pctPtn: number | null;
   soTienPhiThuongNien: number | null;
   mucPhiThuongNienThe: string | null;
+  loaiTheTinDung: string | null;
 
   ngayKichHoat: string | null;
   ngayPsgd: string | null;

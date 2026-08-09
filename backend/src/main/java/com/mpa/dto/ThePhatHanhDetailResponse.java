@@ -51,6 +51,7 @@ public class ThePhatHanhDetailResponse {
     private Double pctPtn;
     private BigDecimal soTienPhiThuongNien;
     private String mucPhiThuongNienThe;
+    private String loaiTheTinDung;
 
     private LocalDateTime ngayKichHoat;
     private LocalDateTime ngayPsgd;
@@ -93,6 +94,7 @@ public class ThePhatHanhDetailResponse {
 
         r.soTienPhiThuongNien      = e.getSoTienPhiThuongNien();
         r.mucPhiThuongNienThe      = e.getMucPhiThuongNienThe();
+        r.loaiTheTinDung           = e.getLoaiTheTinDung();
 
         r.ngayKichHoat             = e.getNgayCapNhatTrangThaiCardContract();
         r.ngayPsgd                 = e.getNgayCapNhatTrangThaiIssuingContract();

@@ -254,7 +254,8 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
                     ColumnDef c = COLUMNS.get(i);
                     String raw = currentRow.get(headerIndex.get(c.header()));
                     values[i] = switch (c.type()) {
-                        case TEXT, TEXT_NUM_SAFE -> textOrNull(raw);
+                        case TEXT -> textOrNull(raw);
+                        case TEXT_NUM_SAFE -> textNumSafeOrNull(raw);
                         case INTEGER -> parseIntegerStr(raw);
                         case DECIMAL -> parseDecimalStr(raw);
                         case DATE -> parseDateStr(raw);
@@ -355,7 +356,8 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
             ColumnDef c = COLUMNS.get(i);
             Cell cell = row.getCell(headerIndex.get(c.header()));
             values[i] = switch (c.type()) {
-                case TEXT, TEXT_NUM_SAFE -> getCellAsString(cell);
+                case TEXT -> getCellAsString(cell);
+                case TEXT_NUM_SAFE -> textNumSafeOrNull(getCellAsString(cell));
                 case INTEGER -> getCellAsInteger(cell);
                 case DECIMAL -> getCellAsDecimal(cell);
                 case DATE -> getCellAsDate(cell);
@@ -373,10 +375,21 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
             if (cols.length() > 0) cols.append(", ");
             cols.append(c.dbColumn());
         }
+        // ngay_thu_phi_thuong_tien_tiep_theo không có trong file Excel — tính thẳng bằng SQL
+        // ngay lúc chuyển từ staging sang bảng sống. Trừ 4 trạng thái thẻ đã đóng/gian lận/mất
+        // (không tính PTN) → NULL. Nếu ngày thu phí gần nhất còn ở TƯƠNG LAI so với ngày import
+        // (VD: ngay_thu_phi_thuong_nien_gan_nhat = 30/9, import ngày 09/08) thì đó CHÍNH LÀ lần
+        // thu tiếp theo, chưa cộng thêm 1 năm; ngược lại (đã qua hoặc đúng ngày import) mới
+        // cộng thêm 1 năm như bình thường. NULL tự lan truyền nếu chưa có ngày thu gần nhất.
         jdbcTemplate.execute("TRUNCATE TABLE the_phat_hanh");
-        jdbcTemplate.execute(
-                "INSERT INTO the_phat_hanh (" + cols + ", created_at) " +
-                "SELECT " + cols + ", now() FROM the_phat_hanh_staging"
+        jdbcTemplate.update(
+                "INSERT INTO the_phat_hanh (" + cols + ", ngay_thu_phi_thuong_tien_tiep_theo, created_at) " +
+                "SELECT " + cols + ", " +
+                "CASE WHEN trang_thai_the IN ('Card Auto-Closed', 'Card Closed', 'Card Fraud', 'Card Lost') THEN NULL " +
+                "WHEN ? < ngay_thu_phi_thuong_nien_gan_nhat THEN ngay_thu_phi_thuong_nien_gan_nhat " +
+                "ELSE (ngay_thu_phi_thuong_nien_gan_nhat + INTERVAL '1 year')::date END, " +
+                "now() FROM the_phat_hanh_staging",
+                LocalDate.now()
         );
         jdbcTemplate.execute("TRUNCATE TABLE the_phat_hanh_staging");
     }
@@ -392,6 +405,23 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
         if (s == null) return null;
         String t = s.trim();
         return t.isEmpty() ? null : t;
+    }
+
+    /**
+     * Dùng cho cột "trông như số nhưng phải giữ dạng text" (card_id, CIF, mã AM...).
+     * Excel định dạng số kiểu "#,##0" sẽ khiến giá trị đã format có dấu phẩy ngăn cách
+     * hàng nghìn (VD "1,234,567") và có thể có đuôi ".0" nếu cell số nguyên bị định dạng
+     * thêm phần thập phân — cả 2 đều là artifact hiển thị của Excel, không phải dữ liệu
+     * thật, phải loại bỏ trước khi lưu DB.
+     */
+    private static String textNumSafeOrNull(String s) {
+        String t = textOrNull(s);
+        if (t == null) return null;
+        String cleaned = t.replace(",", "");
+        if (cleaned.matches("-?\\d+\\.0+")) {
+            cleaned = cleaned.substring(0, cleaned.indexOf('.'));
+        }
+        return cleaned;
     }
 
     private static Integer parseIntegerStr(String s) {

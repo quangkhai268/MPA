@@ -19,14 +19,24 @@ public class TheDoanhSoSnapshotServiceImpl implements TheDoanhSoSnapshotService 
 
     private final TheDoanhSoSnapshotRepository repo;
 
-    private record DeltaPoint(LocalDate date, BigDecimal delta) {}
+    // doanh_so_luy_ke lưu trong the_doanh_so_snapshot LÀ số lũy kế tính đến ngày import (không
+    // phải số phát sinh riêng trong kỳ) — vì vậy chart chỉ hiển thị lại đúng giá trị đó theo
+    // từng kỳ, KHÔNG trừ lùi giữa 2 lần snapshot để suy ra "phát sinh trong kỳ" như trước.
 
     @Override
     public RevenueSeriesResponse getSeries(String cardId, String granularity, LocalDate from, LocalDate to) {
-        List<TheDoanhSoSnapshot> snapshots =
-                repo.findByCardIdAndNgaySnapshotBetweenOrderByNgaySnapshot(cardId, from, to);
-        List<DeltaPoint> deltas = computeDeltas(snapshots);
-        return build(deltas, granularity, snapshots.size() < 2);
+        List<TheDoanhSoSnapshot> snapshots;
+        if ("ngay".equals(granularity)) {
+            // "7 ngày gần nhất" = 7 LẦN snapshot gần nhất của thẻ, không phải 7 ngày dương
+            // lịch — vì snapshot giờ chỉ tạo khi có import nên có thể cách nhau nhiều ngày.
+            List<TheDoanhSoSnapshot> recent = repo.findFirst7ByCardIdOrderByNgaySnapshotDesc(cardId);
+            snapshots = new ArrayList<>(recent);
+            Collections.reverse(snapshots);
+        } else {
+            snapshots = repo.findByCardIdAndNgaySnapshotBetweenOrderByNgaySnapshot(cardId, from, to);
+        }
+        Map<String, TheDoanhSoSnapshot> lastInBucket = lastSnapshotPerBucket(snapshots, granularity);
+        return buildFromLuyKe(lastInBucket, granularity);
     }
 
     @Override
@@ -36,54 +46,56 @@ public class TheDoanhSoSnapshotServiceImpl implements TheDoanhSoSnapshotService 
         for (TheDoanhSoSnapshot s : all) {
             byCard.computeIfAbsent(s.getCardId(), k -> new ArrayList<>()).add(s);
         }
-        List<DeltaPoint> allDeltas = new ArrayList<>();
+        // Mỗi thẻ đóng góp giá trị lũy kế tại bản ghi MỚI NHẤT trong từng kỳ (không phải cộng
+        // dồn nhiều bản ghi của cùng 1 thẻ trong kỳ đó) — rồi cộng qua tất cả thẻ để ra tổng
+        // lũy kế toàn danh mục tại cuối mỗi kỳ.
+        Map<String, BigDecimal> bucketTotals = new TreeMap<>();
         for (List<TheDoanhSoSnapshot> cardSnapshots : byCard.values()) {
-            cardSnapshots.sort(Comparator.comparing(TheDoanhSoSnapshot::getNgaySnapshot));
-            allDeltas.addAll(computeDeltas(cardSnapshots));
-        }
-        boolean chuaDuLieu = byCard.values().stream().noneMatch(list -> list.size() >= 2);
-        return build(allDeltas, granularity, chuaDuLieu);
-    }
-
-    private List<DeltaPoint> computeDeltas(List<TheDoanhSoSnapshot> sortedByDate) {
-        List<DeltaPoint> deltas = new ArrayList<>();
-        BigDecimal prev = null;
-        for (TheDoanhSoSnapshot s : sortedByDate) {
-            BigDecimal current = s.getDoanhSoLuyKe() != null ? s.getDoanhSoLuyKe() : BigDecimal.ZERO;
-            if (prev == null) {
-                deltas.add(new DeltaPoint(s.getNgaySnapshot(), BigDecimal.ZERO));
-            } else {
-                BigDecimal delta = current.subtract(prev);
-                // Âm coi như reset chu kỳ PTN — clamp về 0 thay vì hiển thị doanh số âm.
-                if (delta.compareTo(BigDecimal.ZERO) < 0) delta = BigDecimal.ZERO;
-                deltas.add(new DeltaPoint(s.getNgaySnapshot(), delta));
+            Map<String, TheDoanhSoSnapshot> lastInBucket = lastSnapshotPerBucket(cardSnapshots, granularity);
+            for (Map.Entry<String, TheDoanhSoSnapshot> e : lastInBucket.entrySet()) {
+                BigDecimal v = e.getValue().getDoanhSoLuyKe() != null ? e.getValue().getDoanhSoLuyKe() : BigDecimal.ZERO;
+                bucketTotals.merge(e.getKey(), v, BigDecimal::add);
             }
-            prev = current;
         }
-        return deltas;
+        return buildFromBuckets(bucketTotals, granularity);
     }
 
-    private RevenueSeriesResponse build(List<DeltaPoint> deltas, String granularity, boolean chuaDuLieu) {
-        Map<String, BigDecimal> buckets = new LinkedHashMap<>();
-        for (DeltaPoint dp : deltas) {
-            String key = bucketKey(dp.date(), granularity);
-            buckets.merge(key, dp.delta(), BigDecimal::add);
+    /** Với mỗi kỳ (bucket), chỉ giữ lại bản ghi có ngay_snapshot mới nhất trong kỳ đó. */
+    private Map<String, TheDoanhSoSnapshot> lastSnapshotPerBucket(List<TheDoanhSoSnapshot> snapshots, String granularity) {
+        Map<String, TheDoanhSoSnapshot> lastInBucket = new TreeMap<>();
+        for (TheDoanhSoSnapshot s : snapshots) {
+            String key = bucketKey(s.getNgaySnapshot(), granularity);
+            TheDoanhSoSnapshot existing = lastInBucket.get(key);
+            if (existing == null || s.getNgaySnapshot().isAfter(existing.getNgaySnapshot())) {
+                lastInBucket.put(key, s);
+            }
         }
-        List<String> sortedKeys = new ArrayList<>(buckets.keySet());
-        Collections.sort(sortedKeys);
+        return lastInBucket;
+    }
 
+    private RevenueSeriesResponse buildFromLuyKe(Map<String, TheDoanhSoSnapshot> lastInBucket, String granularity) {
+        Map<String, BigDecimal> bucketValues = new TreeMap<>();
+        for (Map.Entry<String, TheDoanhSoSnapshot> e : lastInBucket.entrySet()) {
+            BigDecimal v = e.getValue().getDoanhSoLuyKe() != null ? e.getValue().getDoanhSoLuyKe() : BigDecimal.ZERO;
+            bucketValues.put(e.getKey(), v);
+        }
+        return buildFromBuckets(bucketValues, granularity);
+    }
+
+    private RevenueSeriesResponse buildFromBuckets(Map<String, BigDecimal> bucketValues, String granularity) {
         List<RevenueSeriesPoint> points = new ArrayList<>();
         BigDecimal tong = BigDecimal.ZERO;
-        for (String key : sortedKeys) {
-            BigDecimal value = buckets.get(key);
-            points.add(new RevenueSeriesPoint(displayLabel(key, granularity), value));
-            tong = tong.add(value);
+        for (Map.Entry<String, BigDecimal> e : bucketValues.entrySet()) {
+            points.add(new RevenueSeriesPoint(displayLabel(e.getKey(), granularity), e.getValue()));
+            // Các giá trị đều là lũy kế (không phải phát sinh từng kỳ) nên Tổng = giá trị của
+            // kỳ gần nhất (bucketValues là TreeMap nên entry cuối cùng luôn là kỳ mới nhất),
+            // không cộng dồn qua các kỳ.
+            tong = e.getValue();
         }
-
         return RevenueSeriesResponse.builder()
                 .points(points)
                 .tong(tong)
-                .chuaDuLieu(chuaDuLieu)
+                .chuaDuLieu(points.isEmpty())
                 .build();
     }
 

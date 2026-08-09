@@ -1,12 +1,7 @@
 
-Warning: This is a simple server for use in testing or debugging Angular applications
-locally. It hasn't been reviewed for security issues.
+> frontend@0.0.0 start
+> ng serve
 
-Binding this server to an open connection can result in compromising your application or
-computer. Using a different host than the one passed to the "--host" flag might result in
-websocket connection issues. You might need to use "--disable-host-check" if that's the
-case.
-    
 - Building...
 
 Initial chunk files | Names                       |  Raw size
@@ -21,14 +16,14 @@ chunk-GGQRMPSQ.js   | -                           |   1.64 kB |
 Lazy chunk files    | Names                       |  Raw size
 chunk-ZSKN3KRS.js   | dashboard-component         | 144.48 kB | 
 chunk-SRUCBY7J.js   | giao-chi-tieu-component     | 104.75 kB | 
-chunk-II43WNRA.js   | quan-ly-the-component       |  91.23 kB | 
+chunk-L7C6DAXZ.js   | quan-ly-the-component       |  92.31 kB | 
 chunk-2WKB4CMY.js   | khach-hang-detail-component |  86.91 kB | 
 chunk-NYAENJNB.js   | du-lieu-mpa-component       |  65.45 kB | 
 chunk-CYR6JZNM.js   | cai-dat-canh-bao-component  |  61.39 kB | 
 chunk-GKP6HFCJ.js   | quan-ly-am-component        |  59.42 kB | 
 chunk-BQOBXNYB.js   | khach-hang-component        |  56.46 kB | 
 chunk-BXCAUTNS.js   | quan-tri-component          |  53.72 kB | 
-chunk-2WU5XFAY.js   | the-detail-component        |  53.37 kB | 
+chunk-PBNQAA4L.js   | the-detail-component        |  53.37 kB | 
 chunk-WDZ2PYCD.js   | bao-cao-component           |  43.88 kB | 
 chunk-XEVR2G4L.js   | am-detail-component         |  43.38 kB | 
 chunk-4U5TUEXH.js   | chien-dich-form-component   |  38.96 kB | 
@@ -36,12 +31,7 @@ chunk-NK2SXJEM.js   | tai-du-lieu-len-component   |  32.47 kB |
 chunk-XIHEUEA3.js   | main-layout-component       |  31.27 kB | 
 ...and 5 more lazy chunks files. Use "--verbose" to show all the files.
 
-Application bundle generation complete. [33.475 seconds]
+Application bundle generation complete. [31.464 seconds]
 
 Watch mode enabled. Watching for file changes...
   ➜  Local:   http://localhost:4200/
-  ➜  Network: http://192.168.56.1:4200/
-  ➜  Network: http://172.16.10.1:4200/
-  ➜  Network: http://192.168.10.1:4200/
-  ➜  Network: http://192.168.33.1:4200/
-  ➜  Network: http://192.168.1.75:4200/

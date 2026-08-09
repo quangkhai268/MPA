@@ -227,10 +227,10 @@
 
       <div class="filter-row-2">
         <label class="check-label">
-          <input type="checkbox" [(ngModel)]="chuaDatPtn"> Chưa đạt doanh số miền PTN
+          <input type="checkbox" [(ngModel)]="chuaDatPtn" (change)="onPtnFilterChange()"> Chưa đạt doanh số miền PTN
         </label>
         <label class="check-label">
-          <input type="checkbox" [(ngModel)]="datPtn"> Đạt doanh số miễn PTN
+          <input type="checkbox" [(ngModel)]="datPtn" (change)="onPtnFilterChange()"> Đạt doanh số miễn PTN
         </label>
         <button class="btn-search" (click)="search()">Tìm kiếm</button>
       </div>
@@ -262,13 +262,12 @@
               <th class="col-ptn">DOANH SỐ / MỨC MIỀN PTN</th>
               <th>TRẠNG THÁI</th>
               <th class="col-num">PHÍ THƯỜNG NIÊN</th>
-              <th>KÍCH HOẠT / PSGD</th>
-              <th class="col-date">NGÀY PHÁT HÀNH</th>
+              <th class="col-date">NGÀY PHT / NGÀY THU PHÍ TN</th>
             </tr>
           </thead>
           <tbody>
             @if (items.length === 0) {
-              <tr><td colspan="10" class="empty-cell">Không có dữ liệu</td></tr>
+              <tr><td colspan="9" class="empty-cell">Không có dữ liệu</td></tr>
             }
             @for (item of items; track item.id; let i = $index) {
               <tr class="row-clickable" (click)="goToDetail(item.id)">
@@ -347,34 +346,21 @@
                   }
                 </td>
 
-                <!-- Kích hoạt / PSGD -->
-                <td>
-                  @if (item.ngayKichHoat) {
-                    <div class="date-row">
-                      <span class="material-icons date-icon">bolt</span>
-                      {{ item.ngayKichHoat | date:'dd/MM/yyyy' }}
-                    </div>
-                  }
-                  @if (item.ngayPsgd) {
-                    <div class="date-row">
-                      <span class="material-icons date-icon">bolt</span>
-                      {{ item.ngayPsgd | date:'dd/MM/yyyy' }}
-                    </div>
-                  }
-                  @if (!item.ngayKichHoat && !item.ngayPsgd) {
-                    <span class="text-gray">—</span>
-                  }
-                </td>
-
-                <!-- Ngày phát hành -->
+                <!-- Ngày PHT / Ngày thu phí TN -->
                 <td class="col-date">
                   @if (item.ngayPhatHanhHienThi) {
-                    <div class="date-main">{{ item.ngayPhatHanhHienThi | date:'dd/MM/yyyy' }}</div>
+                    <div class="date-row">
+                      <span class="date-label">PHT:</span>
+                      {{ item.ngayPhatHanhHienThi | date:'dd/MM/yyyy' }}
+                    </div>
                   }
-                  @if (item.thoiHanHieuLucThe) {
-                    <div class="hsd-label">HSD: {{ item.thoiHanHieuLucThe }}</div>
+                  @if (item.ngayThuPhiThuongTienTiepTheo) {
+                    <div class="date-row">
+                      <span class="date-label">Thu phí TN:</span>
+                      {{ item.ngayThuPhiThuongTienTiepTheo | date:'dd/MM/yyyy' }}
+                    </div>
                   }
-                  @if (!item.ngayPhatHanhHienThi && !item.thoiHanHieuLucThe) {
+                  @if (!item.ngayPhatHanhHienThi && !item.ngayThuPhiThuongTienTiepTheo) {
                     <span class="text-gray">—</span>
                   }
                 </td>

@@ -40,6 +40,7 @@ public class ThePhatHanhResponse {
     private Double pctPtn;
     private LocalDateTime ngayKichHoat;
     private LocalDateTime ngayPsgd;
+    private LocalDate ngayThuPhiThuongTienTiepTheo;
     private String nhomKhThe;
     private String kenhPhatHanh;
     private String mangLuoi;
@@ -68,6 +69,7 @@ public class ThePhatHanhResponse {
         r.soTienPhiThuongNien       = e.getSoTienPhiThuongNien();
         r.ngayKichHoat              = e.getNgayCapNhatTrangThaiCardContract();
         r.ngayPsgd                  = e.getNgayCapNhatTrangThaiIssuingContract();
+        r.ngayThuPhiThuongTienTiepTheo = e.getNgayThuPhiThuongTienTiepTheo();
         r.nhomKhThe                 = e.getNhomKhThe();
         r.kenhPhatHanh              = e.getKenhPhatHanh();
         r.loaiTheTinDung            = e.getLoaiTheTinDung();
