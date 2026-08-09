@@ -35,3 +35,61 @@ Application bundle generation complete. [31.464 seconds]
 
 Watch mode enabled. Watching for file changes...
   ➜  Local:   http://localhost:4200/
+- Changes detected. Rebuilding...
+
+
+No output file changes.
+
+Application bundle generation complete. [8.298 seconds]
+
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                 | Raw size
+main.js             | main                  |  5.93 kB | 
+
+Lazy chunk files    | Names                 | Raw size
+chunk-KLHI5YLU.js   | quan-ly-the-component | 92.19 kB | 
+
+Application bundle generation complete. [1.319 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                 | Raw size
+main.js             | main                  |  5.93 kB | 
+
+Lazy chunk files    | Names                 | Raw size
+chunk-X7OCRKJV.js   | quan-ly-the-component | 90.47 kB | 
+
+Application bundle generation complete. [1.482 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                 | Raw size
+main.js             | main                  |  5.93 kB | 
+
+Lazy chunk files    | Names                 | Raw size
+chunk-RBL2B2D7.js   | quan-ly-the-component | 90.54 kB | 
+
+Application bundle generation complete. [2.448 seconds]
+
+Page reload sent to client(s).
+- Changes detected. Rebuilding...
+
+
+No output file changes.
+
+Application bundle generation complete. [4.622 seconds]
+
+- Changes detected. Rebuilding...
+
+Initial chunk files | Names                | Raw size
+main.js             | main                 |  5.93 kB | 
+
+Lazy chunk files    | Names                | Raw size
+chunk-WIIIWGQP.js   | the-detail-component | 53.46 kB | 
+
+Application bundle generation complete. [1.592 seconds]
+
+Page reload sent to client(s).

@@ -6,6 +6,12 @@ import com.mpa.service.DuLieuMpaImportService;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ooxml.util.SAXHelper;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
@@ -32,9 +38,14 @@ import java.util.regex.Pattern;
 
 /**
  * Đọc file Excel MPA (4 loại kỳ: Tháng/Quý/Năm/Ngày, tự nhận diện qua header dòng đầu
- * tiên — không dựa vào tên file) bằng SAX streaming và nạp vào bảng du_lieu_mpa.
+ * tiên — không dựa vào tên file) và nạp vào bảng du_lieu_mpa.
  * Mỗi loại kỳ là dữ liệu lũy tiến độc lập (xem CLAUDE.md / plan) nên commit dùng
  * replace-by-period RIÊNG cho từng loại (loai_ky), không đụng tới các loại/kỳ khác.
+ *
+ * File .xlsx đọc bằng SAX streaming (XSSFReader) — tránh OutOfMemoryError với file lớn.
+ * File .xls (nhị phân Excel 97-2003/OLE2, không có XSSFReader tương ứng) đọc qua
+ * WorkbookFactory (DOM) — cùng RowHandler xử lý logic nghiệp vụ cho cả 2 đường, chỉ khác
+ * cách "bơm" dữ liệu cell vào (SAX event vs. duyệt Row/Cell trực tiếp).
  */
 @Service
 @RequiredArgsConstructor
@@ -105,6 +116,11 @@ public class DuLieuMpaImportServiceImpl implements DuLieuMpaImportService {
 
     @Override
     public FileImportResult stageFile(InputStream excelStream, String fileName) {
+        boolean isXlsx = fileName != null && fileName.toLowerCase().endsWith(".xlsx");
+        return isXlsx ? stageXlsxStreaming(excelStream, fileName) : stageLegacyDom(excelStream, fileName);
+    }
+
+    private FileImportResult stageXlsxStreaming(InputStream excelStream, String fileName) {
         RowHandler handler = new RowHandler(fileName);
         try (OPCPackage pkg = OPCPackage.open(excelStream)) {
             XSSFReader reader = new XSSFReader(pkg);
@@ -121,27 +137,55 @@ public class DuLieuMpaImportServiceImpl implements DuLieuMpaImportService {
                 }
             }
             handler.flush();
-
-            if (handler.totalStaged == 0) {
-                return new FileImportResult(fileName, "MPA", 0, "FAILED", "Không có dòng dữ liệu hợp lệ", null);
-            }
-            List<String> notes = new ArrayList<>();
-            if (handler.namLuyKeThang != null) {
-                notes.add("Nhận diện: lũy kế đến tháng " + handler.namLuyKeThang);
-            }
-            if (handler.totalSkipped > 0) {
-                notes.add("Bỏ qua " + handler.totalSkipped + " dòng lỗi/trống");
-            }
-            String ghiChu = notes.isEmpty() ? null : String.join("; ", notes);
-            return new FileImportResult(fileName, "MPA", handler.totalStaged, "SUCCESS", ghiChu, handler.buildKyLabel());
-
+            return finishStaging(handler, fileName);
         } catch (Exception e) {
-            String msg = findHeaderValidationMessage(e);
-            if (msg != null) {
-                return new FileImportResult(fileName, "MPA", 0, "FAILED", msg, null);
-            }
-            return new FileImportResult(fileName, "MPA", 0, "FAILED", "Lỗi đọc file: " + e.getMessage(), null);
+            return failResult(fileName, e);
         }
+    }
+
+    private FileImportResult stageLegacyDom(InputStream excelStream, String fileName) {
+        RowHandler handler = new RowHandler(fileName);
+        try (Workbook wb = WorkbookFactory.create(excelStream)) {
+            DataFormatter fmt = new DataFormatter();
+            for (Sheet sheet : wb) {
+                handler.beginSheet(sheet.getSheetName());
+                for (Row row : sheet) {
+                    handler.startRow(row.getRowNum());
+                    for (Cell cell : row) {
+                        String value = fmt.formatCellValue(cell);
+                        handler.cellRaw(cell.getColumnIndex(), value);
+                    }
+                    handler.endRow(row.getRowNum());
+                }
+            }
+            handler.flush();
+            return finishStaging(handler, fileName);
+        } catch (Exception e) {
+            return failResult(fileName, e);
+        }
+    }
+
+    private FileImportResult finishStaging(RowHandler handler, String fileName) {
+        if (handler.totalStaged == 0) {
+            return new FileImportResult(fileName, "MPA", 0, "FAILED", "Không có dòng dữ liệu hợp lệ", null);
+        }
+        List<String> notes = new ArrayList<>();
+        if (handler.namLuyKeThang != null) {
+            notes.add("Nhận diện: lũy kế đến tháng " + handler.namLuyKeThang);
+        }
+        if (handler.totalSkipped > 0) {
+            notes.add("Bỏ qua " + handler.totalSkipped + " dòng lỗi/trống");
+        }
+        String ghiChu = notes.isEmpty() ? null : String.join("; ", notes);
+        return new FileImportResult(fileName, "MPA", handler.totalStaged, "SUCCESS", ghiChu, handler.buildKyLabel());
+    }
+
+    private FileImportResult failResult(String fileName, Exception e) {
+        String msg = findHeaderValidationMessage(e);
+        if (msg != null) {
+            return new FileImportResult(fileName, "MPA", 0, "FAILED", msg, null);
+        }
+        return new FileImportResult(fileName, "MPA", 0, "FAILED", "Lỗi đọc file: " + e.getMessage(), null);
     }
 
     private String findHeaderValidationMessage(Throwable t) {
@@ -271,6 +315,12 @@ public class DuLieuMpaImportServiceImpl implements DuLieuMpaImportService {
             currentRow.put(col, formattedValue);
         }
 
+        /** Đường .xls (DOM) — bơm giá trị cell trực tiếp theo index cột, không qua SAX event. */
+        void cellRaw(int col, String formattedValue) {
+            if (formattedValue == null || formattedValue.isEmpty()) return;
+            currentRow.put(col, formattedValue);
+        }
+
         @Override
         public void headerFooter(String text, boolean isHeader, String tagName) {
             // không dùng
@@ -285,7 +335,6 @@ public class DuLieuMpaImportServiceImpl implements DuLieuMpaImportService {
                 String norm = normalize(e.getValue());
                 if (norm != null) idx.put(norm, e.getKey());
             }
-
             LoaiKy detected;
             if (idx.containsKey("Tháng")) detected = LoaiKy.THANG;
             else if (idx.containsKey("Quý")) detected = LoaiKy.QUY;

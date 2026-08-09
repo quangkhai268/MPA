@@ -19,6 +19,11 @@
   <properties>
     <java.version>17</java.version>
     <jjwt.version>0.11.5</jjwt.version>
+    <!-- Bắt buộc javac đọc source bằng UTF-8 — nếu không set, mặc định dùng charset
+         của platform (VD Windows-1252 trên máy Windows chưa cấu hình UTF-8), làm hỏng
+         toàn bộ string literal tiếng Việt trong bytecode (diacritics bị đổi thành '?'). -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
   <dependencies>
