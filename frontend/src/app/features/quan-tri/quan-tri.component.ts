@@ -11,17 +11,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AuthService } from '../../core/services/auth.service';
-
-interface UserForm {
-  id?: number;
-  username: string;
-  fullName: string;
-  email: string;
-  role: string;
-  maDonViCap6: string;
-  password?: string;
-  active: boolean;
-}
+import { UserService } from '../../core/services/user.service';
+import { User, UserRequest } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-quan-tri',
@@ -36,9 +27,10 @@ interface UserForm {
   styleUrl: './quan-tri.component.scss'
 })
 export class QuanTriComponent implements OnInit {
-  private fb    = inject(FormBuilder);
-  private snack = inject(MatSnackBar);
-  auth          = inject(AuthService);
+  private fb      = inject(FormBuilder);
+  private snack   = inject(MatSnackBar);
+  private userSvc = inject(UserService);
+  auth            = inject(AuthService);
 
   loading       = signal(true);
   saving        = signal(false);
@@ -48,8 +40,8 @@ export class QuanTriComponent implements OnInit {
   filterRole    = '';
   activeTab     = signal<'users' | 'settings'>('users');
 
-  users    = signal<UserForm[]>([]);
-  filtered = signal<UserForm[]>([]);
+  users    = signal<User[]>([]);
+  filtered = signal<User[]>([]);
 
   roles = [
     { value: 'ROLE_ADMIN',          label: 'Quản trị viên',      color: '#ef4444' },
@@ -85,11 +77,21 @@ export class QuanTriComponent implements OnInit {
 
   private loadUsers(): void {
     this.loading.set(true);
-    setTimeout(() => {
-      this.users.set(this.mockUsers());
-      this.applyFilter();
-      this.loading.set(false);
-    }, 500);
+    this.userSvc.getUsers().subscribe({
+      next: res => {
+        if (res.success) {
+          this.users.set(res.data.content);
+          this.applyFilter();
+        } else {
+          this.snack.open(res.message || 'Lỗi khi tải danh sách người dùng', 'Đóng', { duration: 3000 });
+        }
+        this.loading.set(false);
+      },
+      error: err => {
+        this.snack.open(err?.error?.message || 'Lỗi khi tải danh sách người dùng', 'Đóng', { duration: 3000 });
+        this.loading.set(false);
+      }
+    });
   }
 
   applyFilter(): void {
@@ -113,16 +115,20 @@ export class QuanTriComponent implements OnInit {
     this.editMode.set(false);
     this.editingId = null;
     this.form.reset({ role: 'ROLE_EMPLOYEE', active: true });
-    this.form.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
+    this.form.get('username')?.enable();
+    this.form.get('password')?.setValidators([Validators.required, Validators.minLength(8)]);
     this.form.get('password')?.updateValueAndValidity();
     this.showModal.set(true);
   }
 
-  openEdit(u: UserForm): void {
+  openEdit(u: User): void {
     this.editMode.set(true);
-    this.editingId = u.id ?? null;
+    this.editingId = u.id;
     this.form.patchValue({ ...u, password: '' });
+    // Không cho đổi username sau khi tạo — khớp đúng quy ước backend (username là khoá bất biến).
+    this.form.get('username')?.disable();
     this.form.get('password')?.clearValidators();
+    this.form.get('password')?.setValidators([Validators.minLength(8)]);
     this.form.get('password')?.updateValueAndValidity();
     this.showModal.set(true);
   }
@@ -132,34 +138,55 @@ export class QuanTriComponent implements OnInit {
   save(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.saving.set(true);
-    const val = this.form.value as UserForm;
+    const val = this.form.getRawValue() as UserRequest;
+    // Rỗng = không đổi mật khẩu (chỉ áp dụng khi sửa — khi tạo mới password đã required).
+    if (this.editMode() && !val.password) delete (val as Partial<UserRequest>).password;
 
-    setTimeout(() => {
-      if (this.editMode()) {
-        this.users.update(list => list.map(u => u.id === this.editingId ? { ...u, ...val, id: u.id } : u));
-        this.snack.open('Cập nhật người dùng thành công', 'Đóng', { duration: 3000 });
-      } else {
-        const newUser: UserForm = { ...val, id: Date.now() };
-        this.users.update(list => [...list, newUser]);
-        this.snack.open('Tạo người dùng thành công', 'Đóng', { duration: 3000 });
+    const req$ = this.editMode() && this.editingId != null
+      ? this.userSvc.updateUser(this.editingId, val)
+      : this.userSvc.createUser(val);
+
+    req$.subscribe({
+      next: res => {
+        this.saving.set(false);
+        if (res.success) {
+          this.snack.open(this.editMode() ? 'Cập nhật người dùng thành công' : 'Tạo người dùng thành công', 'Đóng', { duration: 3000 });
+          this.showModal.set(false);
+          this.loadUsers();
+        } else {
+          this.snack.open(res.message || 'Lỗi khi lưu người dùng', 'Đóng', { duration: 3000 });
+        }
+      },
+      error: err => {
+        this.saving.set(false);
+        this.snack.open(err?.error?.message || 'Lỗi khi lưu người dùng', 'Đóng', { duration: 3000 });
       }
-      this.applyFilter();
-      this.saving.set(false);
-      this.showModal.set(false);
-    }, 600);
+    });
   }
 
-  toggleActive(u: UserForm): void {
-    this.users.update(list => list.map(x => x.id === u.id ? { ...x, active: !x.active } : x));
-    this.applyFilter();
-    this.snack.open(`Tài khoản ${u.fullName} đã được ${!u.active ? 'kích hoạt' : 'vô hiệu'}`, 'Đóng', { duration: 2500 });
+  toggleActive(u: User): void {
+    this.userSvc.setUserActive(u.id, !u.active).subscribe({
+      next: res => {
+        if (res.success) {
+          this.users.update(list => list.map(x => x.id === u.id ? { ...x, active: !x.active } : x));
+          this.applyFilter();
+          this.snack.open(`Tài khoản ${u.fullName} đã được ${!u.active ? 'kích hoạt' : 'vô hiệu hoá'}`, 'Đóng', { duration: 2500 });
+        } else {
+          this.snack.open(res.message || 'Lỗi khi cập nhật trạng thái', 'Đóng', { duration: 3000 });
+        }
+      },
+      error: err => {
+        this.snack.open(err?.error?.message || 'Lỗi khi cập nhật trạng thái', 'Đóng', { duration: 3000 });
+      }
+    });
   }
 
-  deleteUser(u: UserForm): void {
-    if (!confirm(`Xoá tài khoản "${u.fullName}"?`)) return;
-    this.users.update(list => list.filter(x => x.id !== u.id));
-    this.applyFilter();
-    this.snack.open('Đã xoá tài khoản', 'Đóng', { duration: 3000 });
+  /** Không có xoá cứng — chỉ vô hiệu hoá tài khoản (giữ lại lịch sử tham chiếu created_by/
+   *  updated_by ở các bảng khác, tránh rủi ro xoá dữ liệu không cần thiết cho hệ thống ngân hàng). */
+  deactivateUser(u: User): void {
+    if (!u.active) return;
+    if (!confirm(`Vô hiệu hoá tài khoản "${u.fullName}"? Tài khoản sẽ không thể đăng nhập cho tới khi được kích hoạt lại.`)) return;
+    this.toggleActive(u);
   }
 
   saveSettings(): void {
@@ -171,18 +198,4 @@ export class QuanTriComponent implements OnInit {
   get statsManager(): number { return this.users().filter(u => u.role === 'ROLE_BRANCH_MANAGER').length; }
   get statsEmployee():number { return this.users().filter(u => u.role === 'ROLE_EMPLOYEE').length; }
   get statsActive():  number { return this.users().filter(u => u.active).length; }
-
-  private mockUsers(): UserForm[] {
-    return [
-      { id:1, username:'admin',      fullName:'Lê Quang Khải',   email:'admin@bidv.com.vn',      role:'ROLE_ADMIN',          maDonViCap6:'',    active:true  },
-      { id:2, username:'manager01',  fullName:'Trần Thị Hoàng Anh',  email:'hoang.anh@bidv.com.vn',  role:'ROLE_BRANCH_MANAGER', maDonViCap6:'P001',active:true  },
-      { id:3, username:'manager02',  fullName:'Lê Văn Phúc',         email:'van.phuc@bidv.com.vn',   role:'ROLE_BRANCH_MANAGER', maDonViCap6:'P002',active:true  },
-      { id:4, username:'am.nguyena', fullName:'Nguyễn Văn A',        email:'nguyen.a@bidv.com.vn',   role:'ROLE_EMPLOYEE',       maDonViCap6:'P001',active:true  },
-      { id:5, username:'am.buikhanh',fullName:'Bùi Văn Khành',       email:'bui.khanh@bidv.com.vn',  role:'ROLE_EMPLOYEE',       maDonViCap6:'P002',active:true  },
-      { id:6, username:'am.doquang', fullName:'Đỗ Văn Quang',        email:'do.quang@bidv.com.vn',   role:'ROLE_EMPLOYEE',       maDonViCap6:'P003',active:true  },
-      { id:7, username:'am.tranb',   fullName:'Trần Thị B',          email:'tran.b@bidv.com.vn',     role:'ROLE_EMPLOYEE',       maDonViCap6:'P004',active:false },
-      { id:8, username:'am.phamthe', fullName:'Phạm Thị E',          email:'pham.e@bidv.com.vn',     role:'ROLE_EMPLOYEE',       maDonViCap6:'P003',active:true  },
-      { id:9, username:'am.trankhanh',fullName:'Trần Văn Khánh',     email:'tran.khanh@bidv.com.vn', role:'ROLE_EMPLOYEE',       maDonViCap6:'P006',active:true  },
-    ];
-  }
 }

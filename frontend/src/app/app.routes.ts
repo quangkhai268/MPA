@@ -1,11 +1,19 @@
 import { Routes } from '@angular/router';
 import { authGuard, loginGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
     canActivate: [loginGuard],
     loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    // Chỉ cần đăng nhập (authGuard) — mọi role đều có thể bị bắt đổi mật khẩu nên route này
+    // không được có thêm roleGuard nào khác chặn mất.
+    path: 'doi-mat-khau',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/auth/doi-mat-khau/doi-mat-khau.component').then(m => m.DoiMatKhauComponent)
   },
   {
     path: '',
@@ -31,10 +39,12 @@ export const routes: Routes = [
       },
       {
         path: 'quan-tri',
+        canActivate: [roleGuard('ROLE_ADMIN')],
         loadComponent: () => import('./features/quan-tri/quan-tri.component').then(m => m.QuanTriComponent)
       },
       {
         path: 'tai-du-lieu-len',
+        canActivate: [roleGuard('ROLE_ADMIN')],
         loadComponent: () => import('./features/tai-du-lieu-len/tai-du-lieu-len.component').then(m => m.TaiDuLieuLenComponent)
       },
       {

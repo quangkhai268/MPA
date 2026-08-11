@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,6 +51,7 @@ public class CampaignController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ApiResponse<CampaignResponse> update(@PathVariable Integer id, @RequestBody CampaignRequest request) {
         try {
             return ApiResponse.ok(service.update(id, request));
@@ -59,6 +61,7 @@ public class CampaignController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ApiResponse<Void> delete(@PathVariable Integer id) {
         try {
             service.delete(id);
@@ -87,6 +90,7 @@ public class CampaignController {
     }
 
     @PostMapping("/{id}/send")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ApiResponse<JobRunResult> send(@PathVariable Integer id) {
         try {
             return ApiResponse.ok(service.send(id));

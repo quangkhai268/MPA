@@ -7,13 +7,17 @@ import com.mpa.service.CardMilestoneEvaluationService;
 import com.mpa.service.CardRevenueMilestoneService;
 import com.mpa.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/** Cấu hình mốc doanh số + trigger job gửi email thật — thuộc nhóm "Cài đặt hệ thống",
+ *  chỉ ADMIN được truy cập. */
 @RestController
 @RequestMapping("/api/card-revenue-milestones")
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class CardRevenueMilestoneController {
 
     private final CardRevenueMilestoneService service;

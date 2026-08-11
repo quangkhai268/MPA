@@ -6,6 +6,7 @@ import com.mpa.service.TheDoanhSoSnapshotService;
 import com.mpa.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -48,6 +49,7 @@ public class TheDoanhSoSnapshotController {
     }
 
     @PostMapping("/snapshot/run-now")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ApiResponse<Integer> runNow() {
         try {
             return ApiResponse.ok(snapshotService.runSnapshot(LocalDate.now()));

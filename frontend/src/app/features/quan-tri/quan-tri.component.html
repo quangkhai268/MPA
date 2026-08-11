@@ -144,9 +144,9 @@
                               (click)="toggleActive(u)">
                         <span class="material-icons">{{ u.active ? 'block' : 'check_circle' }}</span>
                       </button>
-                      <button mat-icon-button matTooltip="Xoá tài khoản" color="warn"
-                              [disabled]="u.role === 'ROLE_ADMIN'" (click)="deleteUser(u)">
-                        <span class="material-icons">delete_outline</span>
+                      <button mat-icon-button matTooltip="Vô hiệu hoá tài khoản" color="warn"
+                              [disabled]="u.role === 'ROLE_ADMIN' || !u.active" (click)="deactivateUser(u)">
+                        <span class="material-icons">person_off</span>
                       </button>
                     </div>
                   </td>
@@ -242,8 +242,8 @@
 
 <!-- ===== MODAL CREATE/EDIT ===== -->
 @if (showModal()) {
-  <div class="modal-overlay" (click)="closeModal()"></div>
-  <div class="modal animate-fade-in">
+  <div class="modal-overlay" (click)="closeModal()">
+  <div class="modal animate-fade-in" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>{{ editMode() ? 'Chỉnh sửa người dùng' : 'Thêm người dùng mới' }}</h2>
       <button mat-icon-button (click)="closeModal()"><span class="material-icons">close</span></button>
@@ -297,7 +297,7 @@
             <mat-error>Bắt buộc nhập mật khẩu</mat-error>
           }
           @if (form.get('password')?.hasError('minlength')) {
-            <mat-error>Tối thiểu 6 ký tự</mat-error>
+            <mat-error>Tối thiểu 8 ký tự</mat-error>
           }
         </mat-form-field>
       </div>
@@ -322,5 +322,6 @@
         }
       </button>
     </div>
+  </div>
   </div>
 }

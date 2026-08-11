@@ -3,6 +3,12 @@ spring:
   jpa:
     show-sql: true
 
+# Secret mặc định CHỈ dùng khi chạy profile dev (--spring.profiles.active=dev) — an toàn vì
+# profile này luôn phải bật thủ công, không phải default ngầm định khi deploy không set profile.
+app:
+  jwt:
+    secret: dev-only-local-secret-do-not-use-in-prod-32bytes-min
+
 logging:
   level:
     com.mpa: DEBUG

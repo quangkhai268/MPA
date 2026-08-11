@@ -7,6 +7,7 @@ import com.mpa.dto.XuHuongResponse;
 import com.mpa.service.GiaoChiTieuService;
 import com.mpa.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ public class GiaoChiTieuController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ApiResponse<Void> deleteChiTieu(@PathVariable Integer id) {
         try {
             service.deleteChiTieu(id);

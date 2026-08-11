@@ -262,12 +262,19 @@
   background: rgba(0,0,0,.4);
   z-index: 200;
   animation: fadeIn .2s ease;
+  // Căn giữa .modal bằng flexbox thay vì top:50%/left:50%+transform — .modal dùng
+  // animate-fade-in (transform: translateY trong keyframe, fill-mode "both") nên nếu căn
+  // giữa cũng bằng transform, animation sẽ GHI ĐÈ mất transform căn giữa sau khi chạy xong,
+  // làm modal lệch hẳn xuống dưới-phải và tràn ra ngoài màn hình.
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
 }
 
 .modal {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   width: 600px;
   max-width: 96vw;
   max-height: 92vh;
@@ -278,6 +285,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .modal-header {

@@ -15,6 +15,9 @@ public class ApiResponse<T> {
     private String message;
     private T data;
     private LocalDateTime timestamp;
+    /** Mã lỗi máy đọc được (VD "MUST_CHANGE_PASSWORD") — để frontend phân biệt các loại lỗi
+     *  cụ thể mà không cần parse text tiếng Việt. Null với hầu hết response. */
+    private String errorCode;
 
     public static <T> ApiResponse<T> ok(T data) {
         return ApiResponse.<T>builder()
@@ -29,6 +32,15 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .success(false)
                 .message(message)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    public static <T> ApiResponse<T> error(String message, String errorCode) {
+        return ApiResponse.<T>builder()
+                .success(false)
+                .message(message)
+                .errorCode(errorCode)
                 .timestamp(LocalDateTime.now())
                 .build();
     }

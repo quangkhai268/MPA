@@ -6,6 +6,7 @@ import com.mpa.service.ThongTinAmService;
 import com.mpa.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,6 +55,7 @@ public class ThongTinAmController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ApiResponse<ThongTinAmResponse> update(@PathVariable Integer id,
                                                    @RequestBody ThongTinAmRequest request) {
         try {
@@ -64,6 +66,7 @@ public class ThongTinAmController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ApiResponse<Void> delete(@PathVariable Integer id) {
         try {
             service.delete(id);

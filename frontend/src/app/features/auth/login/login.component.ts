@@ -46,8 +46,12 @@ export class LoginComponent {
     this.auth.login({ username: username!, password: password! }).subscribe({
       next: res => {
         this.loading.set(false);
-        if (res.success) this.router.navigate(['/dashboard']);
-        else this.error.set(res.message || 'Đăng nhập thất bại');
+        if (res.success) {
+          const target = res.data?.user?.mustChangePassword ? '/doi-mat-khau' : '/dashboard';
+          this.router.navigate([target]);
+        } else {
+          this.error.set(res.message || 'Đăng nhập thất bại');
+        }
       },
       error: err => {
         this.loading.set(false);

@@ -7,6 +7,7 @@ import com.mpa.service.ThongTinKhachHangService;
 import com.mpa.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,6 +53,7 @@ public class ThongTinKhachHangController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ApiResponse<ThongTinKhachHangResponse> update(@PathVariable Integer id,
                                                           @RequestBody ThongTinKhachHangRequest request) {
         try {
@@ -62,6 +64,7 @@ public class ThongTinKhachHangController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ApiResponse<Void> delete(@PathVariable Integer id) {
         try {
             service.delete(id);

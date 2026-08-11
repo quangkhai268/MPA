@@ -4,11 +4,14 @@ import com.mpa.dto.JobRunResult;
 import com.mpa.service.CardNotificationService;
 import com.mpa.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+/** Trigger job gửi email cảnh báo thẻ thật — chỉ ADMIN được chạy. */
 @RestController
 @RequestMapping("/api/card-notifications")
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class CardNotificationController {
 
     private final CardNotificationService service;

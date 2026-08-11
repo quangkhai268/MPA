@@ -1,16 +1,11 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, throwError, of } from 'rxjs';
-import { ApiResponse, AuthResponse, LoginRequest, User } from '../models/user.model';
+import { Observable, tap, catchError, throwError } from 'rxjs';
+import {
+  ApiResponse, AuthResponse, ChangePasswordRequest, LoginRequest, RefreshTokenRequest, User
+} from '../models/user.model';
 import { environment } from '../../../environments/environment';
-
-const MOCK_USERS: Record<string, { password: string; user: User; token: string }> = {
-  'admin':      { password: 'admin123', token: 'mock-token-admin', user: { id: 1, username: 'admin',      fullName: 'Lê Quang Khải',  email: 'admin@bidv.com.vn',     role: 'ROLE_ADMIN',          maDonViCap6: '',     active: true } },
-  'manager01':  { password: 'pass123',  token: 'mock-token-mgr01', user: { id: 2, username: 'manager01',  fullName: 'Trần Thị Hoàng Anh', email: 'hoang.anh@bidv.com.vn', role: 'ROLE_BRANCH_MANAGER', maDonViCap6: 'P001', active: true } },
-  'manager02':  { password: 'pass123',  token: 'mock-token-mgr02', user: { id: 3, username: 'manager02',  fullName: 'Lê Văn Phúc',        email: 'van.phuc@bidv.com.vn',  role: 'ROLE_BRANCH_MANAGER', maDonViCap6: 'P002', active: true } },
-  'am.nguyena': { password: 'pass123',  token: 'mock-token-am01',  user: { id: 4, username: 'am.nguyena', fullName: 'Nguyễn Văn A',       email: 'nguyen.a@bidv.com.vn',  role: 'ROLE_EMPLOYEE',       maDonViCap6: 'P001', active: true } },
-};
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -23,17 +18,6 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) {}
 
   login(req: LoginRequest): Observable<ApiResponse<AuthResponse>> {
-    // Thử mock login trước khi gọi API thực
-    const mock = MOCK_USERS[req.username];
-    if (mock && mock.password === req.password) {
-      const res: ApiResponse<AuthResponse> = {
-        success: true, message: 'Đăng nhập thành công', timestamp: new Date().toISOString(),
-        data: { accessToken: mock.token, refreshToken: mock.token + '-refresh', tokenType: 'Bearer', user: mock.user }
-      };
-      this.saveSession(res.data!);
-      return of(res);
-    }
-
     return this.http.post<ApiResponse<AuthResponse>>(`${environment.apiUrl}/auth/login`, req).pipe(
       tap(res => {
         if (res.success && res.data) {
@@ -41,16 +25,45 @@ export class AuthService {
         }
       }),
       catchError(err => {
-        // Nếu backend chưa chạy, thử mock một lần nữa với thông báo rõ ràng
         if (err.status === 0) {
-          return throwError(() => ({ error: { message: 'Sai tên đăng nhập hoặc mật khẩu. Tài khoản demo: admin / admin123' } }));
+          return throwError(() => ({ error: { message: 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.' } }));
         }
         return throwError(() => err);
       })
     );
   }
 
+  refresh(): Observable<ApiResponse<AuthResponse>> {
+    const refreshToken = localStorage.getItem(this.REFRESH_KEY);
+    const req: RefreshTokenRequest = { refreshToken: refreshToken ?? '' };
+    return this.http.post<ApiResponse<AuthResponse>>(`${environment.apiUrl}/auth/refresh`, req).pipe(
+      tap(res => {
+        if (res.success && res.data) {
+          this.saveSession(res.data);
+        }
+      })
+    );
+  }
+
+  changePassword(req: ChangePasswordRequest): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${environment.apiUrl}/auth/change-password`, req).pipe(
+      tap(res => {
+        if (res.success) {
+          const user = this.currentUser();
+          if (user) {
+            const updated = { ...user, mustChangePassword: false };
+            localStorage.setItem(this.USER_KEY, JSON.stringify(updated));
+            this.currentUser.set(updated);
+          }
+        }
+      })
+    );
+  }
+
   logout(): void {
+    // Phase 1: chưa có revoke token thật ở backend — gọi trước khi xoá token cục bộ để sẵn
+    // hook cho sau này; lỗi mạng/token hết hạn lúc gọi cũng không sao, vẫn xoá session cục bộ.
+    this.http.post(`${environment.apiUrl}/auth/logout`, {}).subscribe({ next: () => {}, error: () => {} });
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_KEY);
     localStorage.removeItem(this.USER_KEY);
@@ -73,6 +86,10 @@ export class AuthService {
 
   isAdmin(): boolean {
     return this.hasRole('ROLE_ADMIN');
+  }
+
+  mustChangePassword(): boolean {
+    return !!this.currentUser()?.mustChangePassword;
   }
 
   private saveSession(data: AuthResponse): void {

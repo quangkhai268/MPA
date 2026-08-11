@@ -5,13 +5,16 @@ import com.mpa.dto.EmailTemplateResponse;
 import com.mpa.service.EmailTemplateService;
 import com.mpa.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/** Cấu hình mẫu email — thuộc nhóm "Cài đặt hệ thống", chỉ ADMIN được truy cập. */
 @RestController
 @RequestMapping("/api/email-templates")
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class EmailTemplateController {
 
     private final EmailTemplateService service;
