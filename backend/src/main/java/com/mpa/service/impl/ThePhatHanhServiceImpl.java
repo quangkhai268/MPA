@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
             String search, String trangThai, String hinhThuc, String productCode,
             String loaiTheTinDung, String maDonViCap6, String amSearch, List<String> amCodes,
             boolean chuaKichHoat, int soNgayMin, boolean chuaPsgd, boolean chuaDatPtn, boolean datPtn,
-            int page, int size) {
+            int soNgayThuPtn, int page, int size) {
 
         String s    = (search == null) ? "" : search.trim();
         String tt   = (trangThai == null || trangThai.isBlank()) ? null : trangThai;
@@ -38,8 +39,9 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
         String don  = (maDonViCap6 == null || maDonViCap6.isBlank()) ? null : maDonViCap6;
         String amS  = (amSearch == null) ? "" : amSearch.trim();
         List<String> codes = (amCodes == null || amCodes.isEmpty()) ? null : amCodes;
+        LocalDate hanThuPtn = LocalDate.now().plusDays(Math.max(soNgayThuPtn, 0));
 
-        return repo.search(s, tt, ht, pc, ltd, don, amS, codes, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, PageRequest.of(page, size))
+        return repo.search(s, tt, ht, pc, ltd, don, amS, codes, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, soNgayThuPtn, hanThuPtn, PageRequest.of(page, size))
                    .map(ThePhatHanhResponse::from);
     }
 

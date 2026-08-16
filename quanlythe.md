@@ -94,7 +94,10 @@ Backend: `ThePhatHanhDetailResponse`, `GET /api/the-phat-hanh/{id}`.
 - **Bảng `system_setting`** (key-value): `CARD_EMAIL_ENABLED` (mặc định **`false`** — công tắc an toàn tổng), `CARD_TEST_EMAIL_OVERRIDE` (nếu có giá trị, MỌI email thật redirect về đây), `CHUA_KICH_HOAT_SO_NGAY`/`_LAP_LAI_SO_NGAY`, `CHUA_PSGD_SO_NGAY`/`_LAP_LAI_SO_NGAY`.
 - **Bảng `email_template`**: 3 mẫu cố định (`CHUA_KICH_HOAT`, `CHUA_PSGD`, `DOANH_SO_MOC`), có tiêu đề + nội dung HTML với placeholder `{{tenKhachHang}} {{soThe}} {{soNgay}} {{doanhSoHienTai}} {{nguongDoanhSo}}`.
 - **Bảng `email_log`**: nhật ký mọi lần gửi (card_id, loại thông báo, email_to, trạng thái SUCCESS/FAILED/SKIPPED_DISABLED/SKIPPED_DEDUP, campaign_id/milestone_id nếu có).
-- **`EmailService`**: bọc `JavaMailSender` (SMTP cấu hình qua biến môi trường `MAIL_HOST/PORT/USERNAME/PASSWORD` trong `application.yml`, chưa điền giá trị thật). `resolveRecipient()` là điểm chặn an toàn duy nhất — mọi luồng gửi đều đi qua đây trước khi ra SMTP thật.
+- **`EmailService`**: interface dùng chung, tách `resolveRecipient()`/`isEnabled()`/`render()` vào `AbstractEmailService`, 2 implementation chọn qua `app.mail.provider` (biến môi trường `MAIL_PROVIDER`, mặc định `smtp`):
+  - `SmtpEmailServiceImpl` (`provider=smtp`, mặc định) — bọc `JavaMailSender` (SMTP cấu hình qua `MAIL_HOST/PORT/USERNAME/PASSWORD`, chưa điền giá trị thật).
+  - `SendifyEmailServiceImpl` (`provider=sendify`) — gọi HTTP API Sendify (`POST https://sendify.vn/api/emails`, Bearer `SENDIFY_API_KEY`) qua `RestTemplate` (bean khai báo ở `config/RestTemplateConfig.java`). `202 Accepted` → `SUCCESS`, mọi lỗi HTTP (401/400/402/403/429) → `FAILED` (không tự retry — dựa vào dedup theo `SUCCESS` để job/chiến dịch tự thử lại lần chạy sau). `SENDIFY_API_KEY` mặc định rỗng, chưa cấu hình thật.
+  - Cả 2 impl chỉ khác nhau ở `send(to, subject, htmlBody)`; `resolveRecipient()` vẫn là điểm chặn an toàn duy nhất, áp dụng như nhau cho cả 2 provider — mọi luồng gửi đều đi qua đây trước khi ra provider thật.
 - **Dedup quan trọng**: chỉ log **SUCCESS** mới được tính là "đã gửi" để chặn gửi trùng trong chu kỳ lặp lại — log `SKIPPED_DISABLED`/`FAILED` KHÔNG chặn lần thử tiếp theo (đã kiểm chứng qua test: bật `CARD_EMAIL_ENABLED` sau khi tắt vẫn gửi lại được ngay).
 
 ### 5.2 Báo cáo chưa kích hoạt → email
@@ -188,7 +191,8 @@ Khi test job/chiến dịch trên toàn bộ danh mục thẻ (~22.436 thẻ), p
 ## 11. Ghi chú vận hành
 
 - Dự án **không có Flyway/Liquibase** — mọi bảng mới (`system_setting`, `email_template`, `email_log`, `card_revenue_milestone`, `the_doanh_so_snapshot`, `campaign`, `campaign_criteria`, `the_phat_hanh_staging`, `upload_history`) được tạo bằng SQL thủ công chạy 1 lần qua `psql`, `ddl-auto` giữ nguyên `none`.
-- SMTP thật chưa được cấu hình (chỉ có placeholder `localhost:25` trong `application.yml`) — cần điền `MAIL_HOST/PORT/USERNAME/PASSWORD/FROM` thật trước khi bật `CARD_EMAIL_ENABLED` ở production.
+- SMTP thật chưa được cấu hình (chỉ có placeholder `localhost:25` trong `application.yml`) — cần điền `MAIL_HOST/PORT/USERNAME/PASSWORD/FROM` thật trước khi bật `CARD_EMAIL_ENABLED` ở production nếu dùng `provider=smtp`.
+- **Provider Sendify (`MAIL_PROVIDER=sendify`)** chưa được kích hoạt — `SENDIFY_API_KEY` để trống mặc định. Trước khi dùng thật: verify domain gửi (`app.mail.from`) trong dashboard Sendify (bắt buộc, không thì mọi request trả `400`), tạo API key, kiểm tra hạn mức gói/rate-limit đủ cho quy mô ~22.000 thẻ nếu chạy chiến dịch toàn danh mục.
 - Tất cả 3 job cảnh báo + job snapshot đều có endpoint chạy thủ công để test mà không cần chờ lịch `@Scheduled`.
 - **Không được bật `CARD_EMAIL_ENABLED=true` hoặc điền SMTP thật khi chưa có xác nhận rõ ràng từ người dùng** — hệ thống hiện đang trong giai đoạn test, dữ liệu khách hàng trong `v_the_phat_hanh` là dữ liệu thật.
 - **`POST /api/upload` với file ISS_02 sẽ TRUNCATE + nạp lại toàn bộ `the_phat_hanh`** khi có ít nhất 1 file trong phiên stage thành công — đây là hành vi cố ý (bảng chỉ lưu trạng thái hiện tại, không phải append), nhưng cần lưu ý khi test: nên backup (`CREATE TABLE ... AS SELECT * FROM the_phat_hanh`) trước khi thử với dữ liệu thật, vì thao tác này không có "undo" ngoài restore thủ công từ backup.

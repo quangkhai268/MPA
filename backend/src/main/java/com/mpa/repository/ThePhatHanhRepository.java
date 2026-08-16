@@ -52,6 +52,8 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
             OR t.trangThaiThe IS NULL
             OR t.trangThaiThe NOT IN ('Card Auto-Closed', 'Card Closed', 'Card Fraud', 'Card Lost')
         )
+        AND (:soNgayThuPtn <= 0 OR (t.ngayThuPhiThuongTienTiepTheo IS NOT NULL
+            AND t.ngayThuPhiThuongTienTiepTheo BETWEEN FUNCTION('current_date') AND :hanThuPtn))
         ORDER BY t.id DESC
         """)
     Page<ThePhatHanh> search(
@@ -68,6 +70,8 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
             @Param("chuaPsgd") boolean chuaPsgd,
             @Param("chuaDatPtn") boolean chuaDatPtn,
             @Param("datPtn") boolean datPtn,
+            @Param("soNgayThuPtn") int soNgayThuPtn,
+            @Param("hanThuPtn") LocalDate hanThuPtn,
             Pageable pageable);
 
     @Query("SELECT DISTINCT t.trangThaiThe FROM ThePhatHanh t WHERE t.trangThaiThe IS NOT NULL ORDER BY t.trangThaiThe")

@@ -276,7 +276,7 @@ export class MpaService {
     search: string, trangThai: string, hinhThuc: string, productCode: string,
     loaiTheTinDung: string, maDonViCap6: string, amSearch: string,
     chuaKichHoat: boolean, soNgayMin: number, chuaPsgd: boolean, chuaDatPtn: boolean, datPtn: boolean,
-    page: number, size: number, amCodes?: string[]
+    soNgayThuPtn: number, page: number, size: number, amCodes?: string[]
   ): Observable<ApiResponse<PageResponse<ThePhatHanhItem>>> {
     let params = new HttpParams()
       .set('search', search)
@@ -290,6 +290,7 @@ export class MpaService {
       .set('chuaPsgd', String(chuaPsgd))
       .set('chuaDatPtn', String(chuaDatPtn))
       .set('datPtn', String(datPtn))
+      .set('soNgayThuPtn', String(soNgayThuPtn))
       .set('page', String(page))
       .set('size', String(size));
     if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);

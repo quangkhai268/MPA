@@ -135,17 +135,40 @@
     <div class="filter-card">
       <div class="filter-row-1">
         <div class="filter-field">
-          <label>
-            Chưa kích hoạt trên (ngày)
-            @if (soNgayMinLaMacDinhHeThong) { <span class="hint-system">(mặc định hệ thống)</span> }
-          </label>
+          <label>Chưa kích hoạt trên (ngày)</label>
           <select [(ngModel)]="soNgayMin" (ngModelChange)="onSoNgayMinChange()">
             @for (opt of soNgayMinOptions; track opt.value) {
               <option [ngValue]="opt.value">{{ opt.label }}</option>
             }
           </select>
         </div>
+
+        <div class="filter-field">
+          <label>Phòng ban</label>
+          <select [(ngModel)]="maDonViCap6" (ngModelChange)="search()">
+            <option value="">Tất cả phòng</option>
+            @for (p of phongOptions(); track p.ma) {
+              <option [value]="p.ma">{{ p.ten }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="search-field search-field-narrow">
+          <label>AM (tên hoặc mã)</label>
+          <div class="search-input-wrap">
+            <span class="material-icons search-icon">person_search</span>
+            <input class="search-input"
+                   [(ngModel)]="amSearch"
+                   (keyup.enter)="search()"
+                   placeholder="VD: Nguyễn Văn A hoặc AM001">
+          </div>
+        </div>
+
         <div class="filter-count-right">{{ totalElements }} thẻ chưa kích hoạt</div>
+      </div>
+
+      <div class="filter-row-2">
+        <button class="btn-search" (click)="search()">Tìm kiếm</button>
       </div>
     </div>
   }
@@ -204,7 +227,7 @@
           </select>
         </div>
 
-        <div class="search-field">
+        <div class="search-field search-field-narrow">
           <label>AM (tên hoặc mã)</label>
           <div class="search-input-wrap">
             <span class="material-icons search-icon">person_search</span>
@@ -213,6 +236,15 @@
                    (keyup.enter)="search()"
                    placeholder="VD: Nguyễn Văn A hoặc AM001">
           </div>
+        </div>
+
+        <div class="filter-field">
+          <label>Thời gian thu PTN</label>
+          <select [(ngModel)]="soNgayThuPtn">
+            @for (opt of soNgayThuPtnOptions; track opt.value) {
+              <option [ngValue]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
         </div>
 
         <div class="filter-checks">
@@ -232,6 +264,7 @@
         <label class="check-label">
           <input type="checkbox" [(ngModel)]="datPtn" (change)="onPtnFilterChange()"> Đạt doanh số miễn PTN
         </label>
+
         <button class="btn-search" (click)="search()">Tìm kiếm</button>
       </div>
     </div>
@@ -359,6 +392,9 @@
                       <span class="date-label">Thu phí TN:</span>
                       {{ item.ngayThuPhiThuongTienTiepTheo | date:'dd/MM/yyyy' }}
                     </div>
+                    @if (soNgayThuPtnDisplay(item.ngayThuPhiThuongTienTiepTheo); as ptn) {
+                      <div class="date-row date-sub" [class.date-urgent]="ptn.urgent">{{ ptn.text }}</div>
+                    }
                   }
                   @if (!item.ngayPhatHanhHienThi && !item.ngayThuPhiThuongTienTiepTheo) {
                     <span class="text-gray">—</span>
@@ -409,12 +445,13 @@
               <th>SẢN PHẨM</th>
               <th class="col-date">NGÀY PHÁT HÀNH</th>
               <th class="col-num">SỐ NGÀY CHỜ</th>
+              <th>MÃ AM</th>
               <th>LIÊN HỆ</th>
             </tr>
           </thead>
           <tbody>
             @if (items.length === 0) {
-              <tr><td colspan="7" class="empty-cell">Không có dữ liệu</td></tr>
+              <tr><td colspan="8" class="empty-cell">Không có dữ liệu</td></tr>
             }
             @for (item of items; track item.id; let i = $index) {
               <tr class="row-clickable" (click)="goToDetail(item.id)">
@@ -462,6 +499,9 @@
                 <td class="col-num">
                   <span class="wait-badge">{{ item.soNgayChuaKichHoat }} ngày</span>
                 </td>
+
+                <!-- Mã AM -->
+                <td>{{ item.amIssuingContract || '—' }}</td>
 
                 <!-- Liên hệ -->
                 <td>

@@ -1,48 +1,28 @@
 package com.mpa.service.impl;
 
-import com.mpa.service.EmailService;
 import com.mpa.service.SystemSettingService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.internet.MimeMessage;
-import java.util.Map;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class EmailServiceImpl implements EmailService {
+@ConditionalOnProperty(prefix = "app.mail", name = "provider", havingValue = "smtp", matchIfMissing = true)
+public class SmtpEmailServiceImpl extends AbstractEmailService {
 
     private final JavaMailSender mailSender;
-    private final SystemSettingService settingService;
 
     @Value("${app.mail.from}")
     private String fromAddress;
 
-    @Override
-    public boolean isEnabled() {
-        return settingService.getBoolean("CARD_EMAIL_ENABLED", false);
-    }
-
-    @Override
-    public String resolveRecipient(String realEmail) {
-        String override = settingService.getString("CARD_TEST_EMAIL_OVERRIDE", "");
-        return (override != null && !override.isBlank()) ? override.trim() : realEmail;
-    }
-
-    @Override
-    public String render(String template, Map<String, String> placeholders) {
-        if (template == null) return "";
-        String result = template;
-        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-            String value = entry.getValue() != null ? entry.getValue() : "";
-            result = result.replace("{{" + entry.getKey() + "}}", value);
-        }
-        return result;
+    public SmtpEmailServiceImpl(JavaMailSender mailSender, SystemSettingService settingService) {
+        super(settingService);
+        this.mailSender = mailSender;
     }
 
     @Override

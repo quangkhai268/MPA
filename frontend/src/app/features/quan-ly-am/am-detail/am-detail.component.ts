@@ -171,7 +171,7 @@ export class AmDetailComponent implements OnInit {
     if (!codes || !codes.length) return;
     this.currentCardPage = page;
     this.cardsLoading.set(true);
-    this.mpaService.getTheList('', '', '', '', '', '', '', false, 0, false, false, false, page, this.cardPageSize, codes).subscribe({
+    this.mpaService.getTheList('', '', '', '', '', '', '', false, 0, false, false, false, 0, page, this.cardPageSize, codes).subscribe({
       next: res => {
         if (res.success) this.cardsPage.set(res.data);
         this.cardsLoading.set(false);

@@ -34,11 +34,12 @@ public class ThePhatHanhController {
             @RequestParam(defaultValue = "false") boolean chuaPsgd,
             @RequestParam(defaultValue = "false") boolean chuaDatPtn,
             @RequestParam(defaultValue = "false") boolean datPtn,
+            @RequestParam(defaultValue = "0")   int soNgayThuPtn,
             @RequestParam(defaultValue = "0")   int page,
             @RequestParam(defaultValue = "20")  int size) {
         try {
             return ApiResponse.ok(service.getList(search, trangThai, hinhThuc, productCode,
-                    loaiTheTinDung, maDonViCap6, amSearch, amCodes, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, page, size));
+                    loaiTheTinDung, maDonViCap6, amSearch, amCodes, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, soNgayThuPtn, page, size));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi tải danh sách thẻ: " + e.getMessage());
         }

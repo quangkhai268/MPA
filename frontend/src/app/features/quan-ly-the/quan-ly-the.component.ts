@@ -8,7 +8,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { MpaService } from '../../core/services/mpa.service';
 import { AuthService } from '../../core/services/auth.service';
-import { SystemSettingService } from '../../core/services/system-setting.service';
 import { ThePhatHanhItem, TheSummary, UnitOption } from '../../core/models/mpa.model';
 import { PageResponse } from '../../core/models/user.model';
 
@@ -23,7 +22,6 @@ export class QuanLyTheComponent implements OnInit {
   private mpaService = inject(MpaService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private systemSettingService = inject(SystemSettingService);
   auth = inject(AuthService);
 
   // ── Tab ───────────────────────────────────────────────────────────────
@@ -41,8 +39,8 @@ export class QuanLyTheComponent implements OnInit {
   chuaPsgd       = false;
   chuaDatPtn     = true;
   datPtn         = false;
-  soNgayMin      = 7;
-  soNgayMinLaMacDinhHeThong = false;
+  soNgayMin      = 0;
+  soNgayThuPtn   = 0;
 
   // ── Chưa kích hoạt: tùy chọn ngưỡng số ngày ────────────────────────────
   soNgayMinOptions = [
@@ -52,6 +50,14 @@ export class QuanLyTheComponent implements OnInit {
     { value: 30, label: '> 30 ngày' },
     { value: 60, label: '> 60 ngày' },
     { value: 90, label: '> 90 ngày' },
+  ];
+
+  // ── Doanh số miễn PTN: tùy chọn thời gian đến ngày thu phí ─────────────
+  soNgayThuPtnOptions = [
+    { value: 0,  label: 'Tất cả' },
+    { value: 10, label: 'Trong 10 ngày tới' },
+    { value: 30, label: 'Trong 30 ngày tới' },
+    { value: 60, label: 'Trong 60 ngày tới' },
   ];
 
   // ── Dropdown options ─────────────────────────────────────────────────
@@ -93,33 +99,19 @@ export class QuanLyTheComponent implements OnInit {
       const soNgay = qp.get('soNgayMin');
       if (soNgay != null) {
         this.soNgayMin = Number(soNgay);
-        this.soNgayMinLaMacDinhHeThong = false;
+      }
+      const soNgayThuPtn = qp.get('soNgayThuPtn');
+      if (soNgayThuPtn != null) {
+        this.soNgayThuPtn = Number(soNgayThuPtn);
       }
     }
 
     const savedScroll = sessionStorage.getItem(this.scrollKey);
     const restoreScrollY = savedScroll != null ? Number(savedScroll) : null;
 
-    this.systemSettingService.getAll().subscribe({
-      next: res => {
-        if (res.success && !hasFilters) {
-          const setting = res.data.find(s => s.settingKey === 'CHUA_KICH_HOAT_SO_NGAY');
-          const value = setting?.settingValue ? parseInt(setting.settingValue, 10) : NaN;
-          if (!isNaN(value)) {
-            this.soNgayMin = value;
-            this.soNgayMinLaMacDinhHeThong = true;
-          }
-        }
-        this.loadSummary();
-        this.loadDropdowns();
-        this.loadPage(this.currentPage, restoreScrollY);
-      },
-      error: () => {
-        this.loadSummary();
-        this.loadDropdowns();
-        this.loadPage(this.currentPage, restoreScrollY);
-      }
-    });
+    this.loadSummary();
+    this.loadDropdowns();
+    this.loadPage(this.currentPage, restoreScrollY);
   }
 
   // Vùng nội dung chính (main.main-content) mới thực sự cuộn, không phải window
@@ -149,7 +141,8 @@ export class QuanLyTheComponent implements OnInit {
       chuaPsgd:       this.chuaPsgd ? '1' : null,
       chuaDatPtn:     this.chuaDatPtn ? '1' : null,
       datPtn:         this.datPtn ? '1' : null,
-      soNgayMin:      this.soNgayMinLaMacDinhHeThong ? null : String(this.soNgayMin),
+      soNgayMin:      this.soNgayMin ? String(this.soNgayMin) : null,
+      soNgayThuPtn:   this.soNgayThuPtn ? String(this.soNgayThuPtn) : null,
       page:           this.currentPage ? String(this.currentPage) : null,
     };
     this.router.navigate([], { relativeTo: this.route, queryParams: params, replaceUrl: true });
@@ -213,7 +206,7 @@ export class QuanLyTheComponent implements OnInit {
       this.trangThai, this.hinhThuc, this.productCode,
       this.loaiTheTinDung, this.maDonViCap6, this.amSearch.trim(),
       this.chuaKichHoat, this.soNgayMin, this.chuaPsgd, this.chuaDatPtn, this.datPtn,
-      page, this.pageSize
+      this.soNgayThuPtn, page, this.pageSize
     ).subscribe({
       next: res => {
         if (res.success) this.pageData.set(res.data);
@@ -227,7 +220,6 @@ export class QuanLyTheComponent implements OnInit {
   search(): void { this.loadPage(0); }
 
   onSoNgayMinChange(): void {
-    this.soNgayMinLaMacDinhHeThong = false;
     this.search();
   }
 
@@ -295,6 +287,24 @@ export class QuanLyTheComponent implements OnInit {
   formatSdt(sdt: string | null): string {
     if (!sdt) return '';
     return sdt.trim().replace(/^\/+|\/+$/g, '');
+  }
+
+  soNgayDenThuPtn(ngayThuPhiTiepTheo: string | null): number | null {
+    if (!ngayThuPhiTiepTheo) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(ngayThuPhiTiepTheo);
+    target.setHours(0, 0, 0, 0);
+    return Math.round((target.getTime() - today.getTime()) / 86400000);
+  }
+
+  soNgayThuPtnDisplay(ngayThuPhiTiepTheo: string | null): { text: string; urgent: boolean } | null {
+    const soNgay = this.soNgayDenThuPtn(ngayThuPhiTiepTheo);
+    if (soNgay === null) return null;
+    const text = soNgay > 0 ? `Còn ${soNgay} ngày`
+      : soNgay === 0 ? 'Hôm nay'
+      : `Đã quá hạn ${-soNgay} ngày`;
+    return { text, urgent: soNgay < 10 };
   }
 
   trangThaiBadgeClass(tt: string | null): string {

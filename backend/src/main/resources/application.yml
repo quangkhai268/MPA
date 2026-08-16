@@ -52,7 +52,12 @@ spring:
 
 app:
   mail:
-    from: ${MAIL_FROM:no-reply@bidv.com.vn}
+    provider: ${MAIL_PROVIDER:sendify}      # smtp | sendify — mặc định smtp, không đổi hành vi hiện tại
+    from: ${MAIL_FROM:no-reply@mail.mybcardportal.com}
+    from-name: ${MAIL_FROM_NAME:Card Management Portal}
+  sendify:
+    api-key: ${SENDIFY_API_KEY:sfy_qxLU9iP5_Lu57K33OLjnFZStT1tycT9brROKRCPgW}
+    base-url: ${SENDIFY_BASE_URL:https://sendify.vn/api/emails}
   jwt:
     # KHÔNG đặt giá trị mặc định ở đây — JwtUtil fail-fast lúc khởi động nếu rỗng/quá ngắn.
     # Production BẮT BUỘC set biến môi trường JWT_SECRET (giống cách đang làm với DB_PASSWORD),

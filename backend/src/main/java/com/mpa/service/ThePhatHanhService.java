@@ -14,7 +14,7 @@ public interface ThePhatHanhService {
             String search, String trangThai, String hinhThuc, String productCode,
             String loaiTheTinDung, String maDonViCap6, String amSearch, List<String> amCodes,
             boolean chuaKichHoat, int soNgayMin, boolean chuaPsgd, boolean chuaDatPtn, boolean datPtn,
-            int page, int size);
+            int soNgayThuPtn, int page, int size);
 
     ThePhatHanhDetailResponse getDetail(Long id);
 
