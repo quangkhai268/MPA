@@ -56,6 +56,7 @@ public class ThePhatHanhDetailResponse {
     private LocalDateTime ngayKichHoat;
     private LocalDateTime ngayPsgd;
     private LocalDateTime ngayPhatHanhThe;
+    private LocalDate ngayThuPhiThuongTienTiepTheo;
 
     public static ThePhatHanhDetailResponse from(ThePhatHanh e) {
         ThePhatHanhDetailResponse r = new ThePhatHanhDetailResponse();
@@ -99,6 +100,7 @@ public class ThePhatHanhDetailResponse {
         r.ngayKichHoat             = e.getNgayCapNhatTrangThaiCardContract();
         r.ngayPsgd                 = e.getNgayCapNhatTrangThaiIssuingContract();
         r.ngayPhatHanhThe          = e.getNgayPhatHanhThe();
+        r.ngayThuPhiThuongTienTiepTheo = e.getNgayThuPhiThuongTienTiepTheo();
 
         if (e.getNgayPhatHanhThe() != null) {
             r.ngayPhatHanhHienThi = e.getNgayPhatHanhThe().toLocalDate();

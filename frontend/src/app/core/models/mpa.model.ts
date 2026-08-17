@@ -458,6 +458,7 @@ export interface ThePhatHanhDetail {
   ngayKichHoat: string | null;
   ngayPsgd: string | null;
   ngayPhatHanhThe: string | null;
+  ngayThuPhiThuongTienTiepTheo: string | null;
 }
 
 export interface TheSummary {

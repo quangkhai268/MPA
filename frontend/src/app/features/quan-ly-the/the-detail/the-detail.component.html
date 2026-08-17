@@ -55,7 +55,7 @@
               }
             </div>
             <div class="card-visual-footer">
-              <span>Hợp đồng: {{ d.issuingContractNbr || '—' }}</span>
+              <span>Card ID: {{ d.cardId || '—' }}</span>
               <span>HMTD: {{ formatTrieu(d.hmtdIssuingContract) }}</span>
             </div>
           </div>
@@ -122,6 +122,15 @@
                   <div class="status-label">Phát sinh GD đầu tiên</div>
                   <div class="status-value">
                     {{ d.ngayPsgd ? (d.ngayPsgd | date:'dd/MM/yyyy') : '—' }}
+                  </div>
+                </div>
+              </div>
+              <div class="status-item">
+                <span class="material-icons status-icon">event</span>
+                <div>
+                  <div class="status-label">Ngày thu PTN</div>
+                  <div class="status-value">
+                    {{ d.ngayThuPhiThuongTienTiepTheo ? (d.ngayThuPhiThuongTienTiepTheo | date:'dd/MM/yyyy') : '—' }}
                   </div>
                 </div>
               </div>

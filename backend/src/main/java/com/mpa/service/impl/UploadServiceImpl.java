@@ -10,6 +10,7 @@ import com.mpa.service.BscSyncService;
 import com.mpa.service.DuLieuMpaImportService;
 import com.mpa.service.SnapshotService;
 import com.mpa.service.ThePhatHanhImportService;
+import com.mpa.service.ThongTinAmImportService;
 import com.mpa.service.UploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,6 +36,7 @@ public class UploadServiceImpl implements UploadService {
 
     private final ThePhatHanhImportService thePhatHanhImportService;
     private final DuLieuMpaImportService duLieuMpaImportService;
+    private final ThongTinAmImportService thongTinAmImportService;
     private final BscSyncService bscSyncService;
     private final SnapshotService snapshotService;
     private final UploadHistoryRepository uploadHistoryRepository;
@@ -74,6 +76,10 @@ public class UploadServiceImpl implements UploadService {
                 FileImportResult r = duLieuMpaImportService.stageFile(new ByteArrayInputStream(e.bytes()), e.name());
                 results.add(r);
                 if ("SUCCESS".equals(r.getTrangThai())) anyMpaStaged = true;
+            } else if ("UNKNOWN".equals(type) && thongTinAmImportService.isThongTinAmFile(e.bytes())) {
+                // Không nhận diện được qua tên file — kiểm tra ô tiêu đề đầu tiên của Excel.
+                FileImportResult r = thongTinAmImportService.importFile(new ByteArrayInputStream(e.bytes()), e.name());
+                results.add(r);
             } else {
                 results.add(new FileImportResult(e.name(), type, 0, "UNSUPPORTED", "Chưa hỗ trợ loại file này", null));
             }

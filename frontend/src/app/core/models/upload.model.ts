@@ -1,6 +1,6 @@
 export interface FileImportResult {
   tenFile: string;
-  loaiFile: string;   // MPA | ISS_02 | ISS_06 | ISS_15 | UNKNOWN
+  loaiFile: string;   // MPA | ISS_02 | ISS_06 | ISS_15 | THONG_TIN_AM | UNKNOWN
   soDong: number;
   trangThai: string;  // SUCCESS | FAILED | UNSUPPORTED
   ghiChu: string | null;

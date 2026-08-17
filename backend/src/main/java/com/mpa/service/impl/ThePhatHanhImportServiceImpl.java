@@ -379,17 +379,28 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
         // ngay lúc chuyển từ staging sang bảng sống. Trừ 4 trạng thái thẻ đã đóng/gian lận/mất
         // (không tính PTN) → NULL. Nếu ngày thu phí gần nhất còn ở TƯƠNG LAI so với ngày import
         // (VD: ngay_thu_phi_thuong_nien_gan_nhat = 30/9, import ngày 09/08) thì đó CHÍNH LÀ lần
-        // thu tiếp theo, chưa cộng thêm 1 năm; ngược lại (đã qua hoặc đúng ngày import) mới
-        // cộng thêm 1 năm như bình thường. NULL tự lan truyền nếu chưa có ngày thu gần nhất.
+        // thu tiếp theo, chưa cộng thêm năm nào. Ngược lại, cộng đủ SỐ NĂM cần thiết để ra ngày
+        // >= ngày import — không phải luôn +1 năm: nếu ngày gần nhất đã quá hạn hơn 1 năm (VD
+        // gan_nhat=20/5/2025, import 17/8/2026 — quá hạn 20/5/2026 luôn) thì phải +2 năm mới ra
+        // đúng lần thu tiếp theo (20/5/2027). "candidate" = gan_nhat + số năm TRÒN đã trôi qua
+        // (EXTRACT YEAR FROM AGE, tính theo lịch, không xấp xỉ 365 ngày); nếu candidate vẫn còn
+        // ở quá khứ/đúng bằng ngày import thì cộng thêm đúng 1 năm nữa. NULL tự lan truyền nếu
+        // chưa có ngày thu gần nhất.
         jdbcTemplate.execute("TRUNCATE TABLE the_phat_hanh");
+        LocalDate today = LocalDate.now();
         jdbcTemplate.update(
                 "INSERT INTO the_phat_hanh (" + cols + ", ngay_thu_phi_thuong_tien_tiep_theo, created_at) " +
                 "SELECT " + cols + ", " +
                 "CASE WHEN trang_thai_the IN ('Card Auto-Closed', 'Card Closed', 'Card Fraud', 'Card Lost') THEN NULL " +
                 "WHEN ? < ngay_thu_phi_thuong_nien_gan_nhat THEN ngay_thu_phi_thuong_nien_gan_nhat " +
-                "ELSE (ngay_thu_phi_thuong_nien_gan_nhat + INTERVAL '1 year')::date END, " +
-                "now() FROM the_phat_hanh_staging",
-                LocalDate.now()
+                "WHEN candidate >= ? THEN candidate " +
+                "ELSE (candidate + INTERVAL '1 year')::date END, " +
+                "now() FROM (" +
+                "  SELECT s.*, (s.ngay_thu_phi_thuong_nien_gan_nhat " +
+                "    + (EXTRACT(YEAR FROM AGE(?::date, s.ngay_thu_phi_thuong_nien_gan_nhat)))::int * INTERVAL '1 year')::date AS candidate " +
+                "  FROM the_phat_hanh_staging s" +
+                ") staged",
+                today, today, today
         );
         jdbcTemplate.execute("TRUNCATE TABLE the_phat_hanh_staging");
     }
