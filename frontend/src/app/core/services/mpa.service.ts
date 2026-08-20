@@ -300,6 +300,32 @@ export class MpaService {
     return this.http.get<ApiResponse<PageResponse<ThePhatHanhItem>>>(`${this.api}/the-phat-hanh`, { params });
   }
 
+  exportTheListExcel(
+    search: string, trangThai: string, hinhThuc: string, productCode: string,
+    loaiTheTinDung: string, maDonViCap6: string, amSearch: string,
+    chuaKichHoat: boolean, soNgayMin: number, chuaPsgd: boolean, chuaDatPtn: boolean, datPtn: boolean,
+    soNgayThuPtn: number, amCodes?: string[]
+  ): Observable<Blob> {
+    let params = new HttpParams()
+      .set('search', search)
+      .set('trangThai', trangThai)
+      .set('hinhThuc', hinhThuc)
+      .set('productCode', productCode)
+      .set('loaiTheTinDung', loaiTheTinDung)
+      .set('amSearch', amSearch)
+      .set('chuaKichHoat', String(chuaKichHoat))
+      .set('soNgayMin', String(soNgayMin))
+      .set('chuaPsgd', String(chuaPsgd))
+      .set('chuaDatPtn', String(chuaDatPtn))
+      .set('datPtn', String(datPtn))
+      .set('soNgayThuPtn', String(soNgayThuPtn));
+    if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);
+    if (amCodes && amCodes.length) {
+      for (const code of amCodes) params = params.append('amCodes', code);
+    }
+    return this.http.get(`${this.api}/the-phat-hanh/export`, { params, responseType: 'blob' });
+  }
+
   // --- Chi tiết AM / theo cán bộ (quan-ly-am/:maAm, quan-ly-am/can-bo/:tenAm) ---
   getAmChiTiet(
     loaiKy: string, selectedKy: string, maAm?: string, tenAm?: string

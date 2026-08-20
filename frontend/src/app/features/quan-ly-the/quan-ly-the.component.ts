@@ -336,7 +336,31 @@ export class QuanLyTheComponent implements OnInit {
 
   clamp100(v: number): number { return Math.min(v, 100); }
 
+  exporting = signal(false);
+
   exportExcel(): void {
-    alert('Chức năng Xuất Excel đang được phát triển.');
+    if (this.exporting()) return;
+    this.exporting.set(true);
+    this.mpaService.exportTheListExcel(
+      this.searchText.trim(),
+      this.trangThai, this.hinhThuc, this.productCode,
+      this.loaiTheTinDung, this.maDonViCap6, this.amSearch.trim(),
+      this.chuaKichHoat, this.soNgayMin, this.chuaPsgd, this.chuaDatPtn, this.datPtn,
+      this.soNgayThuPtn
+    ).subscribe({
+      next: blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `danh-sach-the-${new Date().toISOString().slice(0, 10)}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        this.exporting.set(false);
+      },
+      error: () => {
+        alert('Lỗi khi xuất Excel. Vui lòng thử lại.');
+        this.exporting.set(false);
+      }
+    });
   }
 }

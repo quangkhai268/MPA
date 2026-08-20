@@ -31,18 +31,45 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
             boolean chuaKichHoat, int soNgayMin, boolean chuaPsgd, boolean chuaDatPtn, boolean datPtn,
             int soNgayThuPtn, int page, int size) {
 
-        String s    = (search == null) ? "" : search.trim();
-        String tt   = (trangThai == null || trangThai.isBlank()) ? null : trangThai;
-        String ht   = (hinhThuc == null || hinhThuc.isBlank()) ? null : hinhThuc;
-        String pc   = (productCode == null || productCode.isBlank()) ? null : productCode;
-        String ltd  = (loaiTheTinDung == null || loaiTheTinDung.isBlank()) ? null : loaiTheTinDung;
-        String don  = (maDonViCap6 == null || maDonViCap6.isBlank()) ? null : maDonViCap6;
-        String amS  = (amSearch == null) ? "" : amSearch.trim();
-        List<String> codes = (amCodes == null || amCodes.isEmpty()) ? null : amCodes;
+        FilterParams f = normalize(search, trangThai, hinhThuc, productCode, loaiTheTinDung, maDonViCap6, amSearch, amCodes);
         LocalDate hanThuPtn = LocalDate.now().plusDays(Math.max(soNgayThuPtn, 0));
 
-        return repo.search(s, tt, ht, pc, ltd, don, amS, codes, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, soNgayThuPtn, hanThuPtn, PageRequest.of(page, size))
+        return repo.search(f.search, f.trangThai, f.hinhThuc, f.productCode, f.loaiTheTinDung, f.maDonViCap6,
+                        f.amSearch, f.amCodes, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn,
+                        soNgayThuPtn, hanThuPtn, PageRequest.of(page, size))
                    .map(ThePhatHanhResponse::from);
+    }
+
+    @Override
+    public List<ThePhatHanh> exportList(
+            String search, String trangThai, String hinhThuc, String productCode,
+            String loaiTheTinDung, String maDonViCap6, String amSearch, List<String> amCodes,
+            boolean chuaKichHoat, int soNgayMin, boolean chuaPsgd, boolean chuaDatPtn, boolean datPtn,
+            int soNgayThuPtn) {
+
+        FilterParams f = normalize(search, trangThai, hinhThuc, productCode, loaiTheTinDung, maDonViCap6, amSearch, amCodes);
+        LocalDate hanThuPtn = LocalDate.now().plusDays(Math.max(soNgayThuPtn, 0));
+
+        return repo.search(f.search, f.trangThai, f.hinhThuc, f.productCode, f.loaiTheTinDung, f.maDonViCap6,
+                        f.amSearch, f.amCodes, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn,
+                        soNgayThuPtn, hanThuPtn, org.springframework.data.domain.Pageable.unpaged())
+                   .getContent();
+    }
+
+    private record FilterParams(String search, String trangThai, String hinhThuc, String productCode,
+                                 String loaiTheTinDung, String maDonViCap6, String amSearch, List<String> amCodes) {}
+
+    private FilterParams normalize(String search, String trangThai, String hinhThuc, String productCode,
+                                    String loaiTheTinDung, String maDonViCap6, String amSearch, List<String> amCodes) {
+        return new FilterParams(
+                (search == null) ? "" : search.trim(),
+                (trangThai == null || trangThai.isBlank()) ? null : trangThai,
+                (hinhThuc == null || hinhThuc.isBlank()) ? null : hinhThuc,
+                (productCode == null || productCode.isBlank()) ? null : productCode,
+                (loaiTheTinDung == null || loaiTheTinDung.isBlank()) ? null : loaiTheTinDung,
+                (maDonViCap6 == null || maDonViCap6.isBlank()) ? null : maDonViCap6,
+                (amSearch == null) ? "" : amSearch.trim(),
+                (amCodes == null || amCodes.isEmpty()) ? null : amCodes);
     }
 
     @Override

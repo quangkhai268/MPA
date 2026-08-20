@@ -114,12 +114,18 @@ public interface ThucHienBscRepository extends JpaRepository<ThucHienBscChiNhanh
            "GROUP BY c.maDonViCap6, c.tenDonViCap6 ORDER BY SUM(c.thuNhapThuan) DESC")
     List<Object[]> phongTableByQuyNam(@Param("quy") String quy, @Param("nam") int nam);
 
+    // BUG (đã sửa): phongTableByNam() cũ gộp lẫn dòng tháng + dòng quý + dòng năm cùng năm,
+    // cộng trùng nhiều lần (vì huy_dong_von_cuoi_ky là số dư CUỐI KỲ tại 1 thời điểm, không
+    // được SUM cộng dồn qua nhiều kỳ). Dòng "lũy kế năm" đúng là dòng CÓ thang IS NULL VÀ
+    // quy IS NULL (do BscSyncService ghi khi đồng bộ từ file MPA loại "Năm") — đã kiểm chứng
+    // khớp chính xác với type_data=6 (tổng chi nhánh dùng cho KPI cards) trên dữ liệu thật.
     @Query("SELECT c.maDonViCap6, c.tenDonViCap6, " +
            "COALESCE(SUM(c.huyDongVonCuoiKy),0), COALESCE(SUM(c.casaBinhQuan),0), " +
            "COALESCE(SUM(c.duNoTinDungCuoiKy),0), COALESCE(SUM(c.thuNhapThuanDichVu),0), " +
            "COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
            "COALESCE(SUM(c.thuNhapThuan),0) " +
            "FROM ThucHienBscChiNhanh c WHERE c.typeData = 2 AND c.nam = :nam " +
+           "AND c.thang IS NULL AND c.quy IS NULL " +
            "GROUP BY c.maDonViCap6, c.tenDonViCap6 ORDER BY SUM(c.thuNhapThuan) DESC")
     List<Object[]> phongTableByNam(@Param("nam") int nam);
 
@@ -135,8 +141,10 @@ public interface ThucHienBscRepository extends JpaRepository<ThucHienBscChiNhanh
            "GROUP BY c.tenDonViCap6")
     List<Object[]> phongAmCountByQuyNam(@Param("quy") String quy, @Param("nam") int nam);
 
+    // Cùng lý do sửa như phongTableByNam() ở trên — chỉ lấy đúng dòng lũy kế năm.
     @Query("SELECT c.tenDonViCap6, COUNT(c) " +
            "FROM ThucHienBscChiNhanh c WHERE c.typeData = 3 AND c.nam = :nam " +
+           "AND c.thang IS NULL AND c.quy IS NULL " +
            "GROUP BY c.tenDonViCap6")
     List<Object[]> phongAmCountByNam(@Param("nam") int nam);
 
@@ -165,6 +173,7 @@ public interface ThucHienBscRepository extends JpaRepository<ThucHienBscChiNhanh
                                      @Param("quy") String quy,
                                      @Param("nam") int nam);
 
+    // Cùng lý do sửa như phongTableByNam() ở trên — chỉ lấy đúng dòng lũy kế năm.
     @Query("SELECT c.maAm, c.tenAm, " +
            "COALESCE(SUM(c.huyDongVonCuoiKy),0), COALESCE(SUM(c.casaBinhQuan),0), " +
            "COALESCE(SUM(c.duNoTinDungCuoiKy),0), COALESCE(SUM(c.thuNhapThuanDichVu),0), " +
@@ -172,6 +181,7 @@ public interface ThucHienBscRepository extends JpaRepository<ThucHienBscChiNhanh
            "COALESCE(SUM(c.thuNhapThuan),0) " +
            "FROM ThucHienBscChiNhanh c " +
            "WHERE c.typeData = 3 AND c.maDonViCap6 = :maDonViCap6 AND c.nam = :nam " +
+           "AND c.thang IS NULL AND c.quy IS NULL " +
            "GROUP BY c.maAm, c.tenAm ORDER BY SUM(c.thuNhapThuan) DESC")
     List<Object[]> amDetailByNam(@Param("maDonViCap6") String maDonViCap6,
                                   @Param("nam") int nam);
@@ -195,11 +205,13 @@ public interface ThucHienBscRepository extends JpaRepository<ThucHienBscChiNhanh
            "GROUP BY c.maAm, c.tenAm")
     List<Object[]> topAmByQuyNam(@Param("quy") String quy, @Param("nam") int nam);
 
+    // Cùng lý do sửa như phongTableByNam() ở trên — chỉ lấy đúng dòng lũy kế năm.
     @Query("SELECT c.maAm, c.tenAm, MAX(c.tenDonViCap6), " +
            "COALESCE(SUM(c.huyDongVonCuoiKy),0), COALESCE(SUM(c.casaBinhQuan),0), COALESCE(SUM(c.duNoTinDungCuoiKy),0), " +
            "COALESCE(SUM(c.thuNhapThuanDichVu),0), COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
            "COALESCE(SUM(c.thuNhapThuan),0) " +
            "FROM ThucHienBscChiNhanh c WHERE c.typeData = 3 AND c.nam = :nam " +
+           "AND c.thang IS NULL AND c.quy IS NULL " +
            "GROUP BY c.maAm, c.tenAm")
     List<Object[]> topAmByNam(@Param("nam") int nam);
 
@@ -222,12 +234,14 @@ public interface ThucHienBscRepository extends JpaRepository<ThucHienBscChiNhanh
            "GROUP BY c.tenDonViCap6, c.quy ORDER BY c.tenDonViCap6, c.quy")
     List<Object[]> phongTrendByQuy(@Param("nam") int nam);
 
+    // Cùng lý do sửa như phongTableByNam() ở trên — chỉ lấy đúng dòng lũy kế năm/năm.
     @Query("SELECT c.tenDonViCap6, c.nam, " +
            "COALESCE(SUM(c.huyDongVonCuoiKy),0), COALESCE(SUM(c.casaBinhQuan),0), " +
            "COALESCE(SUM(c.duNoTinDungCuoiKy),0), COALESCE(SUM(c.thuNhapThuanDichVu),0), " +
            "COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
            "COALESCE(SUM(c.thuNhapThuan),0) " +
            "FROM ThucHienBscChiNhanh c WHERE c.typeData = 2 AND c.nam IN :years " +
+           "AND c.thang IS NULL AND c.quy IS NULL " +
            "GROUP BY c.tenDonViCap6, c.nam ORDER BY c.tenDonViCap6, c.nam")
     List<Object[]> phongTrendByNam(@Param("years") List<Integer> years);
 
@@ -347,6 +361,7 @@ public interface ThucHienBscRepository extends JpaRepository<ThucHienBscChiNhanh
            "COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
            "COALESCE(SUM(c.thuNhapThuan),0) " +
            "FROM ThucHienBscChiNhanh c WHERE c.typeData = 2 AND c.maDonViCap6 = :maDonViCap6 AND c.nam IN :years " +
+           "AND c.thang IS NULL AND c.quy IS NULL " +
            "GROUP BY c.nam ORDER BY c.nam")
     List<Object[]> trendPhongOneByNam(@Param("maDonViCap6") String maDonViCap6, @Param("years") List<Integer> years);
 
@@ -371,6 +386,7 @@ public interface ThucHienBscRepository extends JpaRepository<ThucHienBscChiNhanh
            "COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
            "COALESCE(SUM(c.thuNhapThuan),0) " +
            "FROM ThucHienBscChiNhanh c WHERE c.typeData = 3 AND c.maAm = :maAm AND c.nam IN :years " +
+           "AND c.thang IS NULL AND c.quy IS NULL " +
            "GROUP BY c.nam ORDER BY c.nam")
     List<Object[]> trendAmOneByNam(@Param("maAm") String maAm, @Param("years") List<Integer> years);
 
@@ -399,6 +415,7 @@ public interface ThucHienBscRepository extends JpaRepository<ThucHienBscChiNhanh
            "COALESCE(SUM(c.thuNhapThuanHdvFtp),0), COALESCE(SUM(c.thuNhapThuanTinDung),0), " +
            "COALESCE(SUM(c.thuNhapThuan),0) " +
            "FROM ThucHienBscChiNhanh c WHERE c.typeData = 3 AND c.maAm IN :maAmCodes AND c.nam IN :years " +
+           "AND c.thang IS NULL AND c.quy IS NULL " +
            "GROUP BY c.nam ORDER BY c.nam")
     List<Object[]> trendAmListByNam(@Param("maAmCodes") List<String> maAmCodes, @Param("years") List<Integer> years);
 }

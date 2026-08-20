@@ -17,9 +17,9 @@
           Cài đặt cảnh báo
         </button>
       }
-      <button class="btn-outline" (click)="exportExcel()">
-        <span class="material-icons">download</span>
-        Xuất Excel
+      <button class="btn-outline" (click)="exportExcel()" [disabled]="exporting()">
+        <span class="material-icons">{{ exporting() ? 'hourglass_top' : 'download' }}</span>
+        {{ exporting() ? 'Đang xuất...' : 'Xuất Excel' }}
       </button>
     </div>
   </div>

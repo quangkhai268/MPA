@@ -4,12 +4,20 @@ import com.mpa.dto.KhachHangTheSummaryResponse;
 import com.mpa.dto.ThePhatHanhDetailResponse;
 import com.mpa.dto.ThePhatHanhResponse;
 import com.mpa.dto.TheSummaryResponse;
+import com.mpa.entity.ThePhatHanh;
+import com.mpa.service.ThePhatHanhExportService;
 import com.mpa.service.ThePhatHanhService;
 import com.mpa.util.ApiResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -18,6 +26,7 @@ import java.util.List;
 public class ThePhatHanhController {
 
     private final ThePhatHanhService service;
+    private final ThePhatHanhExportService exportService;
 
     @GetMapping
     public ApiResponse<Page<ThePhatHanhResponse>> getList(
@@ -43,6 +52,37 @@ public class ThePhatHanhController {
         } catch (Exception e) {
             return ApiResponse.error("Lỗi tải danh sách thẻ: " + e.getMessage());
         }
+    }
+
+    /** Xuất Excel toàn bộ thẻ khớp filter hiện tại (không phân trang). */
+    @GetMapping("/export")
+    public void export(
+            @RequestParam(defaultValue = "")    String search,
+            @RequestParam(defaultValue = "")    String trangThai,
+            @RequestParam(defaultValue = "")    String hinhThuc,
+            @RequestParam(defaultValue = "")    String productCode,
+            @RequestParam(defaultValue = "")    String loaiTheTinDung,
+            @RequestParam(required = false)     String maDonViCap6,
+            @RequestParam(defaultValue = "")    String amSearch,
+            @RequestParam(required = false)     List<String> amCodes,
+            @RequestParam(defaultValue = "false") boolean chuaKichHoat,
+            @RequestParam(defaultValue = "0")   int soNgayMin,
+            @RequestParam(defaultValue = "false") boolean chuaPsgd,
+            @RequestParam(defaultValue = "false") boolean chuaDatPtn,
+            @RequestParam(defaultValue = "false") boolean datPtn,
+            @RequestParam(defaultValue = "0")   int soNgayThuPtn,
+            HttpServletResponse response) throws IOException {
+        List<ThePhatHanh> cards = service.exportList(search, trangThai, hinhThuc, productCode,
+                loaiTheTinDung, maDonViCap6, amSearch, amCodes, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, soNgayThuPtn);
+        byte[] bytes = exportService.exportExcel(cards);
+
+        String fileName = "danh-sach-the-" + LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE) + ".xlsx";
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''"
+                + URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+        response.setContentLength(bytes.length);
+        response.getOutputStream().write(bytes);
+        response.getOutputStream().flush();
     }
 
     @GetMapping("/{id}")
