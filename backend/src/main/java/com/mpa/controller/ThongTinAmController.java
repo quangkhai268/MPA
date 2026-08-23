@@ -2,6 +2,7 @@ package com.mpa.controller;
 
 import com.mpa.dto.ThongTinAmRequest;
 import com.mpa.dto.ThongTinAmResponse;
+import com.mpa.dto.ThongTinAmStatusCounts;
 import com.mpa.service.ThongTinAmService;
 import com.mpa.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,17 @@ public class ThongTinAmController {
             return ApiResponse.ok(service.getAll(search, trangThai, maDonViCap6));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi khi tải danh sách: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/status-counts")
+    public ApiResponse<ThongTinAmStatusCounts> getStatusCounts(
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(required = false) String maDonViCap6) {
+        try {
+            return ApiResponse.ok(service.getStatusCounts(search, maDonViCap6));
+        } catch (Exception e) {
+            return ApiResponse.error("Lỗi khi đếm số lượng AM: " + e.getMessage());
         }
     }
 

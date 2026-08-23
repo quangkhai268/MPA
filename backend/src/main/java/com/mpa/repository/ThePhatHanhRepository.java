@@ -135,6 +135,17 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
         """)
     long countTdqtDatPtn();
 
+    // Đếm thẻ "đang khóa" bằng SQL thay vì findAll().stream() — dịch nguyên logic
+    // isKhoa() ở ThePhatHanhServiceImpl (chứa 1 trong các chuỗi KHÓA/KHOA/BLOCK/BLK).
+    @Query("""
+        SELECT COUNT(t) FROM ThePhatHanh t
+        WHERE UPPER(t.trangThaiIssuingContract) LIKE '%KHÓA%'
+           OR UPPER(t.trangThaiIssuingContract) LIKE '%KHOA%'
+           OR UPPER(t.trangThaiIssuingContract) LIKE '%BLOCK%'
+           OR UPPER(t.trangThaiIssuingContract) LIKE '%BLK%'
+        """)
+    long countBiKhoa();
+
     // ── Dùng cho job cảnh báo gửi email (không đụng tới search() ở trên) ──
 
     @Query("""

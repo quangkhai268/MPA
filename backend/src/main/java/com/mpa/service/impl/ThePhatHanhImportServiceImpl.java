@@ -12,6 +12,7 @@ import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.eventusermodel.XSSFSheetXMLHandler;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFComment;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -369,6 +370,7 @@ public class ThePhatHanhImportServiceImpl implements ThePhatHanhImportService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"thePhatHanhSummary", "thePhatHanhTrangThai", "thePhatHanhHinhThuc", "thePhatHanhProductCode"}, allEntries = true)
     public void commitStagedData() {
         StringBuilder cols = new StringBuilder();
         for (ColumnDef c : COLUMNS) {

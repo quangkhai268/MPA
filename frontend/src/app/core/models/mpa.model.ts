@@ -274,6 +274,12 @@ export interface ThongTinAmItem {
   trangThai: number;
 }
 
+export interface ThongTinAmStatusCounts {
+  tong: number;
+  hoatDong: number;
+  khongHoatDong: number;
+}
+
 export interface ThongTinAmSaveRequest {
   maCn: string | null;
   maDonViCap6: string | null;

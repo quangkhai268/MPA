@@ -8,6 +8,7 @@ import com.mpa.entity.ThePhatHanh;
 import com.mpa.repository.ThePhatHanhRepository;
 import com.mpa.service.ThePhatHanhService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -80,6 +81,7 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
     }
 
     @Override
+    @Cacheable("thePhatHanhSummary")
     public TheSummaryResponse getSummary() {
         long total    = repo.count();
         long chuaKh   = repo.countChuaKichHoat();
@@ -95,9 +97,7 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
         long tdqtDatPtn    = repo.countTdqtDatPtn();
         long datPtn        = Math.max(tongTdqt - chuaPtn, 0);
 
-        long biKhoaCount = repo.findAll().stream()
-                .filter(e -> isKhoa(e.getTrangThaiIssuingContract()))
-                .count();
+        long biKhoaCount = repo.countBiKhoa();
         long hoatDong = Math.max(total - biKhoaCount - chuaKh, 0);
 
         // Tỷ lệ dùng hạn mức: dùng doanhSo / hanMuc làm proxy (view không có liab_top_contract)
@@ -194,16 +194,19 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
     }
 
     @Override
+    @Cacheable("thePhatHanhTrangThai")
     public List<String> getDistinctTrangThai() {
         return repo.findDistinctTrangThai();
     }
 
     @Override
+    @Cacheable("thePhatHanhHinhThuc")
     public List<String> getDistinctHinhThuc() {
         return repo.findDistinctHinhThuc();
     }
 
     @Override
+    @Cacheable("thePhatHanhProductCode")
     public List<String> getDistinctProductCode() {
         return repo.findDistinctProductCode();
     }

@@ -7,7 +7,7 @@ import {
   DashboardKpi, TrendChartData, PhongData, PhongTrendSeries, AmData, AmDetailData,
   KhachHangData, DuLieuMpa, ImportResult, FilterParams,
   BscSoSanhResult, ChiTieuBscRequest, ChiTieuQuanLyRow, UnitOption, XuHuongResponse,
-  ThongTinAmItem, ThongTinAmSaveRequest,
+  ThongTinAmItem, ThongTinAmSaveRequest, ThongTinAmStatusCounts,
   ThongTinKhachHangItem, ThongTinKhachHangSaveRequest, KhachHangChiTiet,
   ThePhatHanhItem, TheSummary, ThePhatHanhDetail, KhachHangTheSummary,
   EmailLogItem, JobRunResult, CardRevenueMilestone, RevenueSeriesResponse,
@@ -190,19 +190,27 @@ export class MpaService {
   }
 
   // --- Quản lý cán bộ AM ---
-  getQuanLyAmList(search: string, maDonViCap6: string | null, page: number, size: number): Observable<ApiResponse<PageResponse<ThongTinAmItem>>> {
+  getQuanLyAmList(search: string, maDonViCap6: string | null, trangThai: number | null, page: number, size: number): Observable<ApiResponse<PageResponse<ThongTinAmItem>>> {
     let params = new HttpParams()
       .set('search', search)
       .set('page', String(page))
       .set('size', String(size));
     if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);
+    if (trangThai != null) params = params.set('trangThai', String(trangThai));
     return this.http.get<ApiResponse<PageResponse<ThongTinAmItem>>>(`${this.api}/quan-ly-am`, { params });
   }
 
-  getQuanLyAmAll(search: string, maDonViCap6: string | null): Observable<ApiResponse<ThongTinAmItem[]>> {
+  getQuanLyAmAll(search: string, maDonViCap6: string | null, trangThai: number | null): Observable<ApiResponse<ThongTinAmItem[]>> {
     let params = new HttpParams().set('search', search);
     if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);
+    if (trangThai != null) params = params.set('trangThai', String(trangThai));
     return this.http.get<ApiResponse<ThongTinAmItem[]>>(`${this.api}/quan-ly-am/all`, { params });
+  }
+
+  getQuanLyAmStatusCounts(search: string, maDonViCap6: string | null): Observable<ApiResponse<ThongTinAmStatusCounts>> {
+    let params = new HttpParams().set('search', search);
+    if (maDonViCap6) params = params.set('maDonViCap6', maDonViCap6);
+    return this.http.get<ApiResponse<ThongTinAmStatusCounts>>(`${this.api}/quan-ly-am/status-counts`, { params });
   }
 
   createQuanLyAm(request: ThongTinAmSaveRequest): Observable<ApiResponse<ThongTinAmItem>> {

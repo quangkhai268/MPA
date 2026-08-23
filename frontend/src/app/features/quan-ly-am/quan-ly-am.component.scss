@@ -211,6 +211,29 @@ $text:         #1A1A2E;
 }
 
 // ── Hint ──────────────────────────────────────────────────────────────
+// ── Số lượng AM ────────────────────────────────────────────────────────
+.status-counts-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: $gray-bg;
+  border: 1px solid $gray-border;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+  margin-bottom: 12px;
+
+  .status-counts-icon {
+    font-size: 16px;
+    color: $primary;
+  }
+
+  .count-active   { color: $green; }
+  .count-inactive { color: $red; }
+}
+
 .hint-bar {
   display: flex;
   align-items: flex-start;

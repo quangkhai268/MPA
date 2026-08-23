@@ -2,6 +2,7 @@ package com.mpa.service.impl;
 
 import com.mpa.dto.ThongTinAmRequest;
 import com.mpa.dto.ThongTinAmResponse;
+import com.mpa.dto.ThongTinAmStatusCounts;
 import com.mpa.entity.PhongBan;
 import com.mpa.entity.ThongTinAm;
 import com.mpa.repository.PhongBanRepository;
@@ -38,6 +39,23 @@ public class ThongTinAmServiceImpl implements ThongTinAmService {
         String s = search == null ? "" : search.trim();
         String don = (maDonViCap6 == null || maDonViCap6.isBlank()) ? null : maDonViCap6;
         return repo.searchList(s, trangThai, don).stream().map(t -> toResponse(t, phongMap)).collect(Collectors.toList());
+    }
+
+    @Override
+    public ThongTinAmStatusCounts getStatusCounts(String search, String maDonViCap6) {
+        String s = search == null ? "" : search.trim();
+        String don = (maDonViCap6 == null || maDonViCap6.isBlank()) ? null : maDonViCap6;
+        Object[] row = repo.countByStatus(s, don).get(0);
+        return ThongTinAmStatusCounts.builder()
+                .tong(toLong(row[0]))
+                .hoatDong(toLong(row[1]))
+                .khongHoatDong(toLong(row[2]))
+                .build();
+    }
+
+    /** SUM(CASE...) trả về NULL khi không có dòng nào khớp (COUNT=0) — không phải 0. */
+    private static long toLong(Object value) {
+        return value == null ? 0L : ((Number) value).longValue();
     }
 
     @Override

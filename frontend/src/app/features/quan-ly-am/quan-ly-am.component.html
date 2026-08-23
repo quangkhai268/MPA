@@ -45,6 +45,14 @@
         }
       </select>
     </div>
+    <div class="filter-group">
+      <label>Trạng thái</label>
+      <select [(ngModel)]="selectedTrangThai" (ngModelChange)="onTrangThaiFilterChange()">
+        <option [ngValue]="null">Tất cả</option>
+        <option [ngValue]="1">Hoạt động</option>
+        <option [ngValue]="2">Không hoạt động</option>
+      </select>
+    </div>
     <div class="toggle-group toggle-group--push">
       <button
         class="toggle-btn"
@@ -60,6 +68,14 @@
       </button>
     </div>
   </div>
+
+  <!-- ── Số lượng AM ─────────────────────────────────────────────── -->
+  @if (statusCounts(); as counts) {
+    <div class="status-counts-bar">
+      <span class="material-icons status-counts-icon">groups</span>
+      <span>{{ counts.tong }} AM — <span class="count-active">{{ counts.hoatDong }} hoạt động</span> — <span class="count-inactive">{{ counts.khongHoatDong }} không hoạt động</span></span>
+    </div>
+  }
 
   <!-- ── Hint ────────────────────────────────────────────────────── -->
   <div class="hint-bar">

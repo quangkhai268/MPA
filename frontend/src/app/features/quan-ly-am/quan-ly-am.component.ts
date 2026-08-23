@@ -8,7 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { MpaService } from '../../core/services/mpa.service';
-import { ThongTinAmItem, ThongTinAmSaveRequest, CanBoGroup, UnitOption } from '../../core/models/mpa.model';
+import { ThongTinAmItem, ThongTinAmSaveRequest, ThongTinAmStatusCounts, CanBoGroup, UnitOption } from '../../core/models/mpa.model';
 import { PageResponse } from '../../core/models/user.model';
 
 type ViewMode = 'ma-am' | 'can-bo';
@@ -28,7 +28,9 @@ export class QuanLyAmComponent implements OnInit {
   viewMode: ViewMode = 'ma-am';
   searchText = '';
   selectedPhong: string | null = null;
+  selectedTrangThai: number | null = null; // null = Tất cả, 1 = Hoạt động, 2 = Không hoạt động
   loading = signal(false);
+  statusCounts = signal<ThongTinAmStatusCounts | null>(null);
 
   // ── Theo mã AM (paginated) ────────────────────────────────────────────
   pageData = signal<PageResponse<ThongTinAmItem> | null>(null);
@@ -52,6 +54,7 @@ export class QuanLyAmComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
+    this.loadStatusCounts();
     this.loadPhongOptions();
   }
 
@@ -68,7 +71,7 @@ export class QuanLyAmComponent implements OnInit {
   loadPage(page: number): void {
     this.currentPage = page;
     this.loading.set(true);
-    this.mpaService.getQuanLyAmList(this.searchText.trim(), this.selectedPhong, page, this.pageSize).subscribe({
+    this.mpaService.getQuanLyAmList(this.searchText.trim(), this.selectedPhong, this.selectedTrangThai, page, this.pageSize).subscribe({
       next: res => {
         if (res.success) this.pageData.set(res.data);
         this.loading.set(false);
@@ -79,7 +82,7 @@ export class QuanLyAmComponent implements OnInit {
 
   loadAll(): void {
     this.loading.set(true);
-    this.mpaService.getQuanLyAmAll(this.searchText.trim(), this.selectedPhong).subscribe({
+    this.mpaService.getQuanLyAmAll(this.searchText.trim(), this.selectedPhong, this.selectedTrangThai).subscribe({
       next: res => {
         if (res.success) {
           this.allItems.set(res.data);
@@ -89,6 +92,17 @@ export class QuanLyAmComponent implements OnInit {
       },
       error: () => this.loading.set(false)
     });
+  }
+
+  /** Đếm tổng/hoạt động/không hoạt động — theo tìm kiếm + phòng, không lọc theo trạng thái. */
+  loadStatusCounts(): void {
+    this.mpaService.getQuanLyAmStatusCounts(this.searchText.trim(), this.selectedPhong).subscribe(res => {
+      if (res.success) this.statusCounts.set(res.data);
+    });
+  }
+
+  onTrangThaiFilterChange(): void {
+    this.load();
   }
 
   buildGroups(items: ThongTinAmItem[]): void {
@@ -111,10 +125,12 @@ export class QuanLyAmComponent implements OnInit {
 
   onSearch(): void {
     this.load();
+    this.loadStatusCounts();
   }
 
   onPhongFilterChange(): void {
     this.load();
+    this.loadStatusCounts();
   }
 
   onViewModeChange(mode: ViewMode): void {
@@ -207,6 +223,7 @@ export class QuanLyAmComponent implements OnInit {
         if (res.success) {
           this.showDialog.set(false);
           this.load();
+          this.loadStatusCounts();
         }
       },
       error: () => this.saving.set(false)
@@ -216,7 +233,10 @@ export class QuanLyAmComponent implements OnInit {
   delete(id: number): void {
     if (!confirm('Xác nhận xóa mã AM này?')) return;
     this.mpaService.deleteQuanLyAm(id).subscribe(res => {
-      if (res.success) this.load();
+      if (res.success) {
+        this.load();
+        this.loadStatusCounts();
+      }
     });
   }
 
