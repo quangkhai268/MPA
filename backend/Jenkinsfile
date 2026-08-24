@@ -1,0 +1,109 @@
+// Jenkins job: Script Path = backend/Jenkinsfile, checkout TOÀN BỘ repo (không chỉ thư mục backend)
+// — các bước dưới đây tự dir('backend') vào đúng chỗ.
+// Yêu cầu hạ tầng Jenkins:
+//   - Node/agent chạy stage "Docker Build"/"Docker Push" phải có sẵn Docker CLI + quyền truy cập
+//     Docker daemon (docker.sock) — không dùng Docker-in-Docker, build ngay trên host Jenkins agent.
+//   - Credential Jenkins kiểu "Username with password" (username = GitHub user, password = PAT có
+//     quyền write:packages) đặt ID đúng bằng REGISTRY_CREDS bên dưới, dùng để push lên ghcr.io.
+//     Đổi IMAGE_NAME/registry nếu dùng Docker Hub hoặc registry nội bộ khác.
+
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        IMAGE_NAME     = 'quangkhai268/mpa-backend'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    env.IMAGE_TAG = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                }
+            }
+        }
+
+        stage('Build & Test') {
+            agent {
+                docker {
+                    image 'maven:3.9-eclipse-temurin-17'
+                    // Cache ~/.m2 giữa các lần build để không tải lại dependency mỗi lần.
+                    args '-v $HOME/.m2:/root/.m2'
+                    reuseNode true
+                }
+            }
+            steps {
+                dir('backend') {
+                    sh 'mvn -B -ntp clean verify'
+                }
+            }
+            post {
+                always {
+                    junit testResults: 'backend/target/surefire-reports/*.xml', allowEmptyResults: true
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir('backend') {
+                    script {
+                        env.IMAGE_TAG = "v${BUILD_NUMBER}"
+                        sh "docker build -t ${IMAGE_NAME}:${env.IMAGE_TAG} ."
+                    } 
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh """
+                    cd /opt/project &&
+                    sed -i 's/^BACKEND_IMAGE_TAG=.*/BACKEND_IMAGE_TAG=${env.IMAGE_TAG}/' .env &&
+                    docker compose up -d backend
+                """
+            }
+        }
+
+        stage('Smoke Test') {
+            steps {
+                sleep 15
+                sh 'curl -f https://mybcardportal.com/api/actuator/health'
+            }
+        }
+
+    }
+
+    post {
+        success {
+            emailext (
+                subject: "✅ Backend deploy thành công: #${env.BUILD_NUMBER}",
+                body: """
+                    <h3>Deploy thành công</h3>
+                    <p><b>Image:</b> ${IMAGE_NAME}:${env.IMAGE_TAG}</p>
+                    <p><b>Chi tiết:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                """,
+                mimeType: 'text/html',
+                to: 'lekhai268@gmail.com'
+            )
+        }
+        failure {
+            emailext (
+                subject: "❌ Backend build/deploy thất bại: #${env.BUILD_NUMBER}",
+                body: """
+                    <h3>Thất bại</h3>
+                    <p><b>Log:</b> <a href="${env.BUILD_URL}console">${env.BUILD_URL}console</a></p>
+                """,
+                mimeType: 'text/html',
+                to: 'ekhai268@gmail.com'
+            )
+        }
+    }
+}
