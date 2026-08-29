@@ -31,6 +31,7 @@ pipeline {
         }
 
         stage('Build & Test') {
+            when { changeset "backend/**" }
             agent {
                 docker {
                     image 'maven:3.9-eclipse-temurin-17'
@@ -52,6 +53,7 @@ pipeline {
         }
 
         stage('Docker Build') {
+            when { changeset "backend/**" }
             steps {
                 dir('backend') {
                     script {
@@ -63,6 +65,7 @@ pipeline {
         }
 
         stage('Deploy') {
+            when { changeset "backend/**" }
             steps {
                 sh """
                     cd /opt/project &&
@@ -73,6 +76,7 @@ pipeline {
         }
 
         stage('Smoke Test') {
+            when { changeset "backend/**" }
             steps {
                 sleep 15
                 sh 'curl -f https://mybcardportal.com/api/actuator/health'
