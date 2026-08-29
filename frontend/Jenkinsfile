@@ -22,9 +22,7 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME     = 'ghcr.io/quangkhai268/mpa-frontend'
-        REGISTRY_URL   = 'https://ghcr.io'
-        REGISTRY_CREDS = 'ghcr-credentials'
+        IMAGE_NAME     = 'quangkhai268/mpa-frontend'
     }
 
     stages {
@@ -82,27 +80,46 @@ pipeline {
         stage('Docker Build') {
             steps {
                 dir('frontend') {
-                    sh "docker build -t ${IMAGE_NAME}:${env.IMAGE_TAG} -t ${IMAGE_NAME}:latest ."
+                    sh "docker build -t ${IMAGE_NAME}:${env.IMAGE_TAG} ."
                 }
             }
         }
 
-        stage('Docker Push') {
-            when { branch 'main' }
+        stage('Deploy') {
             steps {
-                script {
-                    docker.withRegistry(env.REGISTRY_URL, env.REGISTRY_CREDS) {
-                        sh "docker push ${IMAGE_NAME}:${env.IMAGE_TAG}"
-                        sh "docker push ${IMAGE_NAME}:latest"
-                    }
-                }
+                sh """
+                    cd /opt/project &&
+                    sed -i 's/^FRONTEND_IMAGE_TAG=.*/FRONTEND_IMAGE_TAG=${env.IMAGE_TAG}/' .env &&
+                    docker compose up -d frontend
+                """
             }
         }
+
+        stage('Smoke Test') {
+            steps {
+                sleep 10
+                sh 'curl -f https://mybcardportal.com/'
+            }
+        }
+
     }
 
     post {
-        always {
-            cleanWs()
+        success {
+            emailext (
+                subject: "✅ Frontend deploy thành công: #${env.BUILD_NUMBER}",
+                body: "<p><b>Image:</b> mycompany/frontend:${env.IMAGE_TAG}</p><p><a href=\"${env.BUILD_URL}\">Chi tiết</a></p>",
+                mimeType: 'text/html',
+                to: 'quangkhai268@gmail.com'
+            )
+        }
+        failure {
+            emailext (
+                subject: "❌ Frontend build/deploy thất bại: #${env.BUILD_NUMBER}",
+                body: "<p><a href=\"${env.BUILD_URL}console\">Xem log lỗi</a></p>",
+                mimeType: 'text/html',
+                to: 'quangkhai268@gmail.com'
+            )
         }
     }
 }
