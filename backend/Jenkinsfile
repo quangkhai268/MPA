@@ -55,7 +55,7 @@ pipeline {
             steps {
                 dir('backend') {
                     script {
-                        env.IMAGE_TAG = "v${BUILD_NUMBER}"
+                        //env.IMAGE_TAG = "v${BUILD_NUMBER}"
                         sh "docker build -t ${IMAGE_NAME}:${env.IMAGE_TAG} ."
                     } 
                 }
@@ -91,7 +91,7 @@ pipeline {
                     <p><b>Chi tiết:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
                 """,
                 mimeType: 'text/html',
-                to: 'lekhai268@gmail.com'
+                to: 'quangkhai268@gmail.com'
             )
         }
         failure {
@@ -102,7 +102,7 @@ pipeline {
                     <p><b>Log:</b> <a href="${env.BUILD_URL}console">${env.BUILD_URL}console</a></p>
                 """,
                 mimeType: 'text/html',
-                to: 'ekhai268@gmail.com'
+                to: 'quangkhai268@gmail.com'
             )
         }
     }
