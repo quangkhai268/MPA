@@ -95,7 +95,7 @@ pipeline {
                     <p><b>Chi tiết:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
                 """,
                 mimeType: 'text/html',
-                to: 'quangkhai268@gmail.com'
+                to: 'lekhai268@gmail.com'
             )
         }
         failure {
@@ -106,7 +106,7 @@ pipeline {
                     <p><b>Log:</b> <a href="${env.BUILD_URL}console">${env.BUILD_URL}console</a></p>
                 """,
                 mimeType: 'text/html',
-                to: 'quangkhai268@gmail.com'
+                to: 'lekhai268@gmail.com'
             )
         }
     }

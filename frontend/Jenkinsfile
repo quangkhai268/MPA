@@ -115,7 +115,7 @@ pipeline {
                 subject: "✅ Frontend deploy thành công: #${env.BUILD_NUMBER}",
                 body: "<p><b>Image:</b> mycompany/frontend:${env.IMAGE_TAG}</p><p><a href=\"${env.BUILD_URL}\">Chi tiết</a></p>",
                 mimeType: 'text/html',
-                to: 'quangkhai268@gmail.com'
+                to: 'lekhai268@gmail.com'
             )
         }
         failure {
@@ -123,7 +123,7 @@ pipeline {
                 subject: "❌ Frontend build/deploy thất bại: #${env.BUILD_NUMBER}",
                 body: "<p><a href=\"${env.BUILD_URL}console\">Xem log lỗi</a></p>",
                 mimeType: 'text/html',
-                to: 'quangkhai268@gmail.com'
+                to: 'lekhai268@gmail.com'
             )
         }
     }
