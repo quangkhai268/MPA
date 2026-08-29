@@ -74,13 +74,16 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
             @Param("hanThuPtn") LocalDate hanThuPtn,
             Pageable pageable);
 
-    @Query("SELECT DISTINCT t.trangThaiThe FROM ThePhatHanh t WHERE t.trangThaiThe IS NOT NULL ORDER BY t.trangThaiThe")
+    // 3 dropdown-options dưới đây chỉ dùng ở màn hình quan-ly-the (đã kiểm tra không consumer
+    // nào khác) — lọc theo TDQT để không hiện option chết (chọn vào sẽ luôn ra 0 kết quả vì
+    // list chính đã cố định loaiTheTinDung=TDQT).
+    @Query("SELECT DISTINCT t.trangThaiThe FROM ThePhatHanh t WHERE t.trangThaiThe IS NOT NULL AND t.loaiTheTinDung = 'TDQT' ORDER BY t.trangThaiThe")
     List<String> findDistinctTrangThai();
 
-    @Query("SELECT DISTINCT t.hinhThucThe FROM ThePhatHanh t WHERE t.hinhThucThe IS NOT NULL ORDER BY t.hinhThucThe")
+    @Query("SELECT DISTINCT t.hinhThucThe FROM ThePhatHanh t WHERE t.hinhThucThe IS NOT NULL AND t.loaiTheTinDung = 'TDQT' ORDER BY t.hinhThucThe")
     List<String> findDistinctHinhThuc();
 
-    @Query("SELECT DISTINCT t.productCode FROM ThePhatHanh t WHERE t.productCode IS NOT NULL ORDER BY t.productCode")
+    @Query("SELECT DISTINCT t.productCode FROM ThePhatHanh t WHERE t.productCode IS NOT NULL AND t.loaiTheTinDung = 'TDQT' ORDER BY t.productCode")
     List<String> findDistinctProductCode();
 
     @Query("SELECT DISTINCT t.loaiThe FROM ThePhatHanh t WHERE t.loaiThe IS NOT NULL ORDER BY t.loaiThe")
@@ -93,10 +96,15 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
 
     long countByAmIssuingContractIn(List<String> amCodes);
 
-    @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE t.soNgayChuaKichHoat > 0")
+    // Toàn bộ chỉ số ở màn hình quan-ly-the (summary + 6 query bên dưới) chỉ tính trên thẻ
+    // Tín dụng QT — menu này không còn hiển thị thẻ KHAC (debit/prepaid) nữa.
+    @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE t.loaiTheTinDung = 'TDQT'")
+    long countTongTdqt();
+
+    @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE t.loaiTheTinDung = 'TDQT' AND t.soNgayChuaKichHoat > 0")
     long countChuaKichHoat();
 
-    @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE (t.soNgayChuaKichHoat = 0 OR t.soNgayChuaKichHoat IS NULL) AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn = 0)")
+    @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE t.loaiTheTinDung = 'TDQT' AND (t.soNgayChuaKichHoat = 0 OR t.soNgayChuaKichHoat IS NULL) AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn = 0)")
     long countChuaPsgd();
 
     // Phí thường niên chỉ tính với thẻ Tín dụng QT và không thuộc 4 trạng thái
@@ -113,10 +121,10 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
         """)
     long countChuaDatPtn();
 
-    @Query("SELECT COALESCE(SUM(t.hmtdIssuingContract), 0) FROM ThePhatHanh t")
+    @Query("SELECT COALESCE(SUM(t.hmtdIssuingContract), 0) FROM ThePhatHanh t WHERE t.loaiTheTinDung = 'TDQT'")
     java.math.BigDecimal sumHanMuc();
 
-    @Query("SELECT COALESCE(SUM(t.doanhSoGiaoDichMienPtn), 0) FROM ThePhatHanh t")
+    @Query("SELECT COALESCE(SUM(t.doanhSoGiaoDichMienPtn), 0) FROM ThePhatHanh t WHERE t.loaiTheTinDung = 'TDQT'")
     java.math.BigDecimal sumDoanhSo();
 
     @Query("""
@@ -139,10 +147,11 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
     // isKhoa() ở ThePhatHanhServiceImpl (chứa 1 trong các chuỗi KHÓA/KHOA/BLOCK/BLK).
     @Query("""
         SELECT COUNT(t) FROM ThePhatHanh t
-        WHERE UPPER(t.trangThaiIssuingContract) LIKE '%KHÓA%'
+        WHERE t.loaiTheTinDung = 'TDQT'
+          AND (UPPER(t.trangThaiIssuingContract) LIKE '%KHÓA%'
            OR UPPER(t.trangThaiIssuingContract) LIKE '%KHOA%'
            OR UPPER(t.trangThaiIssuingContract) LIKE '%BLOCK%'
-           OR UPPER(t.trangThaiIssuingContract) LIKE '%BLK%'
+           OR UPPER(t.trangThaiIssuingContract) LIKE '%BLK%')
         """)
     long countBiKhoa();
 

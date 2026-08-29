@@ -32,7 +32,7 @@ export class QuanLyTheComponent implements OnInit {
   trangThai      = '';
   hinhThuc       = '';
   productCode    = '';
-  loaiTheTinDung = 'TDQT';
+  loaiTheTinDung = 'TDQT'; // Cố định — menu quan-ly-the chỉ quản lý thẻ Tín dụng QT (không còn đổi được qua UI/URL).
   maDonViCap6    = '';
   amSearch       = '';
   chuaKichHoat   = false;
@@ -87,14 +87,13 @@ export class QuanLyTheComponent implements OnInit {
       this.searchText      = qp.get('q') ?? '';
       this.trangThai       = qp.get('trangThai') ?? '';
       this.productCode     = qp.get('productCode') ?? '';
-      this.loaiTheTinDung  = qp.get('loaiTheTinDung') ?? '';
+      // loaiTheTinDung không còn khôi phục từ URL — menu này cố định chỉ hiển thị TDQT.
       this.maDonViCap6     = qp.get('maDonViCap6') ?? '';
       this.amSearch        = qp.get('amSearch') ?? '';
       this.chuaKichHoat    = qp.get('chuaKichHoat') === '1';
       this.chuaPsgd        = qp.get('chuaPsgd') === '1';
       this.chuaDatPtn      = qp.get('chuaDatPtn') === '1';
       this.datPtn          = qp.get('datPtn') === '1';
-      this.onPtnFilterChange();
       this.currentPage     = Number(qp.get('page') ?? 0);
       const soNgay = qp.get('soNgayMin');
       if (soNgay != null) {
@@ -134,7 +133,6 @@ export class QuanLyTheComponent implements OnInit {
       q:              this.searchText.trim() || null,
       trangThai:      this.trangThai || null,
       productCode:    this.productCode || null,
-      loaiTheTinDung: this.loaiTheTinDung || null,
       maDonViCap6:    this.maDonViCap6 || null,
       amSearch:       this.amSearch.trim() || null,
       chuaKichHoat:   this.chuaKichHoat ? '1' : null,
@@ -156,17 +154,7 @@ export class QuanLyTheComponent implements OnInit {
     this.chuaPsgd     = tab === 2;
     this.chuaDatPtn   = tab === 3;
     this.datPtn       = false;
-    this.onPtnFilterChange();
     this.loadPage(0);
-  }
-
-  // Phí thường niên chỉ tính với thẻ Tín dụng QT — tích 1 trong 2 filter PTN thì
-  // Loại thẻ mặc định chuyển sang Tín dụng QT (4 trạng thái Auto-Closed/Closed/
-  // Fraud/Lost bị loại khỏi kết quả ngay ở backend, không cần xử lý ở đây).
-  onPtnFilterChange(): void {
-    if (this.chuaDatPtn || this.datPtn) {
-      this.loaiTheTinDung = 'TDQT';
-    }
   }
 
   // ── Load ─────────────────────────────────────────────────────────────

@@ -200,10 +200,8 @@
 
         <div class="filter-field">
           <label>Loại thẻ</label>
-          <select [(ngModel)]="loaiTheTinDung">
-            <option value="">Tất cả</option>
+          <select [(ngModel)]="loaiTheTinDung" disabled>
             <option value="TDQT">Tín dụng QT</option>
-            <option value="KHAC">Khác</option>
           </select>
         </div>
 
@@ -216,7 +214,9 @@
             }
           </select>
         </div>
+      </div>
 
+      <div class="filter-row-1">
         <div class="filter-field">
           <label>Phòng ban</label>
           <select [(ngModel)]="maDonViCap6">
@@ -259,10 +259,10 @@
 
       <div class="filter-row-2">
         <label class="check-label">
-          <input type="checkbox" [(ngModel)]="chuaDatPtn" (change)="onPtnFilterChange()"> Chưa đạt doanh số miền PTN
+          <input type="checkbox" [(ngModel)]="chuaDatPtn"> Chưa đạt doanh số miền PTN
         </label>
         <label class="check-label">
-          <input type="checkbox" [(ngModel)]="datPtn" (change)="onPtnFilterChange()"> Đạt doanh số miễn PTN
+          <input type="checkbox" [(ngModel)]="datPtn"> Đạt doanh số miễn PTN
         </label>
 
         <button class="btn-search" (click)="search()">Tìm kiếm</button>

@@ -83,7 +83,7 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
     @Override
     @Cacheable("thePhatHanhSummary")
     public TheSummaryResponse getSummary() {
-        long total    = repo.count();
+        long total    = repo.countTongTdqt();
         long chuaKh   = repo.countChuaKichHoat();
         long chuaPsgd = repo.countChuaPsgd();
         // countChuaDatPtn/countTdqt đã giới hạn theo đúng phạm vi thẻ đủ điều kiện xét PTN
