@@ -121,7 +121,7 @@ pipeline {
         failure {
             emailext (
                 subject: "❌ Frontend build/deploy thất bại: #${env.BUILD_NUMBER}",
-                body: "<p><a href=\"${env.BUILD_URL}console\">Xem log lỗi</a></p>",
+                body: "<p><a href=\"${env.BUILD_URL}console\">Xem log lỗi</a> </p>",
                 mimeType: 'text/html',
                 to: 'lekhai268@gmail.com'
             )

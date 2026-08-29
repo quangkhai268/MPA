@@ -92,7 +92,7 @@ pipeline {
                 body: """
                     <h3>Deploy thành công</h3>
                     <p><b>Image:</b> ${IMAGE_NAME}:${env.IMAGE_TAG}</p>
-                    <p><b>Chi tiết:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                    <p><b>Chi tiết:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a> </p>
                 """,
                 mimeType: 'text/html',
                 to: 'lekhai268@gmail.com'
