@@ -36,6 +36,7 @@ pipeline {
         }
 
         stage('Install & Test') {
+            when { changeset "frontend/**" }
             agent {
                 docker {
                     // node:20 (Debian, không phải alpine) để tải Chromium qua puppeteer chạy được —
@@ -63,6 +64,7 @@ pipeline {
         }
 
         stage('Build') {
+            when { changeset "frontend/**" }
             agent {
                 docker {
                     image 'node:20'
@@ -78,6 +80,7 @@ pipeline {
         }
 
         stage('Docker Build') {
+            when { changeset "frontend/**" }
             steps {
                 dir('frontend') {
                     sh "docker build -t ${IMAGE_NAME}:${env.IMAGE_TAG} ."
@@ -86,6 +89,7 @@ pipeline {
         }
 
         stage('Deploy') {
+            when { changeset "frontend/**" }
             steps {
                 sh """
                     cd /opt/project &&
@@ -96,6 +100,7 @@ pipeline {
         }
 
         stage('Smoke Test') {
+            when { changeset "frontend/**" }
             steps {
                 sleep 10
                 sh 'curl -f https://mybcardportal.com/'
