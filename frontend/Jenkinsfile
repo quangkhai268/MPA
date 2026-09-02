@@ -102,8 +102,16 @@ pipeline {
         stage('Smoke Test') {
             when { changeset "frontend/**" }
             steps {
-                sleep 10
-                sh 'curl -f https://mybcardportal.com/'
+                sh '''
+                    for i in $(seq 1 20); do
+                        if curl -fsS https://mybcardportal.com/ > /dev/null; then
+                            exit 0
+                        fi
+                        sleep 3
+                    done
+                    echo "Frontend khong len sau 60s"
+                    exit 1
+                '''
             }
         }
 
@@ -113,7 +121,7 @@ pipeline {
         success {
             emailext (
                 subject: "✅ Frontend deploy thành công: #${env.BUILD_NUMBER}",
-                body: "<p><b>Image:</b> mycompany/frontend:${env.IMAGE_TAG}</p><p><a href=\"${env.BUILD_URL}\">Chi tiết</a></p>",
+                body: "<p><b>Image:</b> ${IMAGE_NAME}:${env.IMAGE_TAG}</p><p><a href=\"${env.BUILD_URL}\">Chi tiết</a></p>",
                 mimeType: 'text/html',
                 to: 'lekhai268@gmail.com'
             )

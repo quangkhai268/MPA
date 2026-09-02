@@ -78,8 +78,16 @@ pipeline {
         stage('Smoke Test') {
             when { changeset "backend/**" }
             steps {
-                sleep 15
-                sh 'curl -f https://mybcardportal.com/api/actuator/health'
+                sh '''
+                    for i in $(seq 1 20); do
+                        if curl -fsS http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
+                            exit 0
+                        fi
+                        sleep 3
+                    done
+                    echo "Backend khong len healthy sau 60s"
+                    exit 1
+                '''
             }
         }
 
