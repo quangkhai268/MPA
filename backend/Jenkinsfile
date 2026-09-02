@@ -17,7 +17,7 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME     = 'quangkhai268/mpa-backend'
+        IMAGE_NAME     = 'quangkhai268/mpa_backend'
     }
 
     stages {
