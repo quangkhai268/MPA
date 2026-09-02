@@ -32,25 +32,24 @@ pipeline {
 
         stage('Build & Test') {
             when { changeset "backend/**" }
-            // agent {
-            //     docker {
-            //         image 'maven:3.9-eclipse-temurin-17'
-            //         // Cache ~/.m2 giữa các lần build để không tải lại dependency mỗi lần.
-            //         args '-v $HOME/.m2:/root/.m2'
-            //         reuseNode true
-            //     }
-            // }
-            steps {
-                dir('backend') {
-                    // sh 'mvn -B -ntp clean verify'
-                    sh 'mvn clean package -DskipTests -B'
+            agent {
+                docker {
+                    image 'maven:3.9-eclipse-temurin-17'
+                    // Cache ~/.m2 giữa các lần build để không tải lại dependency mỗi lần.
+                    args '-v $HOME/.m2:/root/.m2'
+                    reuseNode true
                 }
             }
-            // post {
-            //     always {
-            //         junit testResults: 'backend/target/surefire-reports/*.xml', allowEmptyResults: true
-            //     }
-            // }
+            steps {
+                dir('backend') {
+                    sh 'mvn -B -ntp clean verify'
+                }
+            }
+            post {
+                always {
+                    junit testResults: 'backend/target/surefire-reports/*.xml', allowEmptyResults: true
+                }
+            }
         }
 
         stage('Docker Build') {
