@@ -4,13 +4,16 @@ import com.mpa.dto.KhachHangTheSummaryResponse;
 import com.mpa.dto.ThePhatHanhDetailResponse;
 import com.mpa.dto.ThePhatHanhResponse;
 import com.mpa.dto.TheSummaryResponse;
+import com.mpa.entity.Role;
 import com.mpa.entity.ThePhatHanh;
+import com.mpa.security.CustomUserDetails;
 import com.mpa.service.ThePhatHanhExportService;
 import com.mpa.service.ThePhatHanhService;
 import com.mpa.util.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -28,8 +31,23 @@ public class ThePhatHanhController {
     private final ThePhatHanhService service;
     private final ThePhatHanhExportService exportService;
 
+    // Giá trị không khớp bất kỳ ma_don_vi_cap_6 thật nào — dùng để ép "0 kết quả" cho user
+    // không phải ADMIN nhưng chưa được gán phòng ban, thay vì lỡ tay cho null lọt qua thành
+    // "không giới hạn" (ý nghĩa null bên dưới CHỈ dành cho ADMIN).
+    private static final String NO_DON_VI_SENTINEL = "__NO_DON_VI__";
+
+    /** User không phải ADMIN chỉ được xem thẻ thuộc phòng ban của chính mình — ép cứng
+     *  maDonViCap6 theo phòng ban của user đăng nhập phía server, KHÔNG tin tham số client gửi
+     *  lên (client có thể tự sửa query param để xem phòng khác nếu chỉ lọc ở frontend). */
+    private String scopeMaDonViCap6(CustomUserDetails principal, String requested) {
+        if (principal.getUser().getRole() == Role.ROLE_ADMIN) return requested;
+        String own = principal.getUser().getMaDonViCap6();
+        return own != null ? own : NO_DON_VI_SENTINEL;
+    }
+
     @GetMapping
     public ApiResponse<Page<ThePhatHanhResponse>> getList(
+            @AuthenticationPrincipal CustomUserDetails principal,
             @RequestParam(defaultValue = "")    String search,
             @RequestParam(defaultValue = "")    String trangThai,
             @RequestParam(defaultValue = "")    String hinhThuc,
@@ -48,7 +66,7 @@ public class ThePhatHanhController {
             @RequestParam(defaultValue = "20")  int size) {
         try {
             return ApiResponse.ok(service.getList(search, trangThai, hinhThuc, productCode,
-                    loaiTheTinDung, maDonViCap6, amSearch, amCodes, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, soNgayThuPtn, page, size));
+                    loaiTheTinDung, scopeMaDonViCap6(principal, maDonViCap6), amSearch, amCodes, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, soNgayThuPtn, page, size));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi tải danh sách thẻ: " + e.getMessage());
         }
@@ -57,6 +75,7 @@ public class ThePhatHanhController {
     /** Xuất Excel toàn bộ thẻ khớp filter hiện tại (không phân trang). */
     @GetMapping("/export")
     public void export(
+            @AuthenticationPrincipal CustomUserDetails principal,
             @RequestParam(defaultValue = "")    String search,
             @RequestParam(defaultValue = "")    String trangThai,
             @RequestParam(defaultValue = "")    String hinhThuc,
@@ -73,7 +92,7 @@ public class ThePhatHanhController {
             @RequestParam(defaultValue = "0")   int soNgayThuPtn,
             HttpServletResponse response) throws IOException {
         List<ThePhatHanh> cards = service.exportList(search, trangThai, hinhThuc, productCode,
-                loaiTheTinDung, maDonViCap6, amSearch, amCodes, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, soNgayThuPtn);
+                loaiTheTinDung, scopeMaDonViCap6(principal, maDonViCap6), amSearch, amCodes, chuaKichHoat, soNgayMin, chuaPsgd, chuaDatPtn, datPtn, soNgayThuPtn);
         byte[] bytes = exportService.exportExcel(cards);
 
         String fileName = "danh-sach-the-" + LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE) + ".xlsx";
@@ -86,18 +105,19 @@ public class ThePhatHanhController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<ThePhatHanhDetailResponse> getDetail(@PathVariable Long id) {
+    public ApiResponse<ThePhatHanhDetailResponse> getDetail(@AuthenticationPrincipal CustomUserDetails principal,
+                                                             @PathVariable Long id) {
         try {
-            return ApiResponse.ok(service.getDetail(id));
+            return ApiResponse.ok(service.getDetail(id, scopeMaDonViCap6(principal, null)));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi tải chi tiết thẻ: " + e.getMessage());
         }
     }
 
     @GetMapping("/summary")
-    public ApiResponse<TheSummaryResponse> getSummary() {
+    public ApiResponse<TheSummaryResponse> getSummary(@AuthenticationPrincipal CustomUserDetails principal) {
         try {
-            return ApiResponse.ok(service.getSummary());
+            return ApiResponse.ok(service.getSummary(scopeMaDonViCap6(principal, null)));
         } catch (Exception e) {
             return ApiResponse.error("Lỗi tải tổng quan thẻ: " + e.getMessage());
         }

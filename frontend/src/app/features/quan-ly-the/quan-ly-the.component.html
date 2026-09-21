@@ -143,15 +143,17 @@
           </select>
         </div>
 
-        <div class="filter-field">
-          <label>Phòng ban</label>
-          <select [(ngModel)]="maDonViCap6" (ngModelChange)="search()">
-            <option value="">Tất cả phòng</option>
-            @for (p of phongOptions(); track p.ma) {
-              <option [value]="p.ma">{{ p.ten }}</option>
-            }
-          </select>
-        </div>
+        @if (auth.isAdmin()) {
+          <div class="filter-field">
+            <label>Phòng ban</label>
+            <select [(ngModel)]="maDonViCap6" (ngModelChange)="search()">
+              <option value="">Tất cả phòng</option>
+              @for (p of phongOptions(); track p.ma) {
+                <option [value]="p.ma">{{ p.ten }}</option>
+              }
+            </select>
+          </div>
+        }
 
         <div class="search-field search-field-narrow">
           <label>AM (tên hoặc mã)</label>
@@ -217,15 +219,17 @@
       </div>
 
       <div class="filter-row-1">
-        <div class="filter-field">
-          <label>Phòng ban</label>
-          <select [(ngModel)]="maDonViCap6">
-            <option value="">Tất cả phòng</option>
-            @for (p of phongOptions(); track p.ma) {
-              <option [value]="p.ma">{{ p.ten }}</option>
-            }
-          </select>
-        </div>
+        @if (auth.isAdmin()) {
+          <div class="filter-field">
+            <label>Phòng ban</label>
+            <select [(ngModel)]="maDonViCap6">
+              <option value="">Tất cả phòng</option>
+              @for (p of phongOptions(); track p.ma) {
+                <option [value]="p.ma">{{ p.ten }}</option>
+              }
+            </select>
+          </div>
+        }
 
         <div class="search-field search-field-narrow">
           <label>AM (tên hoặc mã)</label>

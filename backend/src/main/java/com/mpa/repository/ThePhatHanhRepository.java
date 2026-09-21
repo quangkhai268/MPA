@@ -98,14 +98,30 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
 
     // Toàn bộ chỉ số ở màn hình quan-ly-the (summary + 6 query bên dưới) chỉ tính trên thẻ
     // Tín dụng QT — menu này không còn hiển thị thẻ KHAC (debit/prepaid) nữa.
-    @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE t.loaiTheTinDung = 'TDQT'")
-    long countTongTdqt();
+    // Toàn bộ query đếm/tổng bên dưới nhận thêm :maDonViCap6 (NULL = không giới hạn, dùng cho
+    // ADMIN) — cùng cách lọc gián tiếp qua ThongTinAm.maAm như query search() ở trên, để KPI
+    // ở đầu trang quan-ly-the khớp đúng phạm vi với danh sách thẻ bên dưới cho user không phải
+    // ADMIN (xem ThePhatHanhServiceImpl.getSummary()).
+    @Query("""
+        SELECT COUNT(t) FROM ThePhatHanh t
+        WHERE t.loaiTheTinDung = 'TDQT'
+          AND (:maDonViCap6 IS NULL OR t.amIssuingContract IN (SELECT a.maAm FROM ThongTinAm a WHERE a.maDonViCap6 = :maDonViCap6))
+        """)
+    long countTongTdqt(@Param("maDonViCap6") String maDonViCap6);
 
-    @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE t.loaiTheTinDung = 'TDQT' AND t.soNgayChuaKichHoat > 0")
-    long countChuaKichHoat();
+    @Query("""
+        SELECT COUNT(t) FROM ThePhatHanh t
+        WHERE t.loaiTheTinDung = 'TDQT' AND t.soNgayChuaKichHoat > 0
+          AND (:maDonViCap6 IS NULL OR t.amIssuingContract IN (SELECT a.maAm FROM ThongTinAm a WHERE a.maDonViCap6 = :maDonViCap6))
+        """)
+    long countChuaKichHoat(@Param("maDonViCap6") String maDonViCap6);
 
-    @Query("SELECT COUNT(t) FROM ThePhatHanh t WHERE t.loaiTheTinDung = 'TDQT' AND (t.soNgayChuaKichHoat = 0 OR t.soNgayChuaKichHoat IS NULL) AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn = 0)")
-    long countChuaPsgd();
+    @Query("""
+        SELECT COUNT(t) FROM ThePhatHanh t
+        WHERE t.loaiTheTinDung = 'TDQT' AND (t.soNgayChuaKichHoat = 0 OR t.soNgayChuaKichHoat IS NULL) AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn = 0)
+          AND (:maDonViCap6 IS NULL OR t.amIssuingContract IN (SELECT a.maAm FROM ThongTinAm a WHERE a.maDonViCap6 = :maDonViCap6))
+        """)
+    long countChuaPsgd(@Param("maDonViCap6") String maDonViCap6);
 
     // Phí thường niên chỉ tính với thẻ Tín dụng QT và không thuộc 4 trạng thái
     // Auto-Closed/Closed/Fraud/Lost — countChuaDatPtn/countTdqt/countTdqtDatPtn dưới đây
@@ -118,21 +134,31 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
           AND (t.trangThaiThe IS NULL OR t.trangThaiThe NOT IN ('Card Auto-Closed', 'Card Closed', 'Card Fraud', 'Card Lost'))
           AND (t.soTienPhiThuongNien IS NULL OR t.soTienPhiThuongNien <> 0)
           AND (t.doanhSoGiaoDichMienPtn IS NULL OR t.doanhSoMienPtn IS NULL OR t.doanhSoGiaoDichMienPtn < t.doanhSoMienPtn)
+          AND (:maDonViCap6 IS NULL OR t.amIssuingContract IN (SELECT a.maAm FROM ThongTinAm a WHERE a.maDonViCap6 = :maDonViCap6))
         """)
-    long countChuaDatPtn();
+    long countChuaDatPtn(@Param("maDonViCap6") String maDonViCap6);
 
-    @Query("SELECT COALESCE(SUM(t.hmtdIssuingContract), 0) FROM ThePhatHanh t WHERE t.loaiTheTinDung = 'TDQT'")
-    java.math.BigDecimal sumHanMuc();
+    @Query("""
+        SELECT COALESCE(SUM(t.hmtdIssuingContract), 0) FROM ThePhatHanh t
+        WHERE t.loaiTheTinDung = 'TDQT'
+          AND (:maDonViCap6 IS NULL OR t.amIssuingContract IN (SELECT a.maAm FROM ThongTinAm a WHERE a.maDonViCap6 = :maDonViCap6))
+        """)
+    java.math.BigDecimal sumHanMuc(@Param("maDonViCap6") String maDonViCap6);
 
-    @Query("SELECT COALESCE(SUM(t.doanhSoGiaoDichMienPtn), 0) FROM ThePhatHanh t WHERE t.loaiTheTinDung = 'TDQT'")
-    java.math.BigDecimal sumDoanhSo();
+    @Query("""
+        SELECT COALESCE(SUM(t.doanhSoGiaoDichMienPtn), 0) FROM ThePhatHanh t
+        WHERE t.loaiTheTinDung = 'TDQT'
+          AND (:maDonViCap6 IS NULL OR t.amIssuingContract IN (SELECT a.maAm FROM ThongTinAm a WHERE a.maDonViCap6 = :maDonViCap6))
+        """)
+    java.math.BigDecimal sumDoanhSo(@Param("maDonViCap6") String maDonViCap6);
 
     @Query("""
         SELECT COUNT(t) FROM ThePhatHanh t
         WHERE t.loaiTheTinDung = 'TDQT'
           AND (t.trangThaiThe IS NULL OR t.trangThaiThe NOT IN ('Card Auto-Closed', 'Card Closed', 'Card Fraud', 'Card Lost'))
+          AND (:maDonViCap6 IS NULL OR t.amIssuingContract IN (SELECT a.maAm FROM ThongTinAm a WHERE a.maDonViCap6 = :maDonViCap6))
         """)
-    long countTdqt();
+    long countTdqt(@Param("maDonViCap6") String maDonViCap6);
 
     @Query("""
         SELECT COUNT(t) FROM ThePhatHanh t
@@ -140,8 +166,9 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
           AND (t.trangThaiThe IS NULL OR t.trangThaiThe NOT IN ('Card Auto-Closed', 'Card Closed', 'Card Fraud', 'Card Lost'))
           AND (t.soTienPhiThuongNien = 0
               OR (t.doanhSoGiaoDichMienPtn IS NOT NULL AND t.doanhSoMienPtn IS NOT NULL AND t.doanhSoGiaoDichMienPtn >= t.doanhSoMienPtn))
+          AND (:maDonViCap6 IS NULL OR t.amIssuingContract IN (SELECT a.maAm FROM ThongTinAm a WHERE a.maDonViCap6 = :maDonViCap6))
         """)
-    long countTdqtDatPtn();
+    long countTdqtDatPtn(@Param("maDonViCap6") String maDonViCap6);
 
     // Đếm thẻ "đang khóa" bằng SQL thay vì findAll().stream() — dịch nguyên logic
     // isKhoa() ở ThePhatHanhServiceImpl (chứa 1 trong các chuỗi KHÓA/KHOA/BLOCK/BLK).
@@ -152,8 +179,9 @@ public interface ThePhatHanhRepository extends JpaRepository<ThePhatHanh, Long>,
            OR UPPER(t.trangThaiIssuingContract) LIKE '%KHOA%'
            OR UPPER(t.trangThaiIssuingContract) LIKE '%BLOCK%'
            OR UPPER(t.trangThaiIssuingContract) LIKE '%BLK%')
+          AND (:maDonViCap6 IS NULL OR t.amIssuingContract IN (SELECT a.maAm FROM ThongTinAm a WHERE a.maDonViCap6 = :maDonViCap6))
         """)
-    long countBiKhoa();
+    long countBiKhoa(@Param("maDonViCap6") String maDonViCap6);
 
     // ── Dùng cho job cảnh báo gửi email (không đụng tới search() ở trên) ──
 

@@ -12,7 +12,9 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
+import { MpaService } from '../../core/services/mpa.service';
 import { User, UserRequest } from '../../core/models/user.model';
+import { UnitOption } from '../../core/models/mpa.model';
 
 @Component({
   selector: 'app-quan-tri',
@@ -30,6 +32,7 @@ export class QuanTriComponent implements OnInit {
   private fb      = inject(FormBuilder);
   private snack   = inject(MatSnackBar);
   private userSvc = inject(UserService);
+  private mpaSvc  = inject(MpaService);
   auth            = inject(AuthService);
 
   loading       = signal(true);
@@ -42,6 +45,7 @@ export class QuanTriComponent implements OnInit {
 
   users    = signal<User[]>([]);
   filtered = signal<User[]>([]);
+  phongOptions = signal<UnitOption[]>([]);
 
   roles = [
     { value: 'ROLE_ADMIN',          label: 'Quản trị viên',      color: '#ef4444' },
@@ -73,6 +77,9 @@ export class QuanTriComponent implements OnInit {
   ngOnInit(): void {
     if (!this.auth.isAdmin()) return;
     this.loadUsers();
+    this.mpaSvc.getPhongListForCt().subscribe({
+      next: res => { if (res.success) this.phongOptions.set(res.data); }
+    });
   }
 
   private loadUsers(): void {

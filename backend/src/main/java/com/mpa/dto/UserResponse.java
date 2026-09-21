@@ -18,6 +18,7 @@ public class UserResponse {
     private String email;
     private Role role;
     private String maDonViCap6;
+    private String tenDonViCap6;
     private boolean active;
     private boolean mustChangePassword;
     private LocalDateTime createdAt;

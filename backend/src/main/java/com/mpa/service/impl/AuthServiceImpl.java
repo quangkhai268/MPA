@@ -6,6 +6,7 @@ import com.mpa.dto.LoginRequest;
 import com.mpa.dto.RefreshTokenRequest;
 import com.mpa.dto.UserResponse;
 import com.mpa.entity.User;
+import com.mpa.repository.PhongBanRepository;
 import com.mpa.repository.UserRepository;
 import com.mpa.security.CustomUserDetails;
 import com.mpa.security.JwtUtil;
@@ -26,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final PhongBanRepository phongBanRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
@@ -86,6 +88,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private UserResponse toResponse(User u) {
+        String tenDonViCap6 = u.getMaDonViCap6() == null ? null
+                : phongBanRepository.findFirstByMaDonViCap6(u.getMaDonViCap6())
+                        .map(com.mpa.entity.PhongBan::getTenDonViCap6).orElse(null);
         return UserResponse.builder()
                 .id(u.getId())
                 .username(u.getUsername())
@@ -93,6 +98,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(u.getEmail())
                 .role(u.getRole())
                 .maDonViCap6(u.getMaDonViCap6())
+                .tenDonViCap6(tenDonViCap6)
                 .active(u.isActive())
                 .mustChangePassword(u.isMustChangePassword())
                 .createdAt(u.getCreatedAt())

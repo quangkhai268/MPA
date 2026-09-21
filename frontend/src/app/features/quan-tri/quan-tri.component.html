@@ -129,7 +129,7 @@
                     </span>
                   </td>
                   <td>
-                    <span class="text-muted">{{ u.maDonViCap6 || '–' }}</span>
+                    <span class="text-muted">{{ u.tenDonViCap6 || '–' }}</span>
                   </td>
                   <td>
                     <span class="status-dot" [class.active]="u.active"></span>
@@ -277,18 +277,23 @@
         </mat-form-field>
         <mat-form-field appearance="outline" class="flex-1">
           <mat-label>Vai trò <span class="required">*</span></mat-label>
-          <mat-select formControlName="role">
+          <select matNativeControl formControlName="role">
             @for (r of roles; track r.value) {
-              <mat-option [value]="r.value">{{ r.label }}</mat-option>
+              <option [value]="r.value">{{ r.label }}</option>
             }
-          </mat-select>
+          </select>
         </mat-form-field>
       </div>
 
       <div class="form-row">
         <mat-form-field appearance="outline" class="flex-1">
-          <mat-label>Mã đơn vị cấp 6</mat-label>
-          <input matInput formControlName="maDonViCap6" placeholder="P001">
+          <mat-label>Phòng ban</mat-label>
+          <select matNativeControl formControlName="maDonViCap6">
+            <option [ngValue]="null">-- Không chọn --</option>
+            @for (p of phongOptions(); track p.ma) {
+              <option [value]="p.ma">{{ p.ten }}</option>
+            }
+          </select>
         </mat-form-field>
         <mat-form-field appearance="outline" class="flex-1">
           <mat-label>Mật khẩu {{ editMode() ? '(bỏ trống nếu không đổi)' : '*' }}</mat-label>

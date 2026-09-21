@@ -2,8 +2,10 @@ package com.mpa.service.impl;
 
 import com.mpa.dto.UserRequest;
 import com.mpa.dto.UserResponse;
+import com.mpa.entity.PhongBan;
 import com.mpa.entity.Role;
 import com.mpa.entity.User;
+import com.mpa.repository.PhongBanRepository;
 import com.mpa.repository.UserRepository;
 import com.mpa.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -13,18 +15,24 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repo;
+    private final PhongBanRepository phongBanRepo;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public Page<UserResponse> list(String search, Role role, Boolean active, String maDonViCap6, int page, int size) {
         String s = search == null ? "" : search.trim();
-        return repo.search(s, role, active, maDonViCap6, PageRequest.of(page, size)).map(this::toResponse);
+        Map<String, String> tenByMa = phongBanRepo.findAllActive().stream()
+                .collect(Collectors.toMap(PhongBan::getMaDonViCap6, PhongBan::getTenDonViCap6, (a, b) -> a));
+        return repo.search(s, role, active, maDonViCap6, PageRequest.of(page, size))
+                .map(u -> toResponse(u, tenByMa.get(u.getMaDonViCap6())));
     }
 
     @Override
@@ -109,6 +117,12 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserResponse toResponse(User u) {
+        String ten = u.getMaDonViCap6() == null ? null
+                : phongBanRepo.findFirstByMaDonViCap6(u.getMaDonViCap6()).map(PhongBan::getTenDonViCap6).orElse(null);
+        return toResponse(u, ten);
+    }
+
+    private UserResponse toResponse(User u, String tenDonViCap6) {
         return UserResponse.builder()
                 .id(u.getId())
                 .username(u.getUsername())
@@ -116,6 +130,7 @@ public class UserServiceImpl implements UserService {
                 .email(u.getEmail())
                 .role(u.getRole())
                 .maDonViCap6(u.getMaDonViCap6())
+                .tenDonViCap6(tenDonViCap6)
                 .active(u.isActive())
                 .mustChangePassword(u.isMustChangePassword())
                 .createdAt(u.getCreatedAt())

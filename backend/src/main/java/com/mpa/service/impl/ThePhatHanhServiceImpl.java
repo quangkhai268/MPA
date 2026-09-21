@@ -5,7 +5,9 @@ import com.mpa.dto.ThePhatHanhDetailResponse;
 import com.mpa.dto.ThePhatHanhResponse;
 import com.mpa.dto.TheSummaryResponse;
 import com.mpa.entity.ThePhatHanh;
+import com.mpa.entity.ThongTinAm;
 import com.mpa.repository.ThePhatHanhRepository;
+import com.mpa.repository.ThongTinAmRepository;
 import com.mpa.service.ThePhatHanhService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class ThePhatHanhServiceImpl implements ThePhatHanhService {
 
     private final ThePhatHanhRepository repo;
+    private final ThongTinAmRepository thongTinAmRepo;
 
     @Override
     public Page<ThePhatHanhResponse> getList(
@@ -74,30 +77,42 @@ public class ThePhatHanhServiceImpl implements ThePhatHanhService {
     }
 
     @Override
-    public ThePhatHanhDetailResponse getDetail(Long id) {
+    public ThePhatHanhDetailResponse getDetail(Long id, String scopeMaDonViCap6) {
         ThePhatHanh entity = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thẻ id=" + id));
+        if (scopeMaDonViCap6 != null && !scopeMaDonViCap6.equals(resolveMaDonViCap6(entity))) {
+            // Cố tình trả lỗi giống hệt trường hợp "không tồn tại" — không cho biết thẻ có tồn
+            // tại ở phòng ban khác hay không, tránh lộ thông tin qua thông báo lỗi.
+            throw new RuntimeException("Không tìm thấy thẻ id=" + id);
+        }
         return ThePhatHanhDetailResponse.from(entity);
     }
 
+    /** Tra phòng ban của 1 thẻ gián tiếp qua AM phát hành (view thẻ không có sẵn cột này). */
+    private String resolveMaDonViCap6(ThePhatHanh entity) {
+        if (entity.getAmIssuingContract() == null) return null;
+        return thongTinAmRepo.findByMaAm(entity.getAmIssuingContract())
+                .map(ThongTinAm::getMaDonViCap6).orElse(null);
+    }
+
     @Override
-    @Cacheable("thePhatHanhSummary")
-    public TheSummaryResponse getSummary() {
-        long total    = repo.countTongTdqt();
-        long chuaKh   = repo.countChuaKichHoat();
-        long chuaPsgd = repo.countChuaPsgd();
+    @Cacheable(value = "thePhatHanhSummary", key = "#scopeMaDonViCap6 != null ? #scopeMaDonViCap6 : 'ALL'")
+    public TheSummaryResponse getSummary(String scopeMaDonViCap6) {
+        long total    = repo.countTongTdqt(scopeMaDonViCap6);
+        long chuaKh   = repo.countChuaKichHoat(scopeMaDonViCap6);
+        long chuaPsgd = repo.countChuaPsgd(scopeMaDonViCap6);
         // countChuaDatPtn/countTdqt đã giới hạn theo đúng phạm vi thẻ đủ điều kiện xét PTN
         // (TDQT, không thuộc 4 trạng thái Auto-Closed/Closed/Fraud/Lost) — datPtn tính trên
         // cùng phạm vi đó, không phải trừ trên tổng toàn bộ thẻ.
-        long chuaPtn  = repo.countChuaDatPtn();
+        long chuaPtn  = repo.countChuaDatPtn(scopeMaDonViCap6);
 
-        BigDecimal hanMuc  = repo.sumHanMuc();
-        BigDecimal doanhSo = repo.sumDoanhSo();
-        long tongTdqt      = repo.countTdqt();
-        long tdqtDatPtn    = repo.countTdqtDatPtn();
+        BigDecimal hanMuc  = repo.sumHanMuc(scopeMaDonViCap6);
+        BigDecimal doanhSo = repo.sumDoanhSo(scopeMaDonViCap6);
+        long tongTdqt      = repo.countTdqt(scopeMaDonViCap6);
+        long tdqtDatPtn    = repo.countTdqtDatPtn(scopeMaDonViCap6);
         long datPtn        = Math.max(tongTdqt - chuaPtn, 0);
 
-        long biKhoaCount = repo.countBiKhoa();
+        long biKhoaCount = repo.countBiKhoa(scopeMaDonViCap6);
         long hoatDong = Math.max(total - biKhoaCount - chuaKh, 0);
 
         // Tỷ lệ dùng hạn mức: dùng doanhSo / hanMuc làm proxy (view không có liab_top_contract)

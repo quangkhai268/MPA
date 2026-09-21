@@ -305,6 +305,13 @@
   flex-direction: column;
   gap: 8px;
   flex: 1;
+
+  // MDC mặc định cỡ chữ input/select theo typography config (16px) — to hơn hẳn phần còn lại
+  // của trang (13-14px), thu nhỏ lại cho đồng bộ.
+  .mat-mdc-form-field-infix input,
+  .mat-mdc-form-field-infix select {
+    font-size: 13px !important;
+  }
 }
 
 .modal-footer {
