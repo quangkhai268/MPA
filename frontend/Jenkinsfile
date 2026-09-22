@@ -23,6 +23,7 @@ pipeline {
 
     environment {
         IMAGE_NAME     = 'quangkhai268/mpa_frontend'
+        NODE_IMAGE  = 'node:20'
     }
 
     stages {
@@ -35,16 +36,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Fix permissions') {
-            when { changeset "frontend/**" }
-            steps {
-                // Chạy trên agent any (root/host) để đổi owner workspace về uid:gid 1000:1000,
-                // khớp với user 'node' (uid 1000) dùng trong các stage docker bên dưới.
-                sh 'chown -R 1000:1000 "$WORKSPACE" "$WORKSPACE@tmp" || true'
-            }
-        }
-
         stage('Install & Test') {
             when { changeset "frontend/**" }
             steps {
