@@ -50,10 +50,14 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh 'npm ci'
-                    sh 'npx puppeteer browsers install chrome'
                     sh '''
-                        export CHROME_BIN=$(find "$HOME/.cache/puppeteer" -type f -name chrome | head -1)
-                        npx ng test --no-watch --no-progress --browsers=ChromeHeadless
+                        if find src -name "*.spec.ts" | grep -q .; then
+                            npx puppeteer browsers install chrome
+                            export CHROME_BIN=$(find /root/.cache/puppeteer -type f -name chrome | head -1)
+                            npx ng test --no-watch --no-progress --browsers=ChromeHeadless
+                        else
+                            echo "Không có file test (.spec.ts), bỏ qua bước test."
+                        fi
                     '''
                 }
             }
