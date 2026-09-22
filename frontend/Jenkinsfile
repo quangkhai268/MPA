@@ -41,7 +41,7 @@ pipeline {
             steps {
                 // Chạy trên agent any (root/host) để đổi owner workspace về uid:gid 1000:1000,
                 // khớp với user 'node' (uid 1000) dùng trong các stage docker bên dưới.
-                sh 'chown -R 1000:1000 frontend || true'
+                sh 'chown -R 1000:1000 "$WORKSPACE" "$WORKSPACE@tmp" || true'
             }
         }
 
