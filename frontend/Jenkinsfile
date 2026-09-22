@@ -43,7 +43,7 @@ pipeline {
                     // node:20 (Debian, không phải alpine) để tải Chromium qua puppeteer chạy được —
                     // binary Chrome dựng sẵn không tương thích tốt với musl libc của alpine.
                     image 'node:20'
-                    args '-u node'
+                    args '-u root'
                     reuseNode true
                 }
             }
