@@ -18,46 +18,41 @@ pipeline {
     options {
         timestamps()
         buildDiscarder(logRotator(numToKeepStr: '20'))
-        disableConcurrentBuilds() 
+        disableConcurrentBuilds()
     }
 
     environment {
         IMAGE_NAME     = 'quangkhai268/mpa_frontend'
-        NODE_IMAGE  = 'node:20'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                cleanWs()
                 checkout scm
                 script {
                     env.IMAGE_TAG = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                 }
             }
         }
+
         stage('Install & Test') {
             when { changeset "frontend/**" }
+            agent {
+                docker {
+                    // node:20 (Debian, không phải alpine) để tải Chromium qua puppeteer chạy được —
+                    // binary Chrome dựng sẵn không tương thích tốt với musl libc của alpine.
+                    image 'node:20'
+                    args '-u node'
+                    reuseNode true
+                }
+            }
             steps {
                 dir('frontend') {
-                    // Chạy trực tiếp bằng "docker run --rm", KHÔNG dùng agent { docker {...} }
-                    // để tránh lỗi durable-task khi dò PID qua "docker top" trên container sibling.
-                    // -v "$PWD":/app mount đúng thư mục frontend hiện tại vào container.
-                    // -u "$(id -u):$(id -g)" chạy bằng đúng uid/gid của user host, tránh sinh file
-                    // owner root trong workspace.
+                    sh 'npm ci'
+                    sh 'npx puppeteer browsers install chrome'
                     sh '''
-                        docker run --rm \
-                            -u "$(id -u):$(id -g)" \
-                            -e HOME=/tmp \
-                            -v "$PWD":/app \
-                            -w /app \
-                            ${NODE_IMAGE} \
-                            bash -c '
-                                npm ci &&
-                                npx puppeteer browsers install chrome &&
-                                export CHROME_BIN=$(find "$HOME/.cache/puppeteer" -type f -name chrome | head -1) &&
-                                npx ng test --no-watch --no-progress --browsers=ChromeHeadless
-                            '
+                        export CHROME_BIN=$(find "$HOME/.cache/puppeteer" -type f -name chrome | head -1)
+                        npx ng test --no-watch --no-progress --browsers=ChromeHeadless
                     '''
                 }
             }
