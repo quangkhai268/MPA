@@ -7,6 +7,7 @@ import com.mpa.dto.UploadHistoryResponse;
 import com.mpa.entity.UploadHistory;
 import com.mpa.repository.UploadHistoryRepository;
 import com.mpa.service.BscSyncService;
+import com.mpa.service.CardFeeRuleImportService;
 import com.mpa.service.DuLieuMpaImportService;
 import com.mpa.service.SnapshotService;
 import com.mpa.service.ThePhatHanhImportService;
@@ -37,6 +38,7 @@ public class UploadServiceImpl implements UploadService {
     private final ThePhatHanhImportService thePhatHanhImportService;
     private final DuLieuMpaImportService duLieuMpaImportService;
     private final ThongTinAmImportService thongTinAmImportService;
+    private final CardFeeRuleImportService cardFeeRuleImportService;
     private final BscSyncService bscSyncService;
     private final SnapshotService snapshotService;
     private final UploadHistoryRepository uploadHistoryRepository;
@@ -76,6 +78,9 @@ public class UploadServiceImpl implements UploadService {
                 FileImportResult r = duLieuMpaImportService.stageFile(new ByteArrayInputStream(e.bytes()), e.name());
                 results.add(r);
                 if ("SUCCESS".equals(r.getTrangThai())) anyMpaStaged = true;
+            } else if ("CARD_FEE_RULE".equals(type)) {
+                FileImportResult r = cardFeeRuleImportService.importFile(new ByteArrayInputStream(e.bytes()), e.name());
+                results.add(r);
             } else if ("UNKNOWN".equals(type) && thongTinAmImportService.isThongTinAmFile(e.bytes())) {
                 // Không nhận diện được qua tên file — kiểm tra ô tiêu đề đầu tiên của Excel.
                 FileImportResult r = thongTinAmImportService.importFile(new ByteArrayInputStream(e.bytes()), e.name());
@@ -148,6 +153,7 @@ public class UploadServiceImpl implements UploadService {
         if (upper.contains("ISS_02") || upper.contains("ISS02")) return "ISS_02";
         if (upper.contains("ISS_06") || upper.contains("ISS06")) return "ISS_06";
         if (upper.contains("ISS_15") || upper.contains("ISS15")) return "ISS_15";
+        if (upper.contains("DS_PTN")) return "CARD_FEE_RULE";
         if (upper.contains("MPA")) return "MPA";
         return "UNKNOWN";
     }
